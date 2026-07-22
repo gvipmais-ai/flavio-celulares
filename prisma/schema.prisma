@@ -10,34 +10,36 @@ datasource db {
 // ─── Modelos ──────────────────────────────────────────────────────────────────
 
 model User {
-  id                 String     @id @default(cuid())
+  id                 String    @id @default(cuid())
   name               String
-  email              String     @unique
+  email              String    @unique
   passwordHash       String
-  role               String     @default("OPERADOR_CAIXA")
-  isActive           Boolean    @default(true)
-  mustChangePassword Boolean    @default(true)
-  loginAttempts      Int        @default(0)
+  role               String    @default("OPERADOR_CAIXA")
+  isActive           Boolean   @default(true)
+  mustChangePassword Boolean   @default(true)
+  loginAttempts      Int       @default(0)
   lockedUntil        DateTime?
   lastLoginAt        DateTime?
-  createdAt          DateTime   @default(now())
-  updatedAt          DateTime   @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  createdProducts    Product[]           @relation("ProductCreatedBy")
-  inventoryMovements InventoryMovement[]
-  createdEntries     PurchaseEntry[]     @relation("PurchaseEntryCreatedBy")
-  confirmedEntries   PurchaseEntry[]     @relation("PurchaseEntryConfirmedBy")
-  canceledEntries    PurchaseEntry[]     @relation("PurchaseEntryCanceledBy")
-  createdReservations StockReservation[] @relation("ReservationCreatedBy")
-  cashSessions       CashSession[]
-  cashMovements      CashMovement[]
-  sales              Sale[]              @relation("SaleOperator")
-  canceledSales      Sale[]              @relation("SaleCanceledBy")
-  assignedOrders     ServiceOrder[]      @relation("ServiceOrderTechnician")
-  createdOrders      ServiceOrder[]      @relation("ServiceOrderCreatedBy")
-  statusHistories    ServiceOrderStatusHistory[]
-  createdQuotes      Quote[]             @relation("QuoteCreatedBy")
-  auditLogs          AuditLog[]
+  createdProducts     Product[]                   @relation("ProductCreatedBy")
+  inventoryMovements  InventoryMovement[]
+  createdEntries      PurchaseEntry[]             @relation("PurchaseEntryCreatedBy")
+  confirmedEntries    PurchaseEntry[]             @relation("PurchaseEntryConfirmedBy")
+  canceledEntries     PurchaseEntry[]             @relation("PurchaseEntryCanceledBy")
+  createdReservations StockReservation[]          @relation("ReservationCreatedBy")
+  cashSessions        CashSession[]
+  cashMovements       CashMovement[]
+  sales               Sale[]                      @relation("SaleOperator")
+  canceledSales       Sale[]                      @relation("SaleCanceledBy")
+  assignedOrders      ServiceOrder[]              @relation("ServiceOrderTechnician")
+  createdOrders       ServiceOrder[]              @relation("ServiceOrderCreatedBy")
+  statusHistories     ServiceOrderStatusHistory[]
+  createdQuotes       Quote[]                     @relation("QuoteCreatedBy")
+  auditLogs           AuditLog[]
+  createdReturns      Return[]                    @relation("ReturnCreatedBy")
+  authorizedReturns   Return[]                    @relation("ReturnAuthorizedBy")
 
   @@map("users")
 }
@@ -64,6 +66,8 @@ model StoreSettings {
   showCostToOperator     Boolean  @default(false)
   saleSequence           Int      @default(1000)
   serviceOrderSequence   Int      @default(5000)
+  quoteSequence          Int      @default(100)
+  warrantyTerms          String?
   updatedAt              DateTime @updatedAt
 
   @@map("store_settings")
@@ -82,13 +86,13 @@ model Category {
 }
 
 model Brand {
-  id                    String    @id @default(cuid())
-  name                  String    @unique
-  defaultWarrantyMonths Int       @default(0)
+  id                    String        @id @default(cuid())
+  name                  String        @unique
+  defaultWarrantyMonths Int           @default(0)
   description           String?
-  isActive              Boolean   @default(true)
-  createdAt             DateTime  @default(now())
-  updatedAt             DateTime  @updatedAt
+  isActive              Boolean       @default(true)
+  createdAt             DateTime      @default(now())
+  updatedAt             DateTime      @updatedAt
   products              Product[]
   deviceModels          DeviceModel[]
 
@@ -96,35 +100,35 @@ model Brand {
 }
 
 model Supplier {
-  id          String          @id @default(cuid())
-  name        String
-  tradeName   String?
-  taxId       String?
-  phone       String?
-  email       String?
-  address     String?
-  city        String?
-  state       String?
-  zipCode     String?
-  notes       String?
-  isActive    Boolean         @default(true)
-  createdAt   DateTime        @default(now())
-  updatedAt   DateTime        @updatedAt
-  products    Product[]
+  id              String          @id @default(cuid())
+  name            String
+  tradeName       String?
+  taxId           String?
+  phone           String?
+  email           String?
+  address         String?
+  city            String?
+  state           String?
+  zipCode         String?
+  notes           String?
+  isActive        Boolean         @default(true)
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+  products        Product[]
   purchaseEntries PurchaseEntry[]
 
   @@map("suppliers")
 }
 
 model DeviceModel {
-  id          String    @id @default(cuid())
-  brandId     String
-  name        String
-  isActive    Boolean   @default(true)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  id        String   @id @default(cuid())
+  brandId   String
+  name      String
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  brand       Brand                  @relation(fields: [brandId], references: [id])
+  brand           Brand                  @relation(fields: [brandId], references: [id])
   compatibilities ProductCompatibility[]
   serviceOrders   ServiceOrder[]
 
@@ -133,44 +137,46 @@ model DeviceModel {
 }
 
 model Product {
-  id             String         @id @default(cuid())
-  code           String         @unique
-  barcode        String?        @unique
+  id             String   @id @default(cuid())
+  code           String   @unique
+  barcode        String?  @unique
   name           String
   description    String?
   productType    String
   partType       String?
-  costPrice      Decimal        @default(0)
+  costPrice      Decimal  @default(0)
   salePrice      Decimal
-  stockOnHand    Int            @default(0)
-  stockReserved  Int            @default(0)
-  minimumStock   Int            @default(3)
-  warrantyMonths Int            @default(3)
-  unit           String         @default("UN")
+  stockOnHand    Int      @default(0)
+  stockReserved  Int      @default(0)
+  stockDefective Int      @default(0)
+  minimumStock   Int      @default(3)
+  warrantyMonths Int      @default(3)
+  unit           String   @default("UN")
   location       String?
   color          String?
   model          String?
   imageUrl       String?
   notes          String?
-  approvalStatus String         @default("APROVADO")
-  isActive       Boolean        @default(true)
+  approvalStatus String   @default("APROVADO")
+  isActive       Boolean  @default(true)
   categoryId     String
   brandId        String
   supplierId     String?
   createdById    String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
-  category          Category               @relation(fields: [categoryId], references: [id])
-  brand             Brand                  @relation(fields: [brandId], references: [id])
-  supplier          Supplier?              @relation(fields: [supplierId], references: [id])
-  createdBy         User                   @relation("ProductCreatedBy", fields: [createdById], references: [id])
-  compatibilities   ProductCompatibility[]
+  category           Category               @relation(fields: [categoryId], references: [id])
+  brand              Brand                  @relation(fields: [brandId], references: [id])
+  supplier           Supplier?              @relation(fields: [supplierId], references: [id])
+  createdBy          User                   @relation("ProductCreatedBy", fields: [createdById], references: [id])
+  compatibilities    ProductCompatibility[]
   inventoryMovements InventoryMovement[]
   purchaseEntryItems PurchaseEntryItem[]
-  stockReservations StockReservation[]
-  saleItems         SaleItem[]
-  quoteItems        QuoteItem[]
+  stockReservations  StockReservation[]
+  saleItems          SaleItem[]
+  quoteItems         QuoteItem[]
+  returns            Return[]
 
   @@map("products")
 }
@@ -189,18 +195,18 @@ model ProductCompatibility {
 }
 
 model InventoryMovement {
-  id              String            @id @default(cuid())
-  productId       String
-  quantity        Int
-  direction       String
-  reason          String
-  previousBalance Int
+  id               String   @id @default(cuid())
+  productId        String
+  quantity         Int
+  direction        String
+  reason           String
+  previousBalance  Int
   resultingBalance Int
-  sourceType      String?
-  sourceId        String?
-  notes           String?
-  userId          String
-  createdAt       DateTime          @default(now())
+  sourceType       String?
+  sourceId         String?
+  notes            String?
+  userId           String
+  createdAt        DateTime @default(now())
 
   product Product @relation(fields: [productId], references: [id])
   user    User    @relation(fields: [userId], references: [id])
@@ -226,7 +232,7 @@ model Customer {
 }
 
 model PurchaseEntry {
-  id                 String              @id @default(cuid())
+  id                 String    @id @default(cuid())
   supplierId         String
   invoiceNumber      String
   invoiceSeries      String?
@@ -235,15 +241,15 @@ model PurchaseEntry {
   entryDate          DateTime
   totalAmount        Decimal
   notes              String?
-  status             String              @default("RASCUNHO")
+  status             String    @default("RASCUNHO")
   createdById        String
   confirmedById      String?
   confirmedAt        DateTime?
   canceledById       String?
   canceledAt         DateTime?
   cancellationReason String?
-  createdAt          DateTime            @default(now())
-  updatedAt          DateTime            @updatedAt
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
   supplier    Supplier            @relation(fields: [supplierId], references: [id])
   createdBy   User                @relation("PurchaseEntryCreatedBy", fields: [createdById], references: [id])
@@ -256,12 +262,12 @@ model PurchaseEntry {
 }
 
 model PurchaseEntryItem {
-  id              String   @id @default(cuid())
+  id              String  @id @default(cuid())
   purchaseEntryId String
   productId       String
   quantity        Int
   unitCost        Decimal
-  discount        Decimal  @default(0)
+  discount        Decimal @default(0)
   subtotal        Decimal
 
   purchaseEntry PurchaseEntry @relation(fields: [purchaseEntryId], references: [id], onDelete: Cascade)
@@ -271,15 +277,15 @@ model PurchaseEntryItem {
 }
 
 model CashSession {
-  id             String            @id @default(cuid())
+  id             String    @id @default(cuid())
   operatorId     String
-  openedAt       DateTime          @default(now())
+  openedAt       DateTime  @default(now())
   closedAt       DateTime?
   openingAmount  Decimal
   expectedAmount Decimal?
   informedAmount Decimal?
   difference     Decimal?
-  status         String            @default("ABERTA")
+  status         String    @default("ABERTA")
   notes          String?
 
   operator      User           @relation(fields: [operatorId], references: [id])
@@ -290,7 +296,7 @@ model CashSession {
 }
 
 model CashMovement {
-  id            String           @id @default(cuid())
+  id            String   @id @default(cuid())
   cashSessionId String
   type          String
   amount        Decimal
@@ -298,7 +304,7 @@ model CashMovement {
   sourceType    String?
   sourceId      String?
   userId        String
-  createdAt     DateTime         @default(now())
+  createdAt     DateTime @default(now())
 
   cashSession CashSession @relation(fields: [cashSessionId], references: [id])
   user        User        @relation(fields: [userId], references: [id])
@@ -307,30 +313,36 @@ model CashMovement {
 }
 
 model Sale {
-  id                   String     @id @default(cuid())
-  sequentialNumber     Int        @unique
-  clientTransactionId  String     @unique
+  id                   String    @id @default(cuid())
+  sequentialNumber     Int       @unique
+  clientTransactionId  String    @unique
+  type                 String    @default("VENDA")
+  originSaleId         String?
   customerId           String?
   customerNameSnapshot String
   customerCpfSnapshot  String?
   grossAmount          Decimal
-  discountAmount       Decimal    @default(0)
+  discountAmount       Decimal   @default(0)
   totalAmount          Decimal
   notes                String?
-  status               String     @default("CONCLUIDA")
+  status               String    @default("CONCLUIDA")
   operatorId           String
   cashSessionId        String
   canceledById         String?
   canceledAt           DateTime?
   cancellationReason   String?
-  createdAt            DateTime   @default(now())
+  createdAt            DateTime  @default(now())
 
-  customer    Customer?     @relation(fields: [customerId], references: [id])
-  operator    User          @relation("SaleOperator", fields: [operatorId], references: [id])
-  cashSession CashSession   @relation(fields: [cashSessionId], references: [id])
-  canceledBy  User?         @relation("SaleCanceledBy", fields: [canceledById], references: [id])
-  items       SaleItem[]
-  payments    SalePayment[]
+  customer          Customer?     @relation(fields: [customerId], references: [id])
+  operator          User          @relation("SaleOperator", fields: [operatorId], references: [id])
+  cashSession       CashSession   @relation(fields: [cashSessionId], references: [id])
+  canceledBy        User?         @relation("SaleCanceledBy", fields: [canceledById], references: [id])
+  originSale        Sale?         @relation("SaleOrigin", fields: [originSaleId], references: [id])
+  replacementSales  Sale[]        @relation("SaleOrigin")
+  items             SaleItem[]
+  payments          SalePayment[]
+  returns           Return[]      @relation("SaleReturns")
+  replacementReturn Return?       @relation("SaleReplacements")
 
   @@map("sales")
 }
@@ -348,18 +360,19 @@ model SaleItem {
   subtotal               Decimal
   warrantyMonthsSnapshot Int     @default(3)
 
-  sale    Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
-  product Product @relation(fields: [productId], references: [id])
+  sale    Sale     @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  product Product  @relation(fields: [productId], references: [id])
+  returns Return[]
 
   @@map("sale_items")
 }
 
 model SalePayment {
-  id            String        @id @default(cuid())
+  id            String   @id @default(cuid())
   saleId        String
   paymentMethod String
   amount        Decimal
-  createdAt     DateTime      @default(now())
+  createdAt     DateTime @default(now())
 
   sale Sale @relation(fields: [saleId], references: [id], onDelete: Cascade)
 
@@ -367,8 +380,8 @@ model SalePayment {
 }
 
 model ServiceOrder {
-  id                    String             @id @default(cuid())
-  sequentialNumber      Int                @unique
+  id                    String    @id @default(cuid())
+  sequentialNumber      Int       @unique
   customerId            String
   deviceModelId         String?
   deviceBrandSnapshot   String
@@ -381,13 +394,13 @@ model ServiceOrder {
   observations          String?
   technicianId          String?
   createdById           String
-  status                String             @default("RECEBIDO")
-  receivedAt            DateTime           @default(now())
+  status                String    @default("RECEBIDO")
+  receivedAt            DateTime  @default(now())
   estimatedCompletionAt DateTime?
   completedAt           DateTime?
   deliveredAt           DateTime?
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
 
   customer       Customer                    @relation(fields: [customerId], references: [id])
   deviceModel    DeviceModel?                @relation(fields: [deviceModelId], references: [id])
@@ -402,12 +415,12 @@ model ServiceOrder {
 }
 
 model ServiceChecklistItem {
-  id                  String          @id @default(cuid())
+  id                  String  @id @default(cuid())
   serviceOrderId      String
   descriptionSnapshot String
-  result              String          @default("NAO_TESTADO")
+  result              String  @default("NAO_TESTADO")
   notes               String?
-  displayOrder        Int             @default(0)
+  displayOrder        Int     @default(0)
   suggestedPartType   String?
 
   serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
@@ -416,13 +429,13 @@ model ServiceChecklistItem {
 }
 
 model ServiceOrderStatusHistory {
-  id             String             @id @default(cuid())
+  id             String   @id @default(cuid())
   serviceOrderId String
   previousStatus String?
   newStatus      String
   notes          String?
   userId         String
-  createdAt      DateTime           @default(now())
+  createdAt      DateTime @default(now())
 
   serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
   user         User         @relation(fields: [userId], references: [id])
@@ -431,22 +444,22 @@ model ServiceOrderStatusHistory {
 }
 
 model Quote {
-  id             String      @id @default(cuid())
+  id             String    @id @default(cuid())
   serviceOrderId String
-  version        Int         @default(1)
+  version        Int       @default(1)
   diagnosis      String?
-  laborAmount    Decimal     @default(0)
-  discountAmount Decimal     @default(0)
-  partsAmount    Decimal     @default(0)
+  laborAmount    Decimal   @default(0)
+  discountAmount Decimal   @default(0)
+  partsAmount    Decimal   @default(0)
   totalAmount    Decimal
   validUntil     DateTime?
   estimatedDays  Int?
   notes          String?
-  status         String      @default("RASCUNHO")
+  status         String    @default("RASCUNHO")
   createdById    String
   approvedAt     DateTime?
-  createdAt      DateTime    @default(now())
-  updatedAt      DateTime    @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 
   serviceOrder ServiceOrder       @relation(fields: [serviceOrderId], references: [id], onDelete: Cascade)
   createdBy    User               @relation("QuoteCreatedBy", fields: [createdById], references: [id])
@@ -457,12 +470,12 @@ model Quote {
 }
 
 model QuoteItem {
-  id                  String        @id @default(cuid())
+  id                  String  @id @default(cuid())
   quoteId             String
   itemType            String
   productId           String?
   descriptionSnapshot String
-  quantity            Int           @default(1)
+  quantity            Int     @default(1)
   unitPrice           Decimal
   subtotal            Decimal
 
@@ -473,16 +486,16 @@ model QuoteItem {
 }
 
 model StockReservation {
-  id             String            @id @default(cuid())
+  id             String    @id @default(cuid())
   serviceOrderId String
   quoteId        String
   productId      String
   quantity       Int
-  status         String            @default("ATIVA")
+  status         String    @default("ATIVA")
   createdById    String
   consumedAt     DateTime?
   releasedAt     DateTime?
-  createdAt      DateTime          @default(now())
+  createdAt      DateTime  @default(now())
 
   serviceOrder ServiceOrder @relation(fields: [serviceOrderId], references: [id])
   quote        Quote        @relation(fields: [quoteId], references: [id])
@@ -510,12 +523,39 @@ model AuditLog {
 }
 
 model ChecklistTemplateItem {
-  id                String    @id @default(cuid())
+  id                String   @id @default(cuid())
   description       String
-  displayOrder      Int       @default(0)
+  displayOrder      Int      @default(0)
   suggestedPartType String?
-  isActive          Boolean   @default(true)
-  createdAt         DateTime  @default(now())
+  isActive          Boolean  @default(true)
+  createdAt         DateTime @default(now())
 
   @@map("checklist_template_items")
+}
+
+model Return {
+  id                String   @id @default(cuid())
+  saleId            String
+  saleItemId        String
+  productId         String
+  quantity          Int
+  reason            String
+  defectDescription String?
+  status            String   @default("SOLICITADA")
+  type              String   @default("TROCA_GARANTIA")
+  replacementSaleId String?  @unique
+  notes             String?
+  createdById       String
+  authorizedById    String?
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  sale            Sale     @relation("SaleReturns", fields: [saleId], references: [id])
+  saleItem        SaleItem @relation(fields: [saleItemId], references: [id])
+  product         Product  @relation(fields: [productId], references: [id])
+  createdBy       User     @relation("ReturnCreatedBy", fields: [createdById], references: [id])
+  authorizedBy    User?    @relation("ReturnAuthorizedBy", fields: [authorizedById], references: [id])
+  replacementSale Sale?    @relation("SaleReplacements", fields: [replacementSaleId], references: [id])
+
+  @@map("returns")
 }

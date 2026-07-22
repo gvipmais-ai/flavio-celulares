@@ -154,6 +154,20 @@ export default function ConfiguracoesPage() {
           </div>
         </div>
 
+        <div className="space-y-4 pt-4 border-t border-slate-800">
+          <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Termos de Garantia (Impressão)</h2>
+          <div>
+            <label className="label">Cláusulas do Termo de Garantia</label>
+            <textarea
+              value={settings.warrantyTerms || ''}
+              onChange={(e) => setSettings({ ...settings, warrantyTerms: e.target.value })}
+              className="input min-h-[200px]"
+              placeholder="Ex: 1. A garantia cobre apenas defeitos de fabricação..."
+            />
+            <p className="text-xs text-slate-500 mt-1">Este texto será impresso no comprovante de garantia do cliente.</p>
+          </div>
+        </div>
+
         <div className="flex justify-end pt-4 border-t border-slate-800">
           <button type="submit" disabled={isSaving} className="btn-primary">
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}

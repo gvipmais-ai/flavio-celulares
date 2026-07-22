@@ -101,6 +101,49 @@ export async function incrementStock(
   return movement;
 }
 
+export async function moveToDefectiveStock(
+  tx: Prisma.TransactionClient,
+  productId: string,
+  quantity: number,
+  reason: string,
+  sourceType: string,
+  sourceId: string,
+  userId: string,
+  notes?: string
+) {
+  const product = await tx.product.findUnique({
+    where: { id: productId },
+  });
+
+  if (!product) {
+    throw new NotFoundError(`Produto ID ${productId} não encontrado.`);
+  }
+
+  await tx.product.update({
+    where: { id: productId },
+    data: {
+      stockDefective: { increment: quantity },
+    },
+  });
+
+  const movement = await tx.inventoryMovement.create({
+    data: {
+      productId,
+      quantity,
+      direction: 'IN_DEFECTIVE',
+      reason,
+      previousBalance: product.stockDefective,
+      resultingBalance: product.stockDefective + quantity,
+      sourceType,
+      sourceId,
+      notes,
+      userId,
+    },
+  });
+
+  return movement;
+}
+
 export async function adjustStock(
   productId: string,
   quantity: number,

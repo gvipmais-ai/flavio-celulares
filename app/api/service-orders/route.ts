@@ -18,7 +18,13 @@ export async function GET(req: NextRequest) {
     const pageSize = Number(searchParams.get('pageSize')) || 20;
 
     const where: any = {};
-    if (status) where.status = status;
+    if (status) {
+      if (status.includes(',')) {
+        where.status = { in: status.split(',') };
+      } else {
+        where.status = status;
+      }
+    }
     if (session?.role === 'TECNICO') {
       where.OR = [{ technicianId: session.sub }, { technicianId: null }];
     }

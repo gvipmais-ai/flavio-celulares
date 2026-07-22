@@ -287,6 +287,7 @@ export const StoreSettingsSchema = z.object({
   logoUrl: z.string().url().optional().nullable().or(z.literal('')),
   receiptFooterText: z.string().max(500).optional().nullable(),
   serviceOrderTerms: z.string().max(2000).optional().nullable(),
+  warrantyTerms: z.string().max(5000).optional().nullable(),
   defaultQuoteValidDays: z.coerce.number().int().min(1).max(365).default(7),
   defaultMinStock: z.coerce.number().int().min(0).default(3),
   maxOperatorDiscountPct: z.coerce.number().min(0).max(100).default(0),

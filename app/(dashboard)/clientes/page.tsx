@@ -112,7 +112,7 @@ export default function ClientesPage() {
                 </tr>
               ) : (
                 customers.map((c) => (
-                  <tr key={c.id}>
+                  <tr key={c.id} className="cursor-pointer hover:bg-slate-800/50" onClick={() => window.location.href = \`/clientes/\${c.id}\`}>
                     <td className="font-semibold text-slate-200">{c.name}</td>
                     <td className="font-mono text-xs">{c.cpf ? maskCpf(c.cpf) : '—'}</td>
                     <td>{c.phone ? maskPhone(c.phone) : '—'}</td>

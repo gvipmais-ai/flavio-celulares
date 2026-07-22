@@ -36,6 +36,7 @@ async function main() {
 
   // ── Usuários ─────────────────────────────────────────────────────────────────
   const adminHash = await bcryptjs.hash('admin123', 12);
+  const gerenteHash = await bcryptjs.hash('gerente123', 12);
   const caixaHash = await bcryptjs.hash('caixa123', 12);
   const tecnicoHash = await bcryptjs.hash('tecnico123', 12);
 
@@ -75,6 +76,24 @@ async function main() {
     },
   });
 
+  const gerenteUser = await prisma.user.upsert({
+    where: { email: 'gerente@flavio.com' },
+    update: {
+      passwordHash: gerenteHash,
+      loginAttempts: 0,
+      lockedUntil: null,
+      mustChangePassword: false,
+    },
+    create: {
+      name: 'Maria Clara (Gerente)',
+      email: 'gerente@flavio.com',
+      passwordHash: gerenteHash,
+      role: 'ADMIN',
+      isActive: true,
+      mustChangePassword: false,
+    },
+  });
+
   const tecnicoUser = await prisma.user.upsert({
     where: { email: 'tecnico@flavio.com' },
     update: {
@@ -93,7 +112,7 @@ async function main() {
     },
   });
 
-  console.log('✅ Usuários criados (admin, caixa, tecnico)');
+  console.log('✅ Usuários criados (admin, gerente, caixa, tecnico)');
 
   // ── Categorias ───────────────────────────────────────────────────────────────
   const categories = [
@@ -490,9 +509,74 @@ async function main() {
   }
   console.log('✅ Movimentações iniciais de estoque registradas');
 
+  // ── Vendas e Sessão de Caixa ──────────────────────────────────────────────
+  const openSession = await prisma.cashSession.findFirst({ where: { status: 'ABERTA' } });
+  if (!openSession) {
+    const session = await prisma.cashSession.create({
+      data: {
+        operatorId: caixaUser.id,
+        openingAmount: 150.0,
+      },
+    });
+
+    const productsForSale = await prisma.product.findMany({ take: 3 });
+    if (productsForSale.length >= 2) {
+      const p1 = productsForSale[0];
+      const p2 = productsForSale[1];
+
+      await prisma.sale.create({
+        data: {
+          sequentialNumber: 1000,
+          clientTransactionId: 'txn_001',
+          type: 'VENDA',
+          grossAmount: Number(p1.salePrice) + Number(p2.salePrice),
+          totalAmount: Number(p1.salePrice) + Number(p2.salePrice),
+          operatorId: caixaUser.id,
+          cashSessionId: session.id,
+          customerNameSnapshot: 'Cliente Balcão',
+          items: {
+            create: [
+              {
+                productId: p1.id,
+                productCodeSnapshot: p1.code,
+                productNameSnapshot: p1.name,
+                quantity: 1,
+                costPriceSnapshot: p1.costPrice,
+                unitPrice: p1.salePrice,
+                subtotal: p1.salePrice,
+                warrantyMonthsSnapshot: p1.warrantyMonths,
+              },
+              {
+                productId: p2.id,
+                productCodeSnapshot: p2.code,
+                productNameSnapshot: p2.name,
+                quantity: 1,
+                costPriceSnapshot: p2.costPrice,
+                unitPrice: p2.salePrice,
+                subtotal: p2.salePrice,
+                warrantyMonthsSnapshot: p2.warrantyMonths,
+              },
+            ],
+          },
+          payments: {
+            create: [
+              {
+                paymentMethod: 'PIX',
+                amount: Number(p1.salePrice) + Number(p2.salePrice),
+              },
+            ],
+          },
+        },
+      });
+
+      console.log('✅ Sessão de caixa e vendas de teste criadas');
+    }
+  }
+
   console.log('\n🎉 Seed concluído com sucesso!');
   console.log('\n📋 Credenciais de desenvolvimento:');
   console.log('   admin@flavio.com    / admin123   (SUPERADMIN)');
+  console.log('   gerente@flavio.com  / gerente123 (ADMIN)');
   console.log('   caixa@flavio.com    / caixa123   (OPERADOR_CAIXA)');
   console.log('   tecnico@flavio.com  / tecnico123 (TECNICO)');
   console.log('\n⚠️  ATENÇÃO: Troca de senha obrigatória no primeiro acesso!');

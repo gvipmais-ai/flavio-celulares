@@ -1,105 +1,54 @@
-# Flavio Celulares — Sistema de Gestão Comercial e Assistência Técnica
+# Flavio Celulares — PDV & Assistência Técnica
 
-Sistema web completo para gestão de loja física de acessórios e assistência técnica de celulares. Construído com **Next.js 14 (App Router)**, **TypeScript**, **PostgreSQL** e **Prisma ORM**.
+Sistema unificado e inteligente para gestão de loja de celulares, assistência técnica, PDV, estoque, e CRM.
 
----
+## Funcionalidades Principais
 
-## 🚀 Funcionalidades Principais
+- **Frente de Caixa (PDV):** Vendas rápidas com suporte a leitura de código de barras, controle de caixa (abertura, sangria, suprimento e fechamento), cálculo de troco, descontos em % ou valor fixo, múltiplas formas de pagamento, e impressão térmica (80mm) de cupons e termos de garantia.
+- **Assistência Técnica (OS):** Criação e acompanhamento de ordens de serviço e orçamentos com checklists dinâmicos, reserva automática de peças no estoque, e fluxo de aprovação com envio por WhatsApp (via API do WhatsApp).
+- **Controle de Estoque:** Gestão de múltiplas condições de produto (novo, usado, defeituoso, desmanche), geração de etiquetas Code 128 para produtos.
+- **Devoluções e Trocas:** Fluxo completo para substituição de produtos, controle de garantias, e devoluções para fornecedores com retorno ao estoque normal ou de produtos com defeito.
+- **CRM e Clientes:** Histórico completo unificado do cliente contendo vendas, ordens de serviço, orçamentos, e trocas.
+- **Relatórios Gerenciais:** Dashboard em tempo real com exportação de dados para planilhas em CSV.
 
-- **Frente de Caixa (PDV)**: Vendas rápidas com leitor de código de barras, atalhos de teclado e emissão de comprovante não fiscal.
-- **Controle de Estoque Transacional**: Separação de estoque físico e reservado para ordens de serviço. Impede estoque negativo com locks de concorrência.
-- **Assistência Técnica Completa**: Ordens de serviço com checklist de recebimento, orçamentos versionados, sugestão de peças compatíveis, reserva e consumo automático do estoque.
-- **Compras & Notas de Entrada**: Controle de fornecedores, rascunho e confirmação de notas fiscais com atualização imutável do estoque e proteção contra duplicidades.
-- **Gerador de Etiquetas**: Etiquetas Code 128 com preço e código de produto prontas para impressora térmica ou folhas A4.
-- **Controle de Acesso (RBAC)**: Três perfis de usuário (`OPERADOR_CAIXA`, `TECNICO`, `SUPERADMIN`) com permissões validadas estritamente no backend.
-- **Logs de Auditoria**: Registro completo e rastreável de todas as movimentações e operações sensíveis.
+## Arquitetura e Tecnologias
 
----
+- **Frontend & Backend:** [Next.js](https://nextjs.org/) (App Router, Server Actions, API Routes)
+- **Banco de Dados:** [SQLite](https://www.sqlite.org/) (em ambiente dev), orquestrado via [Prisma ORM](https://www.prisma.io/).
+- **Autenticação:** Baseada em JWT via cookies seguros (HttpOnly).
+- **Validação:** Zod.
+- **UI/UX:** [Tailwind CSS](https://tailwindcss.com/), Radix UI, e ícones Lucide.
 
-## 📋 Pré-requisitos
+## Instalação e Uso
 
-- **Node.js**: versão 18+ ou 20+ LTS
-- **PostgreSQL**: banco de dados relacional (compatível com Neon, Supabase ou PostgreSQL nativo do Replit)
-- **npm**: gerenciador de pacotes
+1. Instale as dependências:
+   \`\`\`bash
+   npm install
+   \`\`\`
 
----
+2. Inicialize o banco de dados e faça o seed inicial:
+   \`\`\`bash
+   npm run db:setup
+   \`\`\`
 
-## ⚙️ Configuração do Ambiente (.env)
+3. Inicie o servidor em modo de desenvolvimento:
+   \`\`\`bash
+   npm run dev
+   \`\`\`
 
-Crie o arquivo `.env` baseado no `.env.example`:
+4. Acesse a aplicação em \`http://localhost:3000\`
 
-```bash
-cp .env.example .env
-```
+**Usuários de Teste Padrão:**
+- **Super Administrador:** admin@flavio.com | senha: \`flavio123\`
+- **Gerente:** gerente@flavio.com | senha: \`flavio123\`
+- **Técnico:** tecnico@flavio.com | senha: \`flavio123\`
+- **Operador de Caixa:** caixa@flavio.com | senha: \`flavio123\`
 
-Preencha as seguintes variáveis:
+## Estrutura do Banco de Dados
 
-```env
-DATABASE_URL="postgresql://usuario:senha@host:5432/flavio_celulares?sslmode=require"
-JWT_SECRET="SEGREDO_SUPER_SEGURO_COM_PELO_MENOS_32_CARACTERES"
-JWT_EXPIRES_IN="8h"
-NODE_ENV="development"
-NEXT_PUBLIC_APP_URL="http://localhost:3000"
-```
-
----
-
-## 🛠️ Passo a Passo para Execução Local / Replit
-
-### 1. Instalar dependências
-```bash
-npm install
-```
-
-### 2. Gerar Prisma Client e rodar Migrations
-```bash
-npm run db:generate
-npm run db:migrate
-```
-
-### 3. Executar o Seed Inicial (Dados de demonstração)
-```bash
-npm run db:seed
-```
-
-### 4. Iniciar o servidor de desenvolvimento
-```bash
-npm run dev
-```
-Acesse [http://localhost:3000](http://localhost:3000) no navegador.
-
----
-
-## 🔐 Credenciais de Desenvolvimento (Criadas no Seed)
-
-| E-mail | Senha Inicial | Cargo | Permissões |
-|--------|---------------|-------|------------|
-| `admin@flavio.com` | `admin123` | `SUPERADMIN` | Acesso total ao sistema |
-| `caixa@flavio.com` | `caixa123` | `OPERADOR_CAIXA` | Caixa, Vendas e Consulta |
-| `tecnico@flavio.com` | `tecnico123` | `TECNICO` | Ordens de Serviço e Orçamentos |
-
-> ⚠️ **ATENÇÃO**: Todos os usuários do seed estão configurados com `mustChangePassword: true`. O sistema exigirá a troca de senha obrigatoriamente no primeiro login.
-
----
-
-## 🧪 Execução de Testes e Validação
-
-```bash
-# Rodar testes unitários e de integração (Vitest)
-npm test
-
-# Executar verificação de tipos (TypeScript)
-npm run typecheck
-
-# Executar Linter (ESLint)
-npm run lint
-
-# Executar build de produção
-npm run build
-```
-
----
-
-## 🧾 Nota Importante sobre Documentos Gerados
-
-Os comprovantes gerados pelo sistema são **Comprovantes de Venda Não Fiscais**. O sistema não realiza integração nativa com a SEFAZ para emissão de NFC-e/SAT nem controle direto de drivers de impressora local, gerando PDFs padrão de 80mm e A4 compatíveis com a janela de impressão nativa de qualquer navegador.
+- **User**: Gerenciamento de acessos e papéis (\`SUPERADMIN\`, \`ADMIN\`, \`TECNICO\`, \`OPERADOR_CAIXA\`).
+- **Product & Inventory**: Controle de SKU, código de barras, estoque reservado, estoque em mãos e estoque defeituoso.
+- **Sale & SaleItem**: Registro de vendas, descontos e termos de garantia.
+- **Return**: Registro de devoluções, trocas em garantia e devoluções fora de garantia, com vínculo cruzado de Vendas Originais e Vendas Substitutas.
+- **ServiceOrder & Quote**: Ordens de serviço e orçamentos da assistência.
+- **CashSession & Movement**: Controle financeiro rigoroso do caixa por operador.

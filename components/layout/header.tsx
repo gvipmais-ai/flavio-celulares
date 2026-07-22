@@ -3,8 +3,9 @@
 import React from 'react';
 import Link from 'next/link';
 import { UserRole } from '@/lib/permissions';
-import { ShoppingCart, Wrench, Plus, Bell, User as UserIcon } from 'lucide-react';
+import { ShoppingCart, Wrench, Plus, Bell, User as UserIcon, Search } from 'lucide-react';
 import { Breadcrumb } from './breadcrumb';
+import { GlobalSearch } from '../GlobalSearch';
 
 interface HeaderProps {
   session: {
@@ -32,6 +33,8 @@ export function Header({ session }: HeaderProps) {
       <Breadcrumb />
 
       <div className="flex items-center gap-4">
+        <GlobalSearch />
+
         {/* Quick action buttons based on role */}
         {session.role === 'OPERADOR_CAIXA' && (
           <Link href="/caixa" className="btn-primary btn-sm">

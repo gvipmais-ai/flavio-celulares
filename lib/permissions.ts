@@ -2,7 +2,7 @@ import { type JWTPayload } from './jwt';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
-export type UserRole = 'SUPERADMIN' | 'TECNICO' | 'OPERADOR_CAIXA';
+export type UserRole = 'SUPERADMIN' | 'ADMIN' | 'TECNICO' | 'OPERADOR_CAIXA';
 
 export type Permission =
   | 'sales:create'
@@ -44,6 +44,15 @@ export type Permission =
   | 'parts:consume'
   | 'labels:generate'
   | 'reports:view'
+  | 'reports:financial'
+  | 'reports:sales'
+  | 'reports:inventory'
+  | 'reports:maintenance'
+  | 'reports:warranty'
+  | 'returns:create'
+  | 'returns:approve'
+  | 'returns:read'
+  | 'warranties:query'
   | 'users:manage'
   | 'settings:manage'
   | 'audit:view';
@@ -91,9 +100,65 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'parts:consume',
     'labels:generate',
     'reports:view',
+    'reports:financial',
+    'reports:sales',
+    'reports:inventory',
+    'reports:maintenance',
+    'reports:warranty',
+    'returns:create',
+    'returns:approve',
+    'returns:read',
+    'warranties:query',
     'users:manage',
     'settings:manage',
     'audit:view',
+  ],
+
+  ADMIN: [
+    'sales:create',
+    'sales:read:own',
+    'sales:read:all',
+    'sales:cancel',
+    'sales:receipt:reprint',
+    'cash:open',
+    'cash:close',
+    'cash:supplement',
+    'cash:withdrawal',
+    'cash:read:own',
+    'cash:read:all',
+    'products:read',
+    'products:create',
+    'products:edit',
+    'products:activate',
+    'stock:read',
+    'stock:adjust',
+    'categories:manage',
+    'brands:manage',
+    'suppliers:manage',
+    'customers:read',
+    'customers:create',
+    'customers:edit',
+    'purchase-entries:create',
+    'purchase-entries:confirm',
+    'purchase-entries:cancel',
+    'service-orders:read',
+    'service-orders:create',
+    'service-orders:update',
+    'checklist:fill',
+    'quotes:create',
+    'quotes:approve',
+    'parts:reserve',
+    'parts:consume',
+    'labels:generate',
+    'reports:view',
+    'reports:sales',
+    'reports:inventory',
+    'reports:maintenance',
+    'reports:warranty',
+    'returns:create',
+    'returns:approve',
+    'returns:read',
+    'warranties:query',
   ],
 
   TECNICO: [
@@ -112,6 +177,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'parts:reserve',
     'parts:consume',
     'labels:generate',
+    'reports:view',
+    'reports:maintenance',
+    'warranties:query',
   ],
 
   OPERADOR_CAIXA: [
@@ -127,6 +195,9 @@ const ROLE_PERMISSIONS: Record<UserRole, Permission[]> = {
     'stock:read',
     'customers:read',
     'customers:create',
+    'returns:create',
+    'returns:read',
+    'warranties:query',
   ],
 };
 

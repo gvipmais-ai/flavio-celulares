@@ -19,6 +19,8 @@ interface CreateSaleInput {
   payments: Array<{ paymentMethod: string; amount: number }>;
   operatorId: string;
   cashSessionId: string;
+  type?: 'VENDA' | 'TROCA';
+  originSaleId?: string;
 }
 
 export async function createSale(input: CreateSaleInput) {
@@ -99,6 +101,8 @@ export async function createSale(input: CreateSaleInput) {
         data: {
           sequentialNumber,
           clientTransactionId: input.clientTransactionId,
+          type: input.type || 'VENDA',
+          originSaleId: input.originSaleId,
           customerId: input.customerId,
           customerNameSnapshot: input.customerNameSnapshot,
           customerCpfSnapshot: input.customerCpfSnapshot,
