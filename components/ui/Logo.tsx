@@ -13,7 +13,7 @@ export function Logo({ className = '', width = 160, height = 48, withLink = fals
   const content = (
     <div className={`flex items-center justify-center ${className}`}>
       <Image
-        src="/images/logo-v5.png"
+        src="/images/logo-v6.png"
         alt="Flavio Celulares Logo"
         width={width}
         height={height}

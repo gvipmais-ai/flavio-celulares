@@ -74,7 +74,7 @@ export default function LoginPage() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg-default)]">
       {/* Animated background & Watermark */}
-      <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo-v5.png')] bg-[length:60%] mix-blend-luminosity z-0" />
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo-v6.png')] bg-[length:60%] mix-blend-luminosity z-0" />
       
       <div
         className="absolute inset-0 opacity-30 z-0"
