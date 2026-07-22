@@ -27,6 +27,7 @@ import {
   PlusCircle,
   ArrowUpDown,
   UserCheck,
+  ShieldCheck,
 } from 'lucide-react';
 import { useAuth } from '../providers/auth-provider';
 import { cn } from '@/lib/utils';
@@ -221,6 +222,12 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Configurações',
         icon: <Settings className="h-4 w-4 text-slate-400" />,
         roles: ['SUPERADMIN', 'ADMIN'],
+      },
+      {
+        href: '/admin/gerenciamento',
+        label: 'Gerenciamento (SuperADMIN)',
+        icon: <ShieldCheck className="h-4 w-4 text-emerald-400" />,
+        roles: ['SUPERADMIN'],
       },
     ],
   },

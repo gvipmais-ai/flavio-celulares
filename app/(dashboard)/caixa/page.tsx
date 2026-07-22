@@ -446,6 +446,7 @@ export default function CaixaPage() {
     const html = `
       <div class="thermal-ticket-80mm">
         <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:4px;">
+          <img src="${window.location.origin}/images/logo.png" style="max-width: 100px; height: auto; margin: 0 auto 5px auto; filter: grayscale(100%); display: block;" />
           <p style="font-weight:bold; font-size:12px; margin:0; text-transform:uppercase;">${storeDisplayName}</p>
           <p style="font-size:9px; margin:2px 0;">${storeAddress}</p>
           <p style="font-size:9px; margin:2px 0;">${storePhone} | ${storeCnpj}</p>
@@ -568,6 +569,7 @@ export default function CaixaPage() {
       html = `
         <div class="thermal-ticket-80mm">
           <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:4px;">
+            <img src="${window.location.origin}/images/logo.png" style="max-width: 100px; height: auto; margin: 0 auto 5px auto; filter: grayscale(100%); display: block;" />
             <p style="font-weight:bold; font-size:12px; margin:0; text-transform:uppercase;">${storeDisplayName}</p>
             <p style="font-size:9px; margin:2px 0;">${storeAddress}</p>
             <p style="font-size:9px; margin:2px 0;">${storePhone} | ${storeCnpj}</p>
@@ -655,6 +657,7 @@ export default function CaixaPage() {
       html = `
         <div class="thermal-ticket-80mm">
           <div style="text-align:center; border-bottom:1px dashed #000; padding-bottom:4px;">
+            <img src="${window.location.origin}/images/logo.png" style="max-width: 100px; height: auto; margin: 0 auto 5px auto; filter: grayscale(100%); display: block;" />
             <p style="font-weight:bold; font-size:12px; margin:0; text-transform:uppercase;">${storeDisplayName}</p>
             <p style="font-size:9px; margin:2px 0;">${storeAddress}</p>
             <p style="font-size:9px; margin:2px 0;">${storePhone} | ${storeCnpj}</p>

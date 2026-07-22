@@ -37,7 +37,10 @@ export type AuditAction =
   | 'CUSTOMER_CREATED'
   | 'CATEGORY_CREATED'
   | 'BRAND_CREATED'
-  | 'SUPPLIER_CREATED';
+  | 'SUPPLIER_CREATED'
+  | 'EXPORT_BACKUP'
+  | 'UPDATE_USER'
+  | 'RETURN_CREATED';
 
 interface AuditParams {
   userId?: string;

@@ -5,8 +5,9 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Smartphone, Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { Logo } from '@/components/ui/Logo';
 
 const LoginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -71,23 +72,25 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-slate-950">
-      {/* Animated background */}
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg-default)]">
+      {/* Animated background & Watermark */}
+      <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo.png')] bg-[length:60%] mix-blend-luminosity z-0" />
+      
       <div
-        className="absolute inset-0 opacity-30"
+        className="absolute inset-0 opacity-30 z-0"
         style={{
           background:
-            'radial-gradient(ellipse at 20% 50%, hsl(217, 91%, 20%) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, hsl(199, 89%, 15%) 0%, transparent 50%)',
+            'radial-gradient(ellipse at 20% 50%, var(--primary) 0%, transparent 60%), radial-gradient(ellipse at 80% 20%, var(--secondary) 0%, transparent 50%)',
         }}
       />
-      <div className="absolute inset-0">
+      <div className="absolute inset-0 z-0">
         <div
           className="absolute left-1/4 top-1/4 h-96 w-96 rounded-full opacity-10 blur-3xl"
-          style={{ background: 'hsl(217, 91%, 50%)' }}
+          style={{ background: 'var(--primary)' }}
         />
         <div
           className="absolute bottom-1/4 right-1/4 h-64 w-64 rounded-full opacity-10 blur-3xl"
-          style={{ background: 'hsl(199, 89%, 50%)' }}
+          style={{ background: 'var(--secondary)' }}
         />
       </div>
 
@@ -95,12 +98,9 @@ export default function LoginPage() {
       <div className="glass-card relative z-10 w-full max-w-md p-8 shadow-2xl">
         {/* Logo */}
         <div className="mb-8 flex flex-col items-center gap-3">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-blue-600 shadow-lg shadow-blue-500/30">
-            <Smartphone className="h-9 w-9 text-white" />
-          </div>
-          <div className="text-center">
-            <h1 className="text-2xl font-bold text-white">Flavio Celulares</h1>
-            <p className="mt-1 text-sm text-slate-400">Sistema de Gestão</p>
+          <Logo width={200} height={80} />
+          <div className="text-center mt-2">
+            <h1 className="text-xl font-bold text-[var(--text-heading)]">Sistema de Gestão</h1>
           </div>
         </div>
 

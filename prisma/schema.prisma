@@ -20,6 +20,7 @@ model User {
   loginAttempts      Int       @default(0)
   lockedUntil        DateTime?
   lastLoginAt        DateTime?
+  permissions        String? // JSON string para permissões granulares
   createdAt          DateTime  @default(now())
   updatedAt          DateTime  @updatedAt
 
@@ -68,6 +69,7 @@ model StoreSettings {
   serviceOrderSequence   Int      @default(5000)
   quoteSequence          Int      @default(100)
   warrantyTerms          String?
+  activeModules          String? // JSON string para módulos ativos (ex: {"etiquetas": true, "pdv": true})
   updatedAt              DateTime @updatedAt
 
   @@map("store_settings")

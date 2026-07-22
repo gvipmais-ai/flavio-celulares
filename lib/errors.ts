@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { ForbiddenError, UnauthorizedError } from './permissions';
 
+export { ForbiddenError, UnauthorizedError };
 // ─── Tipos de erro padronizados ───────────────────────────────────────────────
 
 export interface ApiError {

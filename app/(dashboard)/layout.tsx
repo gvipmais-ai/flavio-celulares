@@ -46,11 +46,16 @@ export default async function DashboardLayout({
 
   return (
     <AuthProvider initialUser={initialUser}>
-      <div className="flex h-screen overflow-hidden bg-slate-950">
+      <div className="flex h-screen overflow-hidden bg-[var(--bg-default)]">
         <Sidebar lowStockCount={lowStockCount} />
-        <div className="flex flex-1 flex-col overflow-hidden">
-          <Header session={session} />
-          <main className="flex-1 overflow-y-auto p-6">{children}</main>
+        <div className="flex flex-1 flex-col overflow-hidden relative">
+          {/* Watermark Logo */}
+          <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo.png')] bg-[length:50%] mix-blend-luminosity z-0" />
+          
+          <div className="relative z-10 flex flex-col h-full w-full">
+            <Header session={session} />
+            <main className="flex-1 overflow-y-auto p-6 relative z-0">{children}</main>
+          </div>
         </div>
       </div>
     </AuthProvider>

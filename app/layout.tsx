@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
+import { ThemeProvider } from '@/components/ThemeProvider';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -30,19 +31,21 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
-      <body className="min-h-screen bg-slate-950 font-sans antialiased">
-        <div id="print-area" />
-        {children}
-        <Toaster
-          position="top-right"
-          richColors
-          toastOptions={{
-            duration: 4000,
-            style: {
-              fontFamily: 'var(--font-inter)',
-            },
-          }}
-        />
+      <body className="min-h-screen bg-[var(--bg-default)] text-[var(--text-default)] font-sans antialiased transition-colors duration-200">
+        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+          <div id="print-area" />
+          {children}
+          <Toaster
+            position="top-right"
+            richColors
+            toastOptions={{
+              duration: 4000,
+              style: {
+                fontFamily: 'var(--font-inter)',
+              },
+            }}
+          />
+        </ThemeProvider>
       </body>
     </html>
   );

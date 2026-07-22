@@ -6,6 +6,8 @@ import { UserRole } from '@/lib/permissions';
 import { ShoppingCart, Wrench, Plus, Bell, User as UserIcon, Search } from 'lucide-react';
 import { Breadcrumb } from './breadcrumb';
 import { GlobalSearch } from '../GlobalSearch';
+import { Logo } from '@/components/ui/Logo';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 interface HeaderProps {
   session: {
@@ -29,11 +31,16 @@ export function Header({ session }: HeaderProps) {
   };
 
   return (
-    <header className="flex h-16 shrink-0 items-center justify-between border-b border-slate-800 bg-slate-900/60 px-6 backdrop-blur-md">
-      <Breadcrumb />
+    <header className="flex h-16 shrink-0 items-center justify-between border-b border-theme bg-card px-6">
+      <div className="flex items-center gap-6">
+        <Logo width={120} height={32} withLink />
+        <div className="h-6 w-px bg-[var(--border-color)]" />
+        <Breadcrumb />
+      </div>
 
       <div className="flex items-center gap-4">
         <GlobalSearch />
+        <ThemeToggle />
 
         {/* Quick action buttons based on role */}
         {session.role === 'OPERADOR_CAIXA' && (
