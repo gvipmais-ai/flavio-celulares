@@ -8,6 +8,7 @@ import { z } from 'zod';
 import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Logo } from '@/components/ui/Logo';
+import { ThemeToggle } from '@/components/ui/ThemeToggle';
 
 const LoginSchema = z.object({
   email: z.string().email('E-mail inválido'),
@@ -73,6 +74,11 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg-default)]">
+      {/* Theme Toggle Top Right */}
+      <div className="absolute top-4 right-4 z-50">
+        <ThemeToggle />
+      </div>
+
       {/* Animated background & Watermark */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo-v6.png')] bg-[length:60%] mix-blend-luminosity z-0" />
       
