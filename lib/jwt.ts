@@ -18,13 +18,13 @@ function getSecret(): Uint8Array {
   return new TextEncoder().encode(secret);
 }
 
-export async function signToken(payload: Omit<JWTPayload, 'iat' | 'exp'>): Promise<string> {
-  const expiresIn = process.env['JWT_EXPIRES_IN'] ?? '8h';
+export async function signToken(payload: Partial<JWTPayload>): Promise<string> {
+  const secret = getSecret();
   return new SignJWT({ ...payload })
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
-    .setExpirationTime(expiresIn)
-    .sign(getSecret());
+    .setExpirationTime('7d')
+    .sign(secret);
 }
 
 export async function verifyToken(token: string): Promise<JWTPayload> {

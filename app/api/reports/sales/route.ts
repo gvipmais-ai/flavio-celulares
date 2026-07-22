@@ -15,7 +15,7 @@ export async function GET(req: NextRequest) {
     let startDate, endDate;
 
     if (monthStr) {
-      const date = parseISO(\`\${monthStr}-01\`);
+      const date = parseISO(`\${monthStr}-01`);
       startDate = startOfMonth(date);
       endDate = endOfMonth(date);
     } else {
@@ -48,13 +48,13 @@ export async function GET(req: NextRequest) {
         s.items.forEach(i => cost += (Number(i.unitPrice) * i.quantity)); // Actually costPrice snapshot would be better, using unitPrice as fallback if no cost
         // Note: For MVP we just use totalAmount
         
-        csv += \`\${s.sequentialNumber},\${s.createdAt.toISOString()},\${s.operator.name},\${s.customerNameSnapshot},\${s.status},\${total}\\n\`;
+        csv += `\${s.sequentialNumber},\${s.createdAt.toISOString()},\${s.operator.name},\${s.customerNameSnapshot},\${s.status},\${total}\\n`;
       });
 
       return new NextResponse(csv, {
         headers: {
           'Content-Type': 'text/csv',
-          'Content-Disposition': \`attachment; filename="vendas_\${monthStr || 'atual'}.csv"\`,
+          'Content-Disposition': `attachment; filename="vendas_\${monthStr || 'atual'}.csv"`,
         },
       });
     }

@@ -16,7 +16,7 @@ export default function CustomerHistoryPage() {
   useEffect(() => {
     async function loadCustomer() {
       try {
-        const res = await fetch(\`/api/customers/\${id}/history\`);
+        const res = await fetch(`/api/customers/\${id}/history`);
         if (res.ok) {
           const data = await res.json();
           setCustomer(data.customer);

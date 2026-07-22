@@ -6,10 +6,10 @@ export const COOKIE_NAME = 'flavio_session';
 
 export const COOKIE_OPTIONS = {
   httpOnly: true,
-  secure: process.env['NODE_ENV'] === 'production',
+  secure: process.env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/',
-  maxAge: 60 * 60 * 8, // 8 horas
+  maxAge: 60 * 60 * 24 * 7, // 7 dias
 };
 
 export function setAuthCookie(response: NextResponse, token: string): NextResponse {

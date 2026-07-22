@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
         id: p.id,
         type: 'PRODUCT',
         title: p.name,
-        subtitle: \`Cód: \${p.code} | Estoque: \${p.stockOnHand - p.stockReserved}\`,
-        link: \`/produtos/\${p.id}\`,
+        subtitle: `Cód: \${p.code} | Estoque: \${p.stockOnHand - p.stockReserved}`,
+        link: `/produtos/\${p.id}`,
       });
     }
 
@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
         id: c.id,
         type: 'CUSTOMER',
         title: c.name,
-        subtitle: \`CPF: \${c.cpf || 'Não informado'} | Tel: \${c.phone || 'Não informado'}\`,
-        link: \`/clientes/\${c.id}\`,
+        subtitle: `CPF: \${c.cpf || 'Não informado'} | Tel: \${c.phone || 'Não informado'}`,
+        link: `/clientes/\${c.id}`,
       });
     }
 
@@ -80,9 +80,9 @@ export async function GET(req: NextRequest) {
       results.push({
         id: s.id,
         type: 'SALE',
-        title: \`Venda #\${s.sequentialNumber}\`,
-        subtitle: \`Cliente: \${s.customerNameSnapshot} | R$ \${Number(s.totalAmount).toFixed(2)}\`,
-        link: \`/vendas/\${s.id}\`,
+        title: `Venda #\${s.sequentialNumber}`,
+        subtitle: `Cliente: \${s.customerNameSnapshot} | R$ \${Number(s.totalAmount).toFixed(2)}`,
+        link: `/vendas/\${s.id}`,
       });
     }
 
@@ -102,9 +102,9 @@ export async function GET(req: NextRequest) {
       results.push({
         id: order.id,
         type: 'OS',
-        title: \`OS #\${order.sequentialNumber}\`,
-        subtitle: \`Cliente: \${order.customer.name} | Aparelho: \${order.deviceModel.name}\`,
-        link: \`/ordens/\${order.id}\`,
+        title: `OS #\${order.sequentialNumber}`,
+        subtitle: `Cliente: \${order.customer.name} | Aparelho: \${order.deviceModel.name}`,
+        link: `/ordens/\${order.id}`,
       });
     }
 

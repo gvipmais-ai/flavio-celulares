@@ -66,6 +66,7 @@ export default function CaixaPage() {
   const [closeNotes, setCloseNotes] = useState('');
   const [closedCashReportData, setClosedCashReportData] = useState<any>(null);
   const [isClosingCash, setIsClosingCash] = useState(false);
+  const [isStateLoaded, setIsStateLoaded] = useState(false);
 
   const barcodeInputRef = useRef<HTMLInputElement>(null);
 
@@ -91,6 +92,41 @@ export default function CaixaPage() {
   useEffect(() => {
     loadData();
   }, [loadData]);
+
+  // Restore State on mount
+  useEffect(() => {
+    const savedState = localStorage.getItem('flavioCaixaState');
+    if (savedState) {
+      try {
+        const parsed = JSON.parse(savedState);
+        if (parsed.cart) setCart(parsed.cart);
+        if (parsed.customerName) setCustomerName(parsed.customerName);
+        if (parsed.customerCpf) setCustomerCpf(parsed.customerCpf);
+        if (parsed.paymentMethod) setPaymentMethod(parsed.paymentMethod);
+        if (parsed.receivedAmount) setReceivedAmount(parsed.receivedAmount);
+        if (parsed.discountMode) setDiscountMode(parsed.discountMode);
+        if (parsed.discountInputValue !== undefined) setDiscountInputValue(parsed.discountInputValue);
+      } catch (e) {
+        console.error('Failed to parse state from localStorage', e);
+      }
+    }
+    setIsStateLoaded(true);
+  }, []);
+
+  // Auto-Save State
+  useEffect(() => {
+    if (isStateLoaded) {
+      localStorage.setItem('flavioCaixaState', JSON.stringify({
+        cart,
+        customerName,
+        customerCpf,
+        paymentMethod,
+        receivedAmount,
+        discountMode,
+        discountInputValue
+      }));
+    }
+  }, [cart, customerName, customerCpf, paymentMethod, receivedAmount, discountMode, discountInputValue, isStateLoaded]);
 
   useEffect(() => {
     if (session && barcodeInputRef.current && !showThermalModal && !showCloseCashModal) {
@@ -305,6 +341,11 @@ export default function CaixaPage() {
       setCart([]);
       setReceivedAmount(0);
       setDiscountInputValue(0);
+      setCustomerName('Cliente Consumidor');
+      setCustomerCpf('');
+      setPaymentMethod('DINHEIRO');
+      setDiscountMode('FIXED');
+      localStorage.removeItem('flavioCaixaState');
     } catch {
       toast.error('Erro de conexão ao finalizar a venda');
     } finally {
@@ -376,6 +417,12 @@ export default function CaixaPage() {
       setClosedCashReportData(reportData);
       setShowCloseCashModal(false);
       setShowClosedReceiptModal(true);
+      
+      // Clean up UI state
+      setCart([]);
+      setCustomerName('Cliente Consumidor');
+      setCustomerCpf('');
+      localStorage.removeItem('flavioCaixaState');
     } catch {
       toast.error('Erro de conexão ao fechar caixa');
     } finally {
