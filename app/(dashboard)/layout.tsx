@@ -50,7 +50,7 @@ export default async function DashboardLayout({
         <Sidebar lowStockCount={lowStockCount} />
         <div className="flex flex-1 flex-col overflow-hidden relative">
           {/* Watermark Logo */}
-          <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo-v3.png')] bg-[length:50%] mix-blend-luminosity z-0" />
+          <div className="absolute inset-0 pointer-events-none opacity-[0.02] dark:opacity-[0.05] bg-center bg-no-repeat bg-[url('/images/logo-v4.png')] bg-[length:50%] mix-blend-luminosity z-0" />
           
           <div className="relative z-10 flex flex-col h-full w-full">
             <Header session={session} />
