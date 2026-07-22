@@ -3,13 +3,14 @@ import { prisma } from '@/lib/prisma';
 import { getSession } from '@/lib/cookies';
 import { handleApiError } from '@/lib/errors';
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session) return NextResponse.json({ error: 'Não autorizado' }, { status: 401 });
 
     const customer = await prisma.customer.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         sales: {
           orderBy: { createdAt: 'desc' },

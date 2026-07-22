@@ -4,12 +4,12 @@ import { getSession } from '@/lib/cookies';
 import { handleApiError, UnauthorizedError, NotFoundError } from '@/lib/errors';
 import { createAuditLogTx } from '@/lib/audit';
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
     if (session?.role !== 'SUPERADMIN') throw new UnauthorizedError();
 
-    const id = params.id;
+    const { id } = await params;
     const body = await req.json();
 
     const updatedUser = await prisma.$transaction(async (tx) => {
