@@ -3,6 +3,8 @@ import { getSessionFromRequest } from '@/lib/cookies';
 import { handleApiError } from '@/lib/errors';
 import { prisma } from '@/lib/prisma';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);

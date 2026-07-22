@@ -6,6 +6,8 @@ import { prisma } from '@/lib/prisma';
 import { createAuditLog } from '@/lib/audit';
 import { OpenCashSessionSchema } from '@/lib/validations';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);

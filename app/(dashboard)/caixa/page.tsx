@@ -74,8 +74,8 @@ export default function CaixaPage() {
     setIsLoadingSession(true);
     try {
       const [resSession, resSettings] = await Promise.all([
-        fetch('/api/cash-sessions/current'),
-        fetch('/api/settings'),
+        fetch('/api/cash-sessions/current', { cache: 'no-store' }),
+        fetch('/api/settings', { cache: 'no-store' }),
       ]);
       const dataSession = await resSession.json();
       const dataSettings = await resSettings.json();
