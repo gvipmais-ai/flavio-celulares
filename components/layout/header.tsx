@@ -33,8 +33,6 @@ export function Header({ session }: HeaderProps) {
   return (
     <header className="flex h-16 shrink-0 items-center justify-between border-b border-theme bg-card px-6">
       <div className="flex items-center gap-6">
-        <Logo width={120} height={32} withLink />
-        <div className="h-6 w-px bg-[var(--border-color)]" />
         <Breadcrumb />
       </div>
 
@@ -77,9 +75,11 @@ export function Header({ session }: HeaderProps) {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/20 text-blue-400 font-semibold text-sm">
             {session.name.charAt(0).toUpperCase()}
           </div>
-          <div className="hidden md:block text-left">
-            <p className="text-sm font-medium text-slate-200">{session.name}</p>
-            <span className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-semibold ${roleBadgeColor[session.role] ?? ''}`}>
+          <div className="hidden md:flex flex-col items-start justify-center text-left">
+            <p className="text-sm font-medium text-slate-200 truncate max-w-[150px] leading-tight mb-0.5" title={session.name}>
+              {session.name}
+            </p>
+            <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[session.role] ?? ''}`}>
               {roleName[session.role] ?? session.role}
             </span>
           </div>
