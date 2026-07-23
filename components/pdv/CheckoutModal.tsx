@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { usePDV } from './PDVContext';
-import { CheckCircle2, Loader2, Printer, ArrowLeft } from 'lucide-react';
+import { CheckCircle2, Loader2, Printer, ArrowLeft, ShieldCheck } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -93,9 +93,6 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       setSuccessData(completedSale);
       clearCart(); // Limpa o estado global
       
-      // Auto print
-      handlePrint(completedSale);
-      
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -103,11 +100,14 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     }
   };
 
-  const handlePrint = async (saleData: any) => {
+  const handlePrint = async (saleData: any, type: 'RECEIPT' | 'WARRANTY') => {
     try {
       // Lazy load to avoid bundle size issues
-      const { generateThermalReceiptPDF } = await import('@/lib/pdfGenerator');
-      const pdfBase64 = await generateThermalReceiptPDF(saleData, settings);
+      const { generateThermalReceiptPDF, generateWarrantyTermPDF } = await import('@/lib/pdfGenerator');
+      
+      const pdfBase64 = type === 'RECEIPT' 
+        ? await generateThermalReceiptPDF(saleData, settings)
+        : await generateWarrantyTermPDF(saleData, settings);
       
       // Open in new tab or iframe to print
       const win = window.open();
@@ -115,10 +115,10 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         win.document.write(`
           <iframe src="${pdfBase64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>
         `);
-        win.document.title = `Cupom ${saleData.sequentialNumber}`;
+        win.document.title = type === 'RECEIPT' ? `Cupom ${saleData.sequentialNumber}` : `Garantia ${saleData.sequentialNumber}`;
       }
     } catch (e) {
-      toast.error('Erro ao gerar PDF do cupom. Tente imprimir pelo histórico.');
+      toast.error('Erro ao gerar PDF. Tente imprimir pelo histórico.');
       console.error(e);
     }
   };
@@ -153,16 +153,24 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
               </div>
             )}
 
-            <div className="flex gap-4 w-full">
+            <div className="flex gap-4 w-full mb-4">
               <button 
-                onClick={() => handlePrint(successData)}
-                className="flex-1 btn-secondary py-4 text-lg font-bold flex items-center justify-center gap-2"
+                onClick={() => handlePrint(successData, 'RECEIPT')}
+                className="flex-1 btn-secondary py-4 text-sm font-bold flex items-center justify-center gap-2"
               >
-                <Printer className="w-5 h-5" /> Re-imprimir
+                <Printer className="w-4 h-4" /> Comprovante
               </button>
               <button 
+                onClick={() => handlePrint(successData, 'WARRANTY')}
+                className="flex-1 btn-secondary py-4 text-sm font-bold flex items-center justify-center gap-2"
+              >
+                <ShieldCheck className="w-4 h-4" /> Garantia
+              </button>
+            </div>
+            <div className="flex w-full">
+              <button 
                 onClick={handleNewSale}
-                className="flex-1 bg-primary-600 hover:bg-primary-700 text-white rounded-xl py-4 text-lg font-bold transition-all shadow-md"
+                className="w-full bg-primary-600 hover:bg-primary-700 text-white rounded-xl py-4 text-lg font-bold transition-all shadow-md"
               >
                 Nova Venda (Enter)
               </button>

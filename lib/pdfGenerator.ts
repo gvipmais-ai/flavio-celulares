@@ -160,3 +160,104 @@ export async function generateThermalReceiptPDF(sale: SaleData, settings: StoreS
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
 }
+
+export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSettings): Promise<string> {
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  
+  // Calculate dynamic height based on items
+  const baseHeight = 350;
+  const itemHeight = 25;
+  const height = baseHeight + (sale.cartItems.length * itemHeight);
+  
+  const page = pdfDoc.addPage([THERMAL_WIDTH, height]);
+  let y = height - MARGIN - 20;
+
+  const drawText = (text: string, size: number, isBold = false, align: 'left'|'center'|'right' = 'left', customY?: number) => {
+    const activeFont = isBold ? fontBold : font;
+    const textWidth = activeFont.widthOfTextAtSize(text, size);
+    let x = MARGIN;
+    if (align === 'center') x = (THERMAL_WIDTH - textWidth) / 2;
+    if (align === 'right') x = THERMAL_WIDTH - MARGIN - textWidth;
+    
+    page.drawText(text, {
+      x,
+      y: customY ?? y,
+      size,
+      font: activeFont,
+      color: rgb(0, 0, 0),
+    });
+    if (customY === undefined) y -= (size + 4);
+  };
+
+  const drawLine = () => {
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: THERMAL_WIDTH - MARGIN, y },
+      thickness: 1,
+      color: rgb(0.5, 0.5, 0.5),
+      dashArray: [2, 2],
+    });
+    y -= 10;
+  };
+
+  // Header
+  drawText(settings.storeName || 'LOJA', 12, true, 'center');
+  y -= 2;
+  drawText(settings.address || 'Endereço não cadastrado', 8, false, 'center');
+  drawText(`${settings.phone ? 'Tel: '+settings.phone : ''} ${settings.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
+  
+  y -= 5;
+  drawLine();
+
+  // Warranty Title
+  drawText('TERMO DE GARANTIA', 10, true, 'center');
+  drawText(`Venda Nº ${sale.sequentialNumber}`, 9, true, 'center');
+  y -= 5;
+  drawText(`Data: ${sale.dateFormatted}`, 8);
+  drawText(`Cliente: ${sale.customerNameSnapshot}`, 8);
+  if (sale.customerCpfSnapshot) drawText(`CPF: ${sale.customerCpfSnapshot}`, 8);
+  
+  y -= 5;
+  drawLine();
+
+  // Items
+  drawText('ITENS E GARANTIA:', 8, true);
+  y -= 5;
+
+  sale.cartItems.forEach(item => {
+    drawText(`[${item.code}] ${item.name}`, 8, true);
+    page.drawText(`Garantia: 3 meses (90 dias)`, { x: MARGIN, y, size: 8, font });
+    y -= 12;
+  });
+
+  drawLine();
+
+  // Warranty Conditions
+  drawText('CONDIÇÕES:', 8, true);
+  y -= 5;
+  
+  const conditions = [
+    '1. A garantia cobre defeitos de fabricação.',
+    '2. Evite quedas e umidade.',
+    '3. A perda desta via invalida a garantia.',
+    '4. Apresente este termo para acionar.'
+  ];
+
+  conditions.forEach(c => {
+    page.drawText(c, { x: MARGIN, y, size: 8, font });
+    y -= 12;
+  });
+
+  y -= 10;
+  drawLine();
+  y -= 15;
+  
+  // Signature
+  drawLine();
+  drawText(`${settings.storeName || 'LOJA'} - Carimbo/Assinatura`, 8, true, 'center');
+
+  const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
+  return pdfBytes;
+}
