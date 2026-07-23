@@ -10,16 +10,15 @@ export function CartTable() {
 
   if (cart.length === 0) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 m-4 shadow-sm opacity-60">
-        <ShoppingCart className="h-20 w-20 text-slate-300 dark:text-slate-600 mb-4" />
-        <p className="text-xl font-bold text-slate-400 dark:text-slate-500">Caixa Livre</p>
-        <p className="text-sm text-slate-400">Bipe ou busque um produto para iniciar a venda.</p>
+      <div className="flex-1 flex flex-col items-center justify-center m-4 opacity-60">
+        <p className="text-2xl font-black text-slate-300 dark:text-slate-600">CAIXA LIVRE</p>
+        <p className="text-sm font-bold text-slate-400 mt-2">Bipe ou busque um produto para iniciar a venda.</p>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 overflow-hidden flex flex-col bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 m-4 shadow-sm">
+    <div className="flex-1 overflow-hidden flex flex-col bg-white/80 dark:bg-slate-800/80 backdrop-blur-md rounded-xl border border-slate-200 dark:border-slate-700 m-4 shadow-sm">
       <div className="flex-1 overflow-y-auto">
         <table className="w-full text-left">
           <thead className="bg-slate-50 dark:bg-slate-900/50 sticky top-0 z-10 shadow-sm">

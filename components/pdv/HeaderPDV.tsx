@@ -1,9 +1,9 @@
 'use client';
 
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
-import { Logo } from '@/components/ui/Logo';
+import Link from 'next/link';
 import { usePDV } from './PDVContext';
-import { Lock, LockOpen } from 'lucide-react';
+import { Lock, LockOpen, LayoutDashboard } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal: () => void, onOpenHelp: () => void }) {
@@ -12,10 +12,14 @@ export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal
   return (
     <header className="flex h-16 items-center justify-between bg-slate-900 px-4 shrink-0 border-b border-slate-800">
       <div className="flex items-center gap-6">
-        <div className="w-24">
-          <Logo />
+        <Link href="/" className="flex items-center gap-2 text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-lg transition-colors">
+          <LayoutDashboard className="w-5 h-5" />
+          <span className="text-sm font-bold">Painel</span>
+        </Link>
+        <div className="flex items-center">
+          <span className="font-black text-xl text-primary-500 tracking-tight">FLAVIO<span className="text-white">CELULARES</span></span>
         </div>
-        <div className="flex flex-col">
+        <div className="flex flex-col border-l border-slate-700 pl-4">
           <span className="text-slate-100 font-bold text-sm">Frente de Caixa</span>
           <span className="text-slate-400 text-xs">Atendente: {cashSession?.operatorName || '...'}</span>
         </div>
