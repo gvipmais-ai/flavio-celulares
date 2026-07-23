@@ -21,10 +21,11 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
 
   if (!isOpen) return null;
 
-  const handleSubmit = async () => {
+  const handleSubmit = async (overrideTab?: 'ABERTURA' | 'FECHAMENTO' | 'SANGRIA' | 'SUPRIMENTO') => {
+    const tabToSubmit = overrideTab || activeTab;
     const amount = parseFloat(amountInput.replace(',', '.'));
     if (isNaN(amount) || amount <= 0) {
-      if (activeTab !== 'FECHAMENTO' || isNaN(amount)) {
+      if (tabToSubmit !== 'FECHAMENTO' || isNaN(amount)) {
          toast.error('Informe um valor válido.');
          return;
       }
@@ -32,7 +33,7 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
 
     setIsSubmitting(true);
     try {
-      if (activeTab === 'ABERTURA') {
+      if (tabToSubmit === 'ABERTURA') {
         const res = await fetch('/api/cash-sessions', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -43,20 +44,20 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
         await reloadSession();
         onClose();
         
-      } else if (activeTab === 'SANGRIA' || activeTab === 'SUPRIMENTO') {
+      } else if (tabToSubmit === 'SANGRIA' || tabToSubmit === 'SUPRIMENTO') {
         if (!reasonInput || reasonInput.length < 5) throw new Error('Justificativa é obrigatória (mín. 5 char).');
         const res = await fetch(`/api/cash-sessions/${cashSession.id}/movements`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ type: activeTab, amount, reason: reasonInput }),
+          body: JSON.stringify({ type: tabToSubmit, amount, reason: reasonInput }),
         });
         if (!res.ok) throw new Error((await res.json()).error?.message);
-        toast.success(`${activeTab} realizada com sucesso.`);
+        toast.success(`${tabToSubmit} realizada com sucesso.`);
         await reloadSession();
         setAmountInput('');
         setReasonInput('');
         
-      } else if (activeTab === 'FECHAMENTO') {
+      } else if (tabToSubmit === 'FECHAMENTO') {
         const res = await fetch(`/api/cash-sessions/${cashSession.id}/close`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -143,7 +144,7 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
                   />
                 </div>
                 
-                <button onClick={() => { setActiveTab('ABERTURA'); handleSubmit(); }} disabled={isSubmitting} className="w-full btn-primary py-3 font-bold flex justify-center items-center gap-2">
+                <button onClick={() => { setActiveTab('ABERTURA'); handleSubmit('ABERTURA'); }} disabled={isSubmitting} className="w-full btn-primary py-3 font-bold flex justify-center items-center gap-2">
                   {isSubmitting ? <Loader2 className="w-5 h-5 animate-spin" /> : <LockOpen className="w-5 h-5" />} Abrir Caixa
                 </button>
               </div>
@@ -187,7 +188,7 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
                   </div>
 
                   <button 
-                    onClick={handleSubmit} 
+                    onClick={() => handleSubmit()} 
                     disabled={isSubmitting} 
                     className={`w-full py-3 rounded-xl font-bold flex justify-center items-center gap-2 text-white shadow-md transition-all
                       ${activeTab === 'FECHAMENTO' ? 'bg-rose-500 hover:bg-rose-600' : 
