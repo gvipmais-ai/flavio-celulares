@@ -51,16 +51,18 @@ function PDVContent() {
           </div>
         </div>
       ) : (
-        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
-          {/* Watermark Logo */}
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03] dark:opacity-[0.05]">
-            <img src="/images/logo-v6.png" alt="Flavio Celulares" className="w-[600px] grayscale" />
-          </div>
-
+        <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
           {/* Esquerda: 70% */}
-          <div className="flex-1 flex flex-col p-4 bg-transparent z-10">
-            <ProductSearch />
-            <CartTable />
+          <div className="flex-1 flex flex-col p-4 bg-transparent relative z-10">
+            {/* Watermark Logo */}
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03] dark:opacity-[0.05]">
+              <img src="/images/logo-v6.png" alt="Flavio Celulares" className="w-[600px] grayscale" />
+            </div>
+            
+            <div className="relative z-10 flex-1 flex flex-col">
+              <ProductSearch />
+              <CartTable />
+            </div>
           </div>
 
           {/* Direita: 30% */}
