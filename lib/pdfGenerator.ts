@@ -154,6 +154,10 @@ export async function generateThermalReceiptPDF(sale: SaleData, settings: StoreS
 
   y -= 5;
   drawLine();
+  y -= 10;
+  drawText('CARIMBO DA LOJA / ASSINATURA', 8, true, 'center');
+  y -= 40; // Espaço para assinar
+  drawLine();
 
   drawText('Obrigado pela preferência!', 8, true, 'center');
 
@@ -235,14 +239,19 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   drawLine();
 
   // Warranty Conditions
-  drawText('CONDIÇÕES:', 8, true);
+  drawText('CONDIÇÕES DE GARANTIA E CUIDADOS:', 8, true);
   y -= 5;
   
   const conditions = [
-    '1. A garantia cobre defeitos de fabricação.',
-    '2. Evite quedas e umidade.',
-    '3. A perda desta via invalida a garantia.',
-    '4. Apresente este termo para acionar.'
+    '1. A garantia legal cobre defeitos de fabricação',
+    'pelo prazo de 90 dias (ou conforme especificado).',
+    '2. CUIDADOS ESSENCIAIS: Evite quedas, umidade',
+    'excessiva, exposicao direta ao sol e liquidos.',
+    '3. LIMPEZA: Utilize apenas pano seco e macio.',
+    '4. INSTALACAO: Utilize voltagem e carregadores',
+    'originais recomendados pelo fabricante.',
+    '5. A perda desta via invalida a garantia.',
+    '6. Apresente este comprovante para acionar.'
   ];
 
   conditions.forEach(c => {
@@ -251,12 +260,14 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   });
 
   y -= 10;
-  drawLine();
-  y -= 15;
   
-  // Signature
+  // Signature Box
   drawLine();
-  drawText(`${settings.storeName || 'LOJA'} - Carimbo/Assinatura`, 8, true, 'center');
+  y -= 10;
+  drawText('CARIMBO DA LOJA', 8, true, 'center');
+  y -= 50; // Space for stamp
+  drawLine();
+  drawText(`${settings.storeName || 'LOJA'} - Vendedor`, 8, true, 'center');
 
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
