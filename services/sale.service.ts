@@ -83,10 +83,19 @@ export async function createSale(input: CreateSaleInput) {
 
       // Validar pagamentos
       const paymentsTotal = input.payments.reduce((sum, p) => sum + p.amount, 0);
-      if (Math.abs(paymentsTotal - totalAmount.toNumber()) > 0.01) {
+      const totalAmountNum = totalAmount.toNumber();
+      
+      let change = 0;
+      if (paymentsTotal < totalAmountNum - 0.01) {
         throw new InvalidOperationError(
-          `Soma dos pagamentos (R$ ${paymentsTotal.toFixed(2)}) difere do total da venda (R$ ${totalAmount.toFixed(2)}).`
+          `Soma dos pagamentos (R$ ${paymentsTotal.toFixed(2)}) é menor que o total da venda (R$ ${totalAmountNum.toFixed(2)}).`
         );
+      } else if (paymentsTotal > totalAmountNum + 0.01) {
+        const hasCash = input.payments.some(p => p.paymentMethod === 'DINHEIRO');
+        if (!hasCash) {
+          throw new InvalidOperationError(`Apenas pagamentos em dinheiro permitem troco. O valor excedeu o total.`);
+        }
+        change = paymentsTotal - totalAmountNum;
       }
 
       // Sequencial
@@ -141,7 +150,7 @@ export async function createSale(input: CreateSaleInput) {
         data: {
           cashSessionId: input.cashSessionId,
           type: 'VENDA',
-          amount: totalAmount,
+          amount: totalAmount, // Só registra a receita real como movimento
           sourceType: 'SALE',
           sourceId: sale.id,
           userId: input.operatorId,
@@ -158,7 +167,8 @@ export async function createSale(input: CreateSaleInput) {
         metadata: { sequentialNumber, totalAmount: totalAmount.toFixed(2) },
       });
 
-      return sale;
+      // Return sale with calculated change attached for PDF printing
+      return { ...sale, change };
     },
     {
       timeout: 10000,
