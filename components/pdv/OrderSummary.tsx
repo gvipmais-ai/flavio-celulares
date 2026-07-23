@@ -35,22 +35,6 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
     });
   }, [registerShortcut, cart.length, onCheckout]);
 
-  const handleAddPayment = () => {
-    const val = parseFloat(paymentAmountInput.replace(',', '.'));
-    if (isNaN(val) || val <= 0) {
-      toast.error('Valor de pagamento inválido');
-      return;
-    }
-    
-    // Warn if giving too much for non-cash (we can't give change for credit card)
-    if (paymentMethodSelect !== 'DINHEIRO' && val > remainingToPay) {
-      toast.warning('Atenção: Não é possível dar troco em métodos que não sejam dinheiro. Limitando ao restante.');
-      addPayment(paymentMethodSelect, remainingToPay);
-    } else {
-      addPayment(paymentMethodSelect, val);
-    }
-  };
-
   const handleApplyGeneralDiscount = () => {
     const parsed = parseFloat(discountInput.replace(',', '.'));
     if (!isNaN(parsed) && parsed >= 0) {
@@ -164,25 +148,52 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
           </div>
         </div>
 
-        {/* Quick Payment Buttons (Only show if still needs to pay) */}
+        {/* Quick Payment Area */}
         {remainingToPay > 0 && (
-          <div className="grid grid-cols-2 gap-2 mb-2">
-            {paymentButtons.map(btn => {
-              const Icon = btn.icon;
-              return (
-                <button
-                  key={btn.method}
-                  onClick={() => {
-                    setPaymentMethodSelect(btn.method);
-                    document.getElementById('payment-amount-input')?.focus();
-                  }}
-                  className={`flex flex-col items-center justify-center p-3 rounded-xl border ${btn.color} ${paymentMethodSelect === btn.method ? 'ring-2 ring-primary-500 scale-105' : 'opacity-80 hover:opacity-100'} transition-all`}
-                >
-                  <Icon className="w-6 h-6 mb-1" />
-                  <span className="text-xs font-bold uppercase">{btn.label}</span>
-                </button>
-              );
-            })}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col">
+              <label className="text-xs font-bold text-slate-500 uppercase mb-1">Valor Recebido (R$)</label>
+              <div className="relative">
+                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input 
+                  id="payment-amount-input"
+                  type="number"
+                  step="0.01"
+                  value={paymentAmountInput}
+                  onChange={e => setPaymentAmountInput(e.target.value)}
+                  onFocus={e => e.target.select()}
+                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg pl-10 pr-3 py-3 text-2xl font-black text-[var(--text-primary)] focus:ring-2 focus:ring-primary-500"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2 mb-2">
+              {paymentButtons.map(btn => {
+                const Icon = btn.icon;
+                return (
+                  <button
+                    key={btn.method}
+                    onClick={() => {
+                      const val = parseFloat(paymentAmountInput.replace(',', '.'));
+                      if (isNaN(val) || val <= 0) {
+                        toast.error('Valor numérico inválido');
+                        return;
+                      }
+                      if (btn.method !== 'DINHEIRO' && val > remainingToPay) {
+                        toast.warning('Atenção: Troco apenas para dinheiro. Adicionado o valor restante exato.');
+                        addPayment(btn.method, remainingToPay);
+                      } else {
+                        addPayment(btn.method, val);
+                      }
+                    }}
+                    className={`flex flex-col items-center justify-center p-3 rounded-xl border ${btn.color} opacity-80 hover:opacity-100 transition-all hover:scale-105 active:scale-95 shadow-sm`}
+                  >
+                    <Icon className="w-6 h-6 mb-1" />
+                    <span className="text-xs font-bold uppercase">{btn.label}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 
@@ -219,36 +230,6 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
                   <span className="font-black text-rose-500">{formatCurrency(remainingToPay)}</span>
                 </div>
               )}
-            </div>
-          </div>
-        )}
-
-        {/* Add Payment Form */}
-        {remainingToPay > 0 && (
-          <div className="flex flex-col gap-2 bg-slate-100 dark:bg-slate-800 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
-            <span className="text-xs font-bold text-slate-500 uppercase">Confirmar Pagamento em {paymentMethodSelect.replace('_', ' ')}</span>
-            <div className="flex gap-2">
-              <div className="relative flex-1">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  id="payment-amount-input"
-                  type="number"
-                  step="0.01"
-                  value={paymentAmountInput}
-                  onChange={e => setPaymentAmountInput(e.target.value)}
-                  onFocus={e => e.target.select()}
-                  onKeyDown={e => {
-                    if (e.key === 'Enter') handleAddPayment();
-                  }}
-                  className="w-full bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg pl-10 pr-3 py-3 text-xl font-black text-[var(--text-primary)] focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-              <button 
-                onClick={handleAddPayment}
-                className="bg-primary-600 hover:bg-primary-700 text-white rounded-lg px-6 font-bold flex items-center justify-center transition-colors shadow-sm"
-              >
-                Incluir
-              </button>
             </div>
           </div>
         )}
