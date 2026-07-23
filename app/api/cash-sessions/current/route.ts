@@ -15,6 +15,7 @@ export async function GET(req: NextRequest) {
     const cashSession = await prisma.cashSession.findFirst({
       where: { operatorId: session.sub, status: 'ABERTA' },
       include: {
+        operator: { select: { name: true } },
         cashMovements: { orderBy: { createdAt: 'desc' } },
         sales: {
           where: { status: 'CONCLUIDA' },
@@ -42,6 +43,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({
       session: {
         id: cashSession.id,
+        operatorName: cashSession.operator.name,
         openedAt: cashSession.openedAt,
         openingAmount: cashSession.openingAmount,
         totalSales,

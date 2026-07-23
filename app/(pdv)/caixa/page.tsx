@@ -54,7 +54,7 @@ function PDVContent() {
         <div className="flex flex-col lg:flex-row flex-1 overflow-hidden relative">
           {/* Watermark Logo */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0 opacity-[0.03] dark:opacity-[0.05]">
-            <img src="/logo-v6.png" alt="Flavio Celulares" className="w-[600px] grayscale" />
+            <img src="/images/logo-v6.png" alt="Flavio Celulares" className="w-[600px] grayscale" />
           </div>
 
           {/* Esquerda: 70% */}

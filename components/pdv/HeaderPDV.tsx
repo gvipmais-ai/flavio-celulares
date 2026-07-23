@@ -2,12 +2,14 @@
 
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
 import Link from 'next/link';
+import React, { useState } from 'react';
 import { usePDV } from './PDVContext';
-import { Lock, LockOpen, LayoutDashboard } from 'lucide-react';
+import { Lock, LockOpen, LayoutDashboard, Eye, EyeOff } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal: () => void, onOpenHelp: () => void }) {
   const { cashSession } = usePDV();
+  const [showFundo, setShowFundo] = useState(false);
 
   return (
     <header className="flex h-16 items-center justify-between bg-slate-900 px-4 shrink-0 border-b border-slate-800">
@@ -30,7 +32,15 @@ export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal
           <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3 py-1.5 rounded-md">
             <LockOpen className="w-4 h-4 text-emerald-400" />
             <span className="text-xs font-bold text-emerald-400">Caixa Aberto (Sessão #{cashSession.id.slice(-5)})</span>
-            <span className="text-xs text-slate-300 ml-2">Fundo: {formatCurrency(cashSession.openingAmount)}</span>
+            <div className="flex items-center gap-2 ml-2 pl-2 border-l border-emerald-500/30">
+              <span className="text-xs text-slate-300">Fundo:</span>
+              <span className="text-xs font-bold text-slate-200 w-20 text-right">
+                {showFundo ? formatCurrency(cashSession.openingAmount) : 'R$ •••••'}
+              </span>
+              <button onClick={() => setShowFundo(!showFundo)} className="text-slate-400 hover:text-white transition-colors">
+                {showFundo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
+            </div>
           </div>
         ) : (
           <div className="flex items-center gap-2 bg-rose-500/10 border border-rose-500/30 px-3 py-1.5 rounded-md">
