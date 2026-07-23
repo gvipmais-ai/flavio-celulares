@@ -23,10 +23,11 @@ interface SaleData {
 }
 
 interface StoreSettings {
-  storeName: string;
-  address: string;
-  phone: string;
-  cnpj: string;
+  name?: string;
+  tradeName?: string;
+  address?: string;
+  phone?: string;
+  cnpj?: string;
 }
 
 const THERMAL_WIDTH = 226; // 80mm equivalent
@@ -74,10 +75,11 @@ export async function generateThermalReceiptPDF(sale: SaleData, settings: StoreS
   };
 
   // Header
-  drawText(settings.storeName || 'LOJA', 12, true, 'center');
+  const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
+  drawText(storeName, 12, true, 'center');
   y -= 2;
-  drawText(settings.address || 'Endereço não cadastrado', 8, false, 'center');
-  drawText(`${settings.phone ? 'Tel: '+settings.phone : ''} ${settings.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
+  if (settings?.address) drawText(settings.address, 8, false, 'center');
+  drawText(`${settings?.phone ? 'Tel: '+settings.phone : ''} ${settings?.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
   
   y -= 5;
   drawLine();
@@ -207,10 +209,11 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   };
 
   // Header
-  drawText(settings.storeName || 'LOJA', 12, true, 'center');
+  const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
+  drawText(storeName, 12, true, 'center');
   y -= 2;
-  drawText(settings.address || 'Endereço não cadastrado', 8, false, 'center');
-  drawText(`${settings.phone ? 'Tel: '+settings.phone : ''} ${settings.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
+  if (settings?.address) drawText(settings.address, 8, false, 'center');
+  drawText(`${settings?.phone ? 'Tel: '+settings.phone : ''} ${settings?.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
   
   y -= 5;
   drawLine();
@@ -267,7 +270,7 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   drawText('CARIMBO DA LOJA', 8, true, 'center');
   y -= 50; // Space for stamp
   drawLine();
-  drawText(`${settings.storeName || 'LOJA'} - Vendedor`, 8, true, 'center');
+  drawText(`${settings?.tradeName || settings?.name || 'FLAVIO CELULARES'} - Vendedor`, 8, true, 'center');
 
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
