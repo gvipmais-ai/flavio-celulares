@@ -17,14 +17,9 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
     registerShortcut
   } = usePDV();
 
-  const [paymentMethodSelect, setPaymentMethodSelect] = useState('DINHEIRO');
   const [paymentAmountInput, setPaymentAmountInput] = useState('');
   const [showDiscountInput, setShowDiscountInput] = useState(false);
   const [discountInput, setDiscountInput] = useState('');
-
-  useEffect(() => {
-    setPaymentAmountInput(remainingToPay.toFixed(2));
-  }, [remainingToPay]);
 
   // Keyboard Shortcuts
   useEffect(() => {
@@ -151,22 +146,6 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
         {/* Quick Payment Area */}
         {remainingToPay > 0 && (
           <div className="flex flex-col gap-3">
-            <div className="flex flex-col">
-              <label className="text-xs font-bold text-slate-500 uppercase mb-1">Valor Recebido (R$)</label>
-              <div className="relative">
-                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <input 
-                  id="payment-amount-input"
-                  type="number"
-                  step="0.01"
-                  value={paymentAmountInput}
-                  onChange={e => setPaymentAmountInput(e.target.value)}
-                  onFocus={e => e.target.select()}
-                  className="w-full bg-slate-50 dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-lg pl-10 pr-3 py-3 text-2xl font-black text-[var(--text-primary)] focus:ring-2 focus:ring-primary-500"
-                />
-              </div>
-            </div>
-
             <div className="grid grid-cols-2 gap-2 mb-2">
               {paymentButtons.map(btn => {
                 const Icon = btn.icon;
@@ -174,22 +153,25 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
                   <button
                     key={btn.method}
                     onClick={() => {
-                      const val = parseFloat(paymentAmountInput.replace(',', '.'));
-                      if (isNaN(val) || val <= 0) {
-                        toast.error('Valor numérico inválido');
-                        return;
-                      }
-                      if (btn.method !== 'DINHEIRO' && val > remainingToPay) {
-                        toast.warning('Atenção: Troco apenas para dinheiro. Adicionado o valor restante exato.');
-                        addPayment(btn.method, remainingToPay);
+                      if (btn.method === 'DINHEIRO') {
+                        const valStr = window.prompt(`Valor Recebido em DINHEIRO:\n(Falta: ${formatCurrency(remainingToPay)})`, remainingToPay.toFixed(2));
+                        if (valStr !== null) {
+                          const val = parseFloat(valStr.replace(',', '.'));
+                          if (!isNaN(val) && val > 0) {
+                            addPayment(btn.method, val);
+                          } else {
+                            toast.error('Valor numérico inválido');
+                          }
+                        }
                       } else {
-                        addPayment(btn.method, val);
+                        // Cartão ou Pix
+                        addPayment(btn.method, remainingToPay);
                       }
                     }}
-                    className={`flex flex-col items-center justify-center p-3 rounded-xl border ${btn.color} opacity-80 hover:opacity-100 transition-all hover:scale-105 active:scale-95 shadow-sm`}
+                    className={`flex flex-col items-center justify-center p-4 rounded-xl border ${btn.color} opacity-90 hover:opacity-100 transition-all hover:scale-105 active:scale-95 shadow-sm`}
                   >
-                    <Icon className="w-6 h-6 mb-1" />
-                    <span className="text-xs font-bold uppercase">{btn.label}</span>
+                    <Icon className="w-8 h-8 mb-2" />
+                    <span className="text-sm font-bold uppercase">{btn.label}</span>
                   </button>
                 );
               })}

@@ -267,8 +267,8 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   // Signature Box
   drawLine();
   y -= 10;
-  drawText('CARIMBO DA LOJA', 8, true, 'center');
-  y -= 50; // Space for stamp
+  drawText('CARIMBO DA LOJA E ASSINATURA', 8, true, 'center');
+  y -= 80; // Espaço GRANDE para carimbo e assinatura
   drawLine();
   drawText(`${settings?.tradeName || settings?.name || 'FLAVIO CELULARES'} - Vendedor`, 8, true, 'center');
 
