@@ -12,7 +12,7 @@ import { ShortcutsHelpModal } from '@/components/pdv/ShortcutsHelpModal';
 
 // PDV Inner component wrapped in Provider
 function PDVContent() {
-  const { registerShortcut, clearCart, cashSession } = usePDV();
+  const { registerShortcut, clearCart, cashSession, isLoadingSession } = usePDV();
   
   const [showCheckout, setShowCheckout] = useState(false);
   const [showDrawer, setShowDrawer] = useState(false);
@@ -37,7 +37,11 @@ function PDVContent() {
       />
 
       {/* Block PDV if no cash session is open */}
-      {!cashSession ? (
+      {isLoadingSession ? (
+        <div className="flex-1 flex items-center justify-center">
+           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+        </div>
+      ) : !cashSession ? (
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center max-w-md p-8 bg-white dark:bg-slate-900 rounded-2xl shadow-xl border border-slate-200 dark:border-slate-800">
             <h2 className="text-2xl font-black mb-4 text-[var(--text-primary)]">Nenhum Caixa Aberto</h2>
