@@ -1,13 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { Settings, Save, Loader2, Building2 } from 'lucide-react';
 import { toast } from 'sonner';
+import { DatabaseWipeModal } from '@/components/settings/DatabaseWipeModal';
 
 export default function ConfiguracoesPage() {
   const [settings, setSettings] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  
+  const [clickCount, setClickCount] = useState(0);
+  const [isWipeModalOpen, setIsWipeModalOpen] = useState(false);
+  const clickTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTitleClick = () => {
+    setClickCount((prev) => {
+      const newCount = prev + 1;
+      if (newCount >= 5) {
+        setIsWipeModalOpen(true);
+        return 0;
+      }
+      return newCount;
+    });
+
+    if (clickTimeoutRef.current) clearTimeout(clickTimeoutRef.current);
+    clickTimeoutRef.current = setTimeout(() => {
+      setClickCount(0);
+    }, 1500); // Reset clicks if user pauses for more than 1.5 seconds
+  };
 
   useEffect(() => {
     async function loadSettings() {
@@ -51,8 +72,13 @@ export default function ConfiguracoesPage() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
+      <DatabaseWipeModal isOpen={isWipeModalOpen} onClose={() => setIsWipeModalOpen(false)} />
+
       <div>
-        <h1 className="text-xl font-bold text-white flex items-center gap-2">
+        <h1 
+          className="text-xl font-bold text-white flex items-center gap-2 select-none cursor-default"
+          onClick={handleTitleClick}
+        >
           <Building2 className="h-5 w-5 text-blue-400" />
           Configurações da Loja
         </h1>
