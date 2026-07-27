@@ -1,4 +1,5 @@
 @echo off
+cd /d "%~dp0"
 title Flavio Celulares - PDV
 echo =========================================
 echo    INICIANDO SISTEMA FLAVIO CELULARES
