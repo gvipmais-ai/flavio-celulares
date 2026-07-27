@@ -14,10 +14,10 @@
     
     --border-color: #E2E8F0;
     
-    --primary: #1A3A5C;
-    --primary-hover: #112942;
-    --secondary: #2E86AB;
-    --secondary-hover: #226785;
+    --primary: #2563EB;
+    --primary-hover: #1D4ED8;
+    --secondary: #0EA5E9;
+    --secondary-hover: #0284C7;
     
     --danger: #EF4444;
     --danger-hover: #DC2626;
@@ -223,13 +223,19 @@
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    transition-property: all;
-    transition-duration: 150ms;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
+    transform: scale(1);
+    will-change: transform, box-shadow;
   }
   .btn:disabled {
     cursor: not-allowed;
-    opacity: 0.5;
+    opacity: 0.6;
+    transform: none !important;
+    box-shadow: none !important;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.96);
   }
 
   .btn-primary {
@@ -241,13 +247,21 @@
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    background-color: var(--primary);
+    background: linear-gradient(145deg, var(--primary), var(--primary-hover));
     color: #ffffff;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    box-shadow: 0 2px 4px rgba(37, 99, 235, 0.15);
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid transparent;
   }
-  .btn-primary:hover {
-    background-color: var(--primary-hover);
+  .btn-primary:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 6px 12px -2px rgba(37, 99, 235, 0.25), 0 3px 6px -3px rgba(37, 99, 235, 0.15);
+    filter: brightness(1.05);
+  }
+  .btn-primary:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: 0 1px 2px rgba(37, 99, 235, 0.1);
   }
 
   .btn-secondary {
@@ -264,9 +278,16 @@
     background-color: var(--bg-card);
     color: var(--text-heading);
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .btn-secondary:hover {
+  .btn-secondary:hover:not(:disabled) {
     background-color: var(--bg-card-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+  }
+  .btn-secondary:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: none;
   }
 
   .btn-danger {
@@ -278,12 +299,20 @@
     padding: 0.5rem 1rem;
     font-size: 0.875rem;
     font-weight: 600;
-    background-color: var(--danger);
+    background: linear-gradient(145deg, var(--danger), var(--danger-hover));
     color: #ffffff;
     cursor: pointer;
+    box-shadow: 0 2px 4px rgba(239, 68, 68, 0.15);
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .btn-danger:hover {
-    background-color: var(--danger-hover);
+  .btn-danger:hover:not(:disabled) {
+    transform: translateY(-1px) scale(1.01);
+    box-shadow: 0 6px 12px -2px rgba(239, 68, 68, 0.25), 0 3px 6px -3px rgba(239, 68, 68, 0.15);
+    filter: brightness(1.05);
+  }
+  .btn-danger:active:not(:disabled) {
+    transform: scale(0.97);
+    box-shadow: 0 1px 2px rgba(239, 68, 68, 0.1);
   }
 
   .btn-ghost {
@@ -297,10 +326,15 @@
     font-weight: 500;
     color: var(--text-muted);
     cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   }
-  .btn-ghost:hover {
+  .btn-ghost:hover:not(:disabled) {
     background-color: var(--bg-card-hover);
     color: var(--text-heading);
+    transform: scale(1.02);
+  }
+  .btn-ghost:active:not(:disabled) {
+    transform: scale(0.95);
   }
 
   .btn-icon { padding: 0.5rem; }
