@@ -9,8 +9,25 @@ export function ProductSearch() {
   const { addToCart, registerShortcut } = usePDV();
   const [query, setQuery] = useState('');
   const [results, setResults] = useState<any[]>([]);
+  const [allProducts, setAllProducts] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  // Pre-load all products for instant search in PDV
+  useEffect(() => {
+    async function loadCatalog() {
+      try {
+        const res = await fetch('/api/products?pageSize=5000');
+        const data = await res.json();
+        if (data.data) {
+          setAllProducts(data.data);
+        }
+      } catch (err) {
+        console.error('Failed to load catalog', err);
+      }
+    }
+    loadCatalog();
+  }, []);
 
   // Focus F2
   useEffect(() => {
@@ -25,44 +42,76 @@ export function ProductSearch() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Debounce search
+  // Local instant search
   useEffect(() => {
     if (!query.trim()) {
       setResults([]);
       return;
     }
-    const timer = setTimeout(async () => {
-      setIsSearching(true);
-      try {
-        const res = await fetch(`/api/products?search=${encodeURIComponent(query)}&pageSize=10`);
-        const data = await res.json();
-        setResults(data.data || []);
-      } catch {
-        // ignore
-      } finally {
-        setIsSearching(false);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [query]);
+    
+    // If we have loaded the catalog, do instant filtering
+    if (allProducts.length > 0) {
+      const q = query.toLowerCase().trim();
+      const filtered = allProducts.filter(p => 
+        p.name.toLowerCase().includes(q) || 
+        p.code.toLowerCase().includes(q) || 
+        (p.barcode && p.barcode.includes(q))
+      ).slice(0, 15); // Show max 15 results
+      
+      setResults(filtered);
+    } else {
+      // Fallback if catalog not loaded yet (debounced)
+      const timer = setTimeout(async () => {
+        setIsSearching(true);
+        try {
+          const res = await fetch(`/api/products?search=${encodeURIComponent(query)}&pageSize=10`);
+          const data = await res.json();
+          setResults(data.data || []);
+        } catch {
+        } finally {
+          setIsSearching(false);
+        }
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [query, allProducts]);
 
   const handleKeyDown = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter' && query.trim()) {
       e.preventDefault();
-      const res = await fetch(`/api/products?search=${encodeURIComponent(query.trim())}`);
-      const data = await res.json();
-      
-      const exact = data.data?.find(
-        (p: any) => p.code.toLowerCase() === query.trim().toLowerCase() || p.barcode === query.trim()
-      );
+      const q = query.trim().toLowerCase();
 
-      if (exact) {
-        addToCart(exact);
-        setQuery('');
-      } else if (data.data && data.data.length > 0) {
-        addToCart(data.data[0]);
-        setQuery('');
+      // Check local cache first for instant barcode scanning
+      if (allProducts.length > 0) {
+        const exact = allProducts.find(
+          (p: any) => p.code.toLowerCase() === q || p.barcode === q
+        );
+        if (exact) {
+          addToCart(exact);
+          setQuery('');
+          return;
+        }
+      }
+
+      // Fallback to API if not found locally or cache empty
+      setIsSearching(true);
+      try {
+        const res = await fetch(`/api/products?search=${encodeURIComponent(query.trim())}`);
+        const data = await res.json();
+        
+        const exact = data.data?.find(
+          (p: any) => p.code.toLowerCase() === q || p.barcode === query.trim()
+        );
+
+        if (exact) {
+          addToCart(exact);
+          setQuery('');
+        } else if (data.data && data.data.length > 0) {
+          addToCart(data.data[0]);
+          setQuery('');
+        }
+      } finally {
+        setIsSearching(false);
       }
     }
   };
