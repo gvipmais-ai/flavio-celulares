@@ -220,6 +220,8 @@ export const ServiceOrderSchema = z.object({
   observations: z.string().max(500).optional().nullable(),
   technicianId: z.string().cuid().optional().nullable(),
   estimatedCompletionAt: z.string().datetime().optional().nullable(),
+  devicePhotoUrl: z.string().optional().nullable(),
+  damageMap: z.string().optional().nullable(),
 });
 
 export const UpdateServiceOrderStatusSchema = z.object({

@@ -88,6 +88,8 @@ export async function POST(req: NextRequest) {
           accessoriesReceived: data.accessoriesReceived,
           reportedIssue: data.reportedIssue,
           visualCondition: data.visualCondition,
+          devicePhotoUrl: data.devicePhotoUrl,
+          damageMap: data.damageMap,
           observations: data.observations,
           technicianId: data.technicianId,
           estimatedCompletionAt: data.estimatedCompletionAt

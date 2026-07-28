@@ -9,6 +9,18 @@ import { formatCurrency } from '@/lib/formatters';
 
 export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal: () => void, onOpenHelp: () => void }) {
   const { cashSession } = usePDV();
+
+  // Calcular saldo atual do caixa
+  const currentBalance = cashSession ? (() => {
+    let balance = Number(cashSession.openingAmount);
+    if (cashSession.movements) {
+      cashSession.movements.forEach((m: any) => {
+        if (m.type === 'SUPRIMENTO' || m.type === 'VENDA') balance += Number(m.amount);
+        if (m.type === 'SANGRIA' || m.type === 'CANCELAMENTO') balance -= Number(m.amount);
+      });
+    }
+    return balance;
+  })() : 0;
   const [showFundo, setShowFundo] = useState(false);
 
   return (
@@ -35,7 +47,7 @@ export function HeaderPDV({ onOpenDrawerModal, onOpenHelp }: { onOpenDrawerModal
             <div className="flex items-center gap-2 ml-2 pl-2 border-l border-emerald-500/30">
               <span className="text-xs text-slate-300">Fundo:</span>
               <span className="text-xs font-bold text-slate-200 w-20 text-right">
-                {showFundo ? formatCurrency(cashSession.openingAmount) : 'R$ •••••'}
+                {showFundo ? formatCurrency(currentBalance) : 'R$ •••••'}
               </span>
               <button onClick={() => setShowFundo(!showFundo)} className="text-slate-400 hover:text-white transition-colors">
                 {showFundo ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}

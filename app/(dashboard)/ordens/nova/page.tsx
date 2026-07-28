@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import { Wrench, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { CameraCapture } from '@/components/ui/CameraCapture';
+import { DamageDiagram, DamagePin } from '@/components/ui/DamageDiagram';
 
 export default function NovaOrdemPage() {
   const router = useRouter();
@@ -18,7 +20,10 @@ export default function NovaOrdemPage() {
   const [color, setColor] = useState('');
   const [accessories, setAccessories] = useState('');
   const [reportedIssue, setReportedIssue] = useState('');
-  const [visualCondition, setVisualCondition] = useState('');
+  
+  // New Checklist State
+  const [devicePhoto, setDevicePhoto] = useState<string>('');
+  const [damagePins, setDamagePins] = useState<DamagePin[]>([]);
 
   useEffect(() => {
     async function loadCustomers() {
@@ -43,6 +48,24 @@ export default function NovaOrdemPage() {
 
     setIsLoading(true);
     try {
+      let uploadedPhotoUrl = null;
+
+      // Se houver uma foto capturada, faz o upload primeiro
+      if (devicePhoto) {
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ base64Data: devicePhoto, filename: 'os_entry.jpg' })
+        });
+        
+        if (uploadRes.ok) {
+          const uploadData = await uploadRes.json();
+          uploadedPhotoUrl = uploadData.url;
+        } else {
+          toast.error('Aviso: Falha ao salvar a foto, mas a OS será criada.');
+        }
+      }
+
       const res = await fetch('/api/service-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +77,9 @@ export default function NovaOrdemPage() {
           color,
           accessoriesReceived: accessories,
           reportedIssue,
-          visualCondition,
+          visualCondition: damagePins.length > 0 ? `${damagePins.length} avaria(s) marcada(s)` : 'Nenhuma',
+          devicePhotoUrl: uploadedPhotoUrl,
+          damageMap: damagePins.length > 0 ? JSON.stringify(damagePins) : null,
         }),
       });
 
@@ -175,14 +200,10 @@ export default function NovaOrdemPage() {
             />
           </div>
 
-          <div>
-            <label className="label">Estado Visual / Marcas de Uso</label>
-            <textarea
-              value={visualCondition}
-              onChange={(e) => setVisualCondition(e.target.value)}
-              className="input h-20"
-              placeholder="Ex: Riscados na tampa traseira, marcas de queda no canto superior..."
-            />
+          <div className="space-y-4 pt-4 border-t border-slate-800">
+            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Checklist Técnico Visual</h2>
+            <CameraCapture onCapture={setDevicePhoto} currentImage={devicePhoto} />
+            <DamageDiagram value={damagePins} onChange={setDamagePins} />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">

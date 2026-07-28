@@ -17,7 +17,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     customerName, customerCpf, 
     payments, 
     grossTotal, totalDiscount, netTotal, totalPaid, change,
-    clearCart, registerShortcut, settings
+    clearCart, registerShortcut, settings, reloadSession
   } = usePDV();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -92,6 +92,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
       
       setSuccessData(completedSale);
       clearCart(); // Limpa o estado global
+      reloadSession(); // Atualiza os totais e fundo de caixa no cabeçalho
       
     } catch (err: any) {
       toast.error(err.message);

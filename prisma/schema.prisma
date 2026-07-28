@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -393,6 +393,8 @@ model ServiceOrder {
   accessoriesReceived   String?
   reportedIssue         String
   visualCondition       String?
+  devicePhotoUrl        String?
+  damageMap             String?
   observations          String?
   technicianId          String?
   createdById           String

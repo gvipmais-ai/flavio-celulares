@@ -97,7 +97,8 @@ export async function createSale(input: CreateSaleInput) {
         }
         change = paymentsTotal - totalAmountNum;
       }
-
+      // Remover `dbPayments`, pois vamos salvar os pagamentos reais fornecidos pelo cliente na Venda.
+      // O troco já foi calculado na variável `change`.
       // Sequencial
       const updatedSettings = await tx.storeSettings.update({
         where: { id: 'singleton' },
@@ -125,7 +126,7 @@ export async function createSale(input: CreateSaleInput) {
           payments: {
             create: input.payments.map((p) => ({
               paymentMethod: p.paymentMethod as any,
-              amount: new Decimal(p.amount),
+              amount: p.amount,
             })),
           },
         },
@@ -145,17 +146,26 @@ export async function createSale(input: CreateSaleInput) {
         );
       }
 
-      // Movimentação de caixa
-      await tx.cashMovement.create({
-        data: {
-          cashSessionId: input.cashSessionId,
-          type: 'VENDA',
-          amount: totalAmount, // Só registra a receita real como movimento
-          sourceType: 'SALE',
-          sourceId: sale.id,
-          userId: input.operatorId,
-        },
-      });
+      // Movimentação de caixa física (APENAS DINHEIRO LÍQUIDO)
+      // Aqui descontamos o troco apenas para a Gaveta de Dinheiro.
+      const cashPaymentsTotal = input.payments
+        .filter((p) => p.paymentMethod === 'DINHEIRO')
+        .reduce((sum, p) => sum + p.amount, 0);
+        
+      const cashNet = new Decimal(cashPaymentsTotal - change);
+
+      if (cashNet.gt(0)) {
+        await tx.cashMovement.create({
+          data: {
+            cashSessionId: input.cashSessionId,
+            type: 'VENDA',
+            amount: cashNet,
+            sourceType: 'SALE',
+            sourceId: sale.id,
+            userId: input.operatorId,
+          },
+        });
+      }
 
       // Auditoria
       await createAuditLogTx(tx, {
@@ -200,18 +210,21 @@ export async function cancelSale(saleId: string, reason: string, adminId: string
       );
     }
 
-    // Estorno no caixa
-    await tx.cashMovement.create({
-      data: {
-        cashSessionId: sale.cashSessionId,
-        type: 'CANCELAMENTO',
-        amount: sale.totalAmount,
-        reason,
-        sourceType: 'SALE_CANCEL',
-        sourceId: sale.id,
-        userId: adminId,
-      },
-    });
+    // Estorno no caixa (APENAS DINHEIRO LÍQUIDO DEVOLVIDO)
+    const cashPayment = sale.payments.find(p => p.paymentMethod === 'DINHEIRO');
+    if (cashPayment && cashPayment.amount.gt(0)) {
+      await tx.cashMovement.create({
+        data: {
+          cashSessionId: sale.cashSessionId,
+          type: 'CANCELAMENTO',
+          amount: cashPayment.amount,
+          reason: `Estorno físico: ${reason}`,
+          sourceType: 'SALE_CANCEL',
+          sourceId: sale.id,
+          userId: adminId,
+        },
+      });
+    }
 
     const updatedSale = await tx.sale.update({
       where: { id: saleId },

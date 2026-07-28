@@ -2,10 +2,11 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Wrench, CheckCircle, Clock, AlertTriangle, FileText, ArrowLeft } from 'lucide-react';
+import { Wrench, CheckCircle, Clock, AlertTriangle, FileText, ArrowLeft, Camera } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { formatDateTime, formatCurrency } from '@/lib/formatters';
+import { DamageDiagram } from '@/components/ui/DamageDiagram';
 
 export default function DetalheOrdemPage() {
   const params = useParams();
@@ -163,6 +164,38 @@ export default function DetalheOrdemPage() {
               <p className="text-slate-200">{os.reportedIssue}</p>
             </div>
           </div>
+
+          {/* Vistoria Visual (Câmera e Diagrama) */}
+          {(os.devicePhotoUrl || os.damageMap) && (
+            <div className="card p-5 space-y-4">
+              <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
+                <Camera className="w-4 h-4 text-primary" />
+                Vistoria Visual
+              </h2>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {os.devicePhotoUrl && (
+                  <div className="space-y-2">
+                    <p className="text-xs text-slate-500 font-medium">Foto do Aparelho na Entrada</p>
+                    <div className="border border-slate-700 rounded-lg overflow-hidden bg-black flex items-center justify-center aspect-video">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={os.devicePhotoUrl} alt="Foto do Aparelho" className="max-h-full max-w-full object-contain" />
+                    </div>
+                  </div>
+                )}
+                
+                {os.damageMap && (
+                  <div className="space-y-2">
+                    <DamageDiagram 
+                      value={JSON.parse(os.damageMap)} 
+                      onChange={() => {}} 
+                      readOnly={true} 
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
 
           {/* Checklist */}
           <div className="card p-5 space-y-3">
