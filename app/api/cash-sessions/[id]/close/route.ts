@@ -61,7 +61,29 @@ export async function POST(
           },
         },
       },
+      include: {
+        sales: {
+          where: { status: 'CONCLUIDA' },
+          include: { payments: true }
+        }
+      }
     });
+
+    const totalsByPaymentMethod: Record<string, number> = {};
+    let totalRevenue = 0;
+    for (const sale of updatedSession.sales) {
+      totalRevenue += sale.totalAmount.toNumber();
+      for (const p of sale.payments) {
+        const method = p.paymentMethod;
+        totalsByPaymentMethod[method] = (totalsByPaymentMethod[method] || 0) + p.amount.toNumber();
+      }
+    }
+
+    const reportData = {
+      ...updatedSession,
+      totalsByPaymentMethod,
+      totalRevenue
+    };
 
     await createAuditLog({
       userId: session?.sub,
@@ -71,7 +93,7 @@ export async function POST(
       description: `Caixa fechado. Informado: R$ ${informedAmount.toFixed(2)}, Diferença: R$ ${difference.toFixed(2)}`,
     });
 
-    return NextResponse.json({ cashSession: updatedSession });
+    return NextResponse.json({ cashSession: reportData });
   } catch (error) {
     return handleApiError(error);
   }

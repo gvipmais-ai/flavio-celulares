@@ -81,12 +81,26 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
     // Basic thermal print for closure
     const win = window.open();
     if (win) {
+      
+      let paymentsHtml = '';
+      if (closureReport.totalsByPaymentMethod) {
+        paymentsHtml = Object.entries(closureReport.totalsByPaymentMethod)
+          .map(([method, amount]) => `          ${method}: ${formatCurrency(Number(amount))}`)
+          .join('\\n');
+      }
+
       win.document.write(`
         <pre style="font-family: monospace; font-size: 12px;">
           FECHAMENTO DE CAIXA
           Sessão: ${closureReport.id}
           Fechado em: ${new Date(closureReport.closedAt).toLocaleString()}
           --------------------------------
+          FATURAMENTO DO TURNO
+${paymentsHtml || '          (Nenhuma venda registrada)'}
+          --------------------------------
+          Faturamento Total: ${formatCurrency(Number(closureReport.totalRevenue || 0))}
+          --------------------------------
+          RESUMO GAVETA (FÍSICO)
           Abertura: ${formatCurrency(Number(closureReport.openingAmount))}
           Dinheiro Informado: ${formatCurrency(Number(closureReport.informedAmount))}
           Diferença: ${formatCurrency(Number(closureReport.difference))}
@@ -118,8 +132,24 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
               <Lock className="w-8 h-8 text-emerald-500" />
             </div>
             <h3 className="text-2xl font-black mb-2 text-[var(--text-primary)]">Turno Encerrado</h3>
-            <p className="text-slate-500 mb-6">Sua sessão de caixa foi fechada.</p>
+            <p className="text-slate-500 mb-4">Sua sessão de caixa foi fechada.</p>
             
+            {closureReport.totalRevenue !== undefined && (
+              <div className="bg-slate-50 dark:bg-slate-800 p-4 rounded-xl mb-6 border border-slate-200 dark:border-slate-700 text-left">
+                <p className="text-sm font-bold text-slate-500 uppercase tracking-wider mb-2">Resumo do Turno</p>
+                <div className="flex justify-between items-center mb-1">
+                  <span className="text-slate-600 dark:text-slate-400">Faturamento Total:</span>
+                  <span className="font-black text-lg text-[var(--text-primary)]">{formatCurrency(Number(closureReport.totalRevenue || 0))}</span>
+                </div>
+                <div className="flex justify-between items-center text-sm">
+                  <span className="text-slate-600 dark:text-slate-400">Diferença em Gaveta:</span>
+                  <span className={`font-bold ${Number(closureReport.difference) < 0 ? 'text-rose-500' : Number(closureReport.difference) > 0 ? 'text-emerald-500' : 'text-slate-500'}`}>
+                    {formatCurrency(Number(closureReport.difference))}
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-4">
               <button onClick={printClosure} className="flex-1 btn-secondary py-3 font-bold">Imprimir Resumo</button>
               <button onClick={onClose} className="flex-1 btn-primary py-3 font-bold">Sair</button>
