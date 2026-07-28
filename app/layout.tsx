@@ -1,13 +1,7 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
 import './globals.css';
 import { Toaster } from 'sonner';
 import { ThemeProvider } from '@/components/ThemeProvider';
-
-const inter = Inter({
-  subsets: ['latin'],
-  variable: '--font-inter',
-});
 
 export const metadata: Metadata = {
   title: {
@@ -30,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR" className={inter.variable} suppressHydrationWarning>
+    <html lang="pt-BR" suppressHydrationWarning>
       <body className="min-h-screen bg-[var(--bg-default)] text-[var(--text-default)] font-sans antialiased transition-colors duration-200">
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <div id="print-area" />
@@ -41,7 +35,7 @@ export default function RootLayout({
             toastOptions={{
               duration: 4000,
               style: {
-                fontFamily: 'var(--font-inter)',
+                fontFamily: 'Inter, system-ui, sans-serif',
               },
             }}
           />
