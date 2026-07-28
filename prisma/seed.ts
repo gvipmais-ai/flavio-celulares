@@ -172,6 +172,31 @@ async function main() {
   }
   console.log(`✅ ${brands.length} marcas criadas`);
 
+  // ── Checklist Template ───────────────────────────────────────────────────────
+  const checklistItems = [
+    { description: 'Tela', category: 'Display', suggestedPartType: 'TELA', displayOrder: 1 },
+    { description: 'Touch', category: 'Display', displayOrder: 2 },
+    { description: 'Botão de ligar', category: 'Botões', suggestedPartType: 'BOTAO_POWER', displayOrder: 3 },
+    { description: 'Botões de volume', category: 'Botões', suggestedPartType: 'BOTAO_VOLUME', displayOrder: 4 },
+    { description: 'Câmera frontal', category: 'Câmeras', suggestedPartType: 'CAMERA_FRONTAL', displayOrder: 5 },
+    { description: 'Câmera traseira', category: 'Câmeras', suggestedPartType: 'CAMERA_TRASEIRA', displayOrder: 6 },
+    { description: 'Flash', category: 'Câmeras', displayOrder: 7 },
+    { description: 'Microfone', category: 'Áudio', suggestedPartType: 'MICROFONE', displayOrder: 8 },
+    { description: 'Alto-falante', category: 'Áudio', suggestedPartType: 'ALTO_FALANTE', displayOrder: 9 },
+    { description: 'Auricular', category: 'Áudio', displayOrder: 10 },
+    { description: 'Conector de carga', category: 'Conectividade', suggestedPartType: 'CONECTOR_CARGA', displayOrder: 11 },
+    { description: 'Carregamento', category: 'Conectividade', displayOrder: 12 },
+    { description: 'Wi-Fi', category: 'Conectividade', displayOrder: 13 },
+    { description: 'Bluetooth', category: 'Conectividade', displayOrder: 14 },
+    { description: 'Chip e rede móvel', category: 'Conectividade', displayOrder: 15 },
+    { description: 'Biometria', category: 'Segurança', displayOrder: 16 },
+    { description: 'Face ID / Reconhecimento facial', category: 'Segurança', displayOrder: 17 },
+    { description: 'Vibração', category: 'Hardware', displayOrder: 18 },
+    { description: 'Estado da carcaça', category: 'Visual', suggestedPartType: 'CARCACA', displayOrder: 19 },
+    { description: 'Sinais de oxidação', category: 'Visual', displayOrder: 20 },
+    { description: 'Parafusos ou lacres violados', category: 'Visual', displayOrder: 21 },
+  ];
+
   // Apaga os existentes para recriar de forma idempotente
   const existingCount = await prisma.checklistTemplateItem.count();
   if (existingCount === 0) {
