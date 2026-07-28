@@ -7,24 +7,41 @@ import { createAuditLogTx } from '@/lib/audit';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    if (session?.role !== 'SUPERADMIN') throw new UnauthorizedError();
+    if (!session || !['SUPERADMIN', 'ADMIN', 'OPERADOR_CAIXA'].includes(session.role)) {
+      throw new UnauthorizedError();
+    }
 
-    // Exportar tabelas principais
-    const products = await prisma.product.findMany();
-    const categories = await prisma.category.findMany();
-    const brands = await prisma.brand.findMany();
-    const customers = await prisma.customer.findMany();
-    const users = await prisma.user.findMany();
-
+    // Exportar todas as tabelas
     const backupData = {
       timestamp: new Date().toISOString(),
-      version: '1.0',
+      version: '1.1',
       data: {
-        products,
-        categories,
-        brands,
-        customers,
-        users: users.map(u => ({ ...u, passwordHash: undefined })), // Omitir senhas
+        storeSettings: await prisma.storeSettings.findMany(),
+        users: (await prisma.user.findMany()).map(u => ({ ...u, passwordHash: undefined })),
+        categories: await prisma.category.findMany(),
+        brands: await prisma.brand.findMany(),
+        suppliers: await prisma.supplier.findMany(),
+        deviceModels: await prisma.deviceModel.findMany(),
+        products: await prisma.product.findMany(),
+        productCompatibilities: await prisma.productCompatibility.findMany(),
+        inventoryMovements: await prisma.inventoryMovement.findMany(),
+        customers: await prisma.customer.findMany(),
+        purchaseEntries: await prisma.purchaseEntry.findMany(),
+        purchaseEntryItems: await prisma.purchaseEntryItem.findMany(),
+        cashSessions: await prisma.cashSession.findMany(),
+        cashMovements: await prisma.cashMovement.findMany(),
+        sales: await prisma.sale.findMany(),
+        saleItems: await prisma.saleItem.findMany(),
+        salePayments: await prisma.salePayment.findMany(),
+        serviceOrders: await prisma.serviceOrder.findMany(),
+        serviceChecklistItems: await prisma.serviceChecklistItem.findMany(),
+        serviceOrderStatusHistory: await prisma.serviceOrderStatusHistory.findMany(),
+        quotes: await prisma.quote.findMany(),
+        quoteItems: await prisma.quoteItem.findMany(),
+        stockReservations: await prisma.stockReservation.findMany(),
+        auditLogs: await prisma.auditLog.findMany(),
+        checklistTemplateItems: await prisma.checklistTemplateItem.findMany(),
+        returns: await prisma.return.findMany(),
       }
     };
 

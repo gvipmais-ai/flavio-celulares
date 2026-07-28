@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { usePDV } from './PDVContext';
-import { Lock, LockOpen, ArrowRight, ArrowDown, ArrowUp, X, Loader2 } from 'lucide-react';
+import { Lock, LockOpen, ArrowRight, ArrowDown, ArrowUp, X, Loader2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/formatters';
 
@@ -65,10 +65,22 @@ export function CashDrawerModal({ isOpen, onClose }: CashDrawerModalProps) {
         });
         const data = await res.json();
         if (!res.ok) throw new Error(data.error?.message);
-        toast.success('Caixa fechado!');
+        toast.success('Caixa fechado! Gerando backup automático...');
         setClosureReport(data.cashSession);
         clearCart();
         await reloadSession();
+        
+        // Auto-download backup
+        try {
+          const link = document.createElement('a');
+          link.href = '/api/admin/backup';
+          link.download = `backup-${new Date().toISOString().split('T')[0]}.json`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        } catch (e) {
+          console.error("Erro ao baixar backup automático", e);
+        }
       }
     } catch (err: any) {
       toast.error(err.message || 'Ocorreu um erro.');
@@ -150,9 +162,14 @@ ${paymentsHtml || '          (Nenhuma venda registrada)'}
               </div>
             )}
 
-            <div className="flex gap-4">
-              <button onClick={printClosure} className="flex-1 btn-secondary py-3 font-bold">Imprimir Resumo</button>
-              <button onClick={onClose} className="flex-1 btn-primary py-3 font-bold">Sair</button>
+            <div className="flex flex-col gap-3">
+              <div className="flex gap-4">
+                <button onClick={printClosure} className="flex-1 btn-secondary py-3 font-bold">Imprimir Resumo</button>
+                <button onClick={onClose} className="flex-1 btn-primary py-3 font-bold">Sair</button>
+              </div>
+              <a href="/api/admin/backup" download className="w-full py-2 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-xl font-bold flex justify-center items-center gap-2 transition-colors">
+                <Download className="w-4 h-4" /> Baixar Backup Novamente
+              </a>
             </div>
           </div>
         ) : (
