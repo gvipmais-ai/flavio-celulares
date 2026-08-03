@@ -31,8 +31,8 @@ export default async function DashboardLayout({
 
   const result = await prisma.$queryRaw<[{ count: bigint | number }]>`
     SELECT COUNT(*) as count FROM products 
-    WHERE "isActive" = true AND "approvalStatus" = 'APROVADO' 
-    AND "stockOnHand" <= "minimumStock" AND "stockOnHand" >= 0
+    WHERE isActive = 1 AND approvalStatus = 'APROVADO' 
+    AND stockOnHand <= minimumStock AND stockOnHand >= 0
   `;
   const lowStockCount = Number(result[0]?.count ?? 0);
 
