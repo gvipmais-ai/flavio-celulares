@@ -40,7 +40,7 @@ export async function GET() {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        roleName: user.role?.name || 'Sem Cargo',
         mustChangePassword: user.mustChangePassword,
         lastLoginAt: user.lastLoginAt,
       },
