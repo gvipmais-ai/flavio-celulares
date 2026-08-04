@@ -102,9 +102,9 @@ export async function GET(req: NextRequest) {
       results.push({
         id: order.id,
         type: 'OS',
-        title: `OS #\${order.sequentialNumber}`,
-        subtitle: `Cliente: \${order.customer.name} | Aparelho: \${order.deviceModel.name}`,
-        link: `/ordens/\${order.id}`,
+        title: `OS #${order.sequentialNumber}`,
+        subtitle: `Cliente: ${order.customer.name} | Aparelho: ${order.deviceModel.name}`,
+        link: `/ordens/${order.id}`,
       });
     }
 
