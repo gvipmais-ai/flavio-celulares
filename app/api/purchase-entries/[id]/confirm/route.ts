@@ -13,7 +13,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'purchase-entries:confirm');
+    await requirePermission(session, 'purchase-entries:confirm');
 
     const result = await prisma.$transaction(async (tx) => {
       const entry = await tx.purchaseEntry.findUnique({

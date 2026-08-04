@@ -11,9 +11,9 @@ export const dynamic = 'force-dynamic';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'cash:read:own');
+    await requirePermission(session, 'cash:read:own');
 
-    const where = session?.role === 'SUPERADMIN' ? {} : { operatorId: session?.sub };
+    const where = session?.roleName === 'SuperADMIN' ? {} : { operatorId: session?.sub };
 
     const sessions = await prisma.cashSession.findMany({
       where,
@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'cash:open');
+    await requirePermission(session, 'cash:open');
 
     const activeSession = await prisma.cashSession.findFirst({
       where: { operatorId: session?.sub, status: 'ABERTA' },

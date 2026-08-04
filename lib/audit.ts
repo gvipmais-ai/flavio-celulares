@@ -40,7 +40,10 @@ export type AuditAction =
   | 'SUPPLIER_CREATED'
   | 'EXPORT_BACKUP'
   | 'UPDATE_USER'
-  | 'RETURN_CREATED';
+  | 'RETURN_CREATED'
+  | 'ROLE_CREATED'
+  | 'ROLE_UPDATED'
+  | 'ROLE_DELETED';
 
 interface AuditParams {
   userId?: string;

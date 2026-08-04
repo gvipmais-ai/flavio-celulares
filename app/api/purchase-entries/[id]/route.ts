@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'purchase-entries:create');
+    await requirePermission(session, 'purchase-entries:create');
 
     const entry = await prisma.purchaseEntry.findUnique({
       where: { id },

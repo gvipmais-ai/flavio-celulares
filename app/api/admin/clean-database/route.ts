@@ -4,7 +4,7 @@ import { getSession } from '@/lib/cookies';
 
 export async function GET() {
   const session = await getSession();
-  if (!session || session.role !== 'SUPERADMIN') {
+  if (!session || session.roleName !== 'SuperADMIN') {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 

@@ -9,7 +9,7 @@ import { adjustStock } from '@/services/inventory.service';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'stock:read');
+    await requirePermission(session, 'stock:read');
 
     const searchParams = req.nextUrl.searchParams;
     const search = searchParams.get('search') || '';

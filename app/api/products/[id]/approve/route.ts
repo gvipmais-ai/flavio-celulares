@@ -14,7 +14,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:approve');
+    await requirePermission(session, 'products:approve');
 
     const product = await prisma.product.findUnique({ where: { id } });
     if (!product) {

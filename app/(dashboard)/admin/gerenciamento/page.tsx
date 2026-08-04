@@ -175,9 +175,9 @@ export default function SuperAdminPage() {
                               value={u.role}
                               onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })}
                             >
-                              <option value="OPERADOR_CAIXA">Caixa</option>
-                              <option value="TECNICO">Técnico</option>
-                              <option value="SUPERADMIN">SuperAdmin</option>
+                              <option value="Operador de Caixa">Caixa</option>
+                              <option value="Técnico">Técnico</option>
+                              <option value="SuperADMIN">SuperAdmin</option>
                             </select>
                           </td>
                           <td>

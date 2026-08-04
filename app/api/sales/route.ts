@@ -9,7 +9,7 @@ import { createSale } from '@/services/sale.service';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'sales:read:own');
+    await requirePermission(session, 'sales:read:own');
 
     const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get('page')) || 1;
@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status');
 
     const where: any = {};
-    if (session?.role === 'OPERADOR_CAIXA') {
+    if (session?.roleName === 'Operador de Caixa') {
       where.operatorId = session.sub;
     }
     if (status) {
@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'sales:create');
+    await requirePermission(session, 'sales:create');
 
     const body = await req.json();
     const data = CreateSaleSchema.parse(body);

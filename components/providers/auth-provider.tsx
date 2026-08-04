@@ -2,13 +2,12 @@
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { UserRole } from '@/lib/permissions';
 
 interface User {
   id: string;
   name: string;
   email: string;
-  role: UserRole;
+  roleName: string;
   mustChangePassword: boolean;
 }
 

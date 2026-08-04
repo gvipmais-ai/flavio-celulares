@@ -16,7 +16,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:read');
+    await requirePermission(session, 'products:read');
 
     const product = await prisma.product.findUnique({
       where: { id },
@@ -46,8 +46,8 @@ export async function GET(
     }
 
     // Determine cost visibility
-    let showCost = session!.role !== 'OPERADOR_CAIXA';
-    if (session!.role === 'OPERADOR_CAIXA') {
+    let showCost = session!.roleName !== 'Operador de Caixa';
+    if (session!.roleName === 'Operador de Caixa') {
       const settings = await prisma.storeSettings.findUnique({
         where: { id: 'singleton' },
         select: { showCostToOperator: true },
@@ -75,7 +75,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:edit');
+    await requirePermission(session, 'products:edit');
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
@@ -86,7 +86,7 @@ export async function PUT(
     const parsed = ProductSchema.parse(body);
 
     // TECNICO cannot change salePrice
-    if (session!.role === 'TECNICO') {
+    if (session!.roleName === 'Técnico') {
       // Compare as strings to avoid float precision issues (salePrice is Decimal in DB)
       const existingPrice = Number(existing.salePrice);
       const requestedPrice = Number(parsed.salePrice);
@@ -147,7 +147,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:activate');
+    await requirePermission(session, 'products:activate');
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {

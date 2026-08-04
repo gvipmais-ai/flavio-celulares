@@ -14,7 +14,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'purchase-entries:cancel');
+    await requirePermission(session, 'purchase-entries:cancel');
 
     const body = await req.json();
     const data = CancelPurchaseEntrySchema.parse(body);

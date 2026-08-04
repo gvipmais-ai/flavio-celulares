@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:read');
+    await requirePermission(session, 'products:read');
 
     const brand = await prisma.brand.findUnique({ where: { id } });
     if (!brand) throw new NotFoundError('Marca não encontrada');
@@ -32,7 +32,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'brands:manage');
+    await requirePermission(session, 'brands:manage');
 
     const body = await req.json();
     const data = BrandSchema.parse(body);
@@ -55,7 +55,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'brands:manage');
+    await requirePermission(session, 'brands:manage');
 
     const existing = await prisma.brand.findUnique({ where: { id } });
     if (!existing) {

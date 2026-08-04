@@ -13,7 +13,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'users:manage');
+    await requirePermission(session, 'users:manage');
 
     const user = await prisma.user.findUnique({
       where: { id },
@@ -21,7 +21,7 @@ export async function GET(
         id: true,
         name: true,
         email: true,
-        role: true,
+        roleId: true,
         isActive: true,
         mustChangePassword: true,
         lastLoginAt: true,
@@ -44,23 +44,29 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'users:manage');
+    await requirePermission(session, 'users:manage');
 
     const body = await req.json();
     const data = UpdateUserSchema.parse(body);
 
-    if (id === session?.sub && data.role && data.role !== session.role) {
+    if (id === session?.sub && data.roleId) {
       throw new InvalidOperationError('Você não pode alterar seu próprio cargo.');
     }
 
+    const updateData: any = {};
+    if (data.name) updateData.name = data.name;
+    if (data.email) updateData.email = data.email;
+    if (data.roleId) updateData.roleId = data.roleId;
+    if (data.isActive !== undefined) updateData.isActive = data.isActive;
+
     const updatedUser = await prisma.user.update({
       where: { id },
-      data,
+      data: updateData,
       select: {
         id: true,
         name: true,
         email: true,
-        role: true,
+        roleId: true,
         isActive: true,
         updatedAt: true,
       },

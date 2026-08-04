@@ -9,7 +9,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'purchase-entries:create');
+    await requirePermission(session, 'purchase-entries:create');
 
     const entries = await prisma.purchaseEntry.findMany({
       include: {
@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'purchase-entries:create');
+    await requirePermission(session, 'purchase-entries:create');
 
     const body = await req.json();
     const data = PurchaseEntrySchema.parse(body);

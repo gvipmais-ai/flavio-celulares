@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'audit:view');
+    await requirePermission(session, 'audit:view');
 
     const searchParams = req.nextUrl.searchParams;
     const page = Number(searchParams.get('page')) || 1;

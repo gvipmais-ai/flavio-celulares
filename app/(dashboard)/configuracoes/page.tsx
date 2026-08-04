@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect, useState, useRef } from 'react';
-import { Settings, Save, Loader2, Building2 } from 'lucide-react';
+import { Settings, Save, Loader2, Building2, Download } from 'lucide-react';
 import { toast } from 'sonner';
 import { DatabaseWipeModal } from '@/components/settings/DatabaseWipeModal';
 
@@ -69,6 +69,10 @@ export default function ConfiguracoesPage() {
   if (isLoading || !settings) {
     return <div className="p-8 text-center text-slate-500">Carregando configurações...</div>;
   }
+
+  const handleBackup = () => {
+    window.location.href = '/api/backup/export';
+  };
 
   return (
     <div className="mx-auto max-w-3xl space-y-6">
@@ -194,7 +198,12 @@ export default function ConfiguracoesPage() {
           </div>
         </div>
 
-        <div className="flex justify-end pt-4 border-t border-slate-800">
+        <div className="flex justify-between items-center pt-4 border-t border-slate-800">
+          <button type="button" onClick={handleBackup} className="btn-secondary">
+            <Download className="h-4 w-4" />
+            Fazer Backup Manual (JSON)
+          </button>
+          
           <button type="submit" disabled={isSaving} className="btn-primary">
             {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
             Salvar Configurações

@@ -40,7 +40,7 @@ export default async function DashboardLayout({
     id: session.sub,
     name: session.name,
     email: session.email,
-    role: session.role,
+    roleName: session.roleName,
     mustChangePassword: false,
   } : null;
 

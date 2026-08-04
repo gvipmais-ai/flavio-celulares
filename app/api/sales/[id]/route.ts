@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'sales:read:own');
+    await requirePermission(session, 'sales:read:own');
 
     const sale = await prisma.sale.findUnique({
       where: { id },
@@ -25,7 +25,7 @@ export async function GET(
 
     if (!sale) throw new NotFoundError('Venda não encontrada');
 
-    if (session?.role === 'OPERADOR_CAIXA' && sale.operatorId !== session.sub) {
+    if (session?.roleName === 'Operador de Caixa' && sale.operatorId !== session.sub) {
       throw new NotFoundError('Venda não encontrada');
     }
 

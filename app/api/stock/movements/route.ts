@@ -7,7 +7,7 @@ import { prisma } from '@/lib/prisma';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'stock:read');
+    await requirePermission(session, 'stock:read');
 
     const searchParams = req.nextUrl.searchParams;
     const productId = searchParams.get('productId');

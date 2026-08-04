@@ -13,7 +13,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'service-orders:update');
+    await requirePermission(session, 'service-orders:update');
 
     const body = await req.json();
     const data = UpdateServiceOrderStatusSchema.parse(body);

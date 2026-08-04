@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'customers:read');
+    await requirePermission(session, 'customers:read');
 
     const customer = await prisma.customer.findUnique({
       where: { id },
@@ -45,7 +45,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'customers:edit');
+    await requirePermission(session, 'customers:edit');
 
     const body = await req.json();
     const data = CustomerSchema.parse(body);
@@ -74,7 +74,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'customers:edit');
+    await requirePermission(session, 'customers:edit');
 
     await prisma.customer.update({
       where: { id },

@@ -1,5 +1,4 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { UserRole } from '@/lib/permissions';
 import bcryptjs from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { signToken } from '@/lib/jwt';
@@ -20,7 +19,10 @@ export async function POST(req: NextRequest) {
     const userAgent = req.headers.get('user-agent') ?? undefined;
 
     // Busca o usuário pelo email — mensagem genérica para não revelar se existe ou não
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findUnique({ 
+      where: { email },
+      include: { role: true }
+    });
 
     if (!user || !user.isActive) {
       // Registra tentativa falha sem revelar se o usuário existe
@@ -121,7 +123,8 @@ export async function POST(req: NextRequest) {
       sub: user.id,
       email: user.email,
       name: user.name,
-      role: user.role as UserRole,
+      roleId: user.roleId || '',
+      roleName: user.role?.name || 'Sem Cargo',
     });
 
     // Monta a resposta
@@ -130,7 +133,7 @@ export async function POST(req: NextRequest) {
         id: string;
         name: string;
         email: string;
-        role: string;
+        roleName: string;
         mustChangePassword: boolean;
       };
       mustChangePassword?: boolean;
@@ -139,7 +142,7 @@ export async function POST(req: NextRequest) {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: user.role,
+        roleName: user.role?.name || 'Sem Cargo',
         mustChangePassword: user.mustChangePassword,
       },
     };

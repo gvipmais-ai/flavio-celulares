@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import bcryptjs from 'bcryptjs';
+import { getSuperAdminPermissions, getTecnicoPermissions, getOperadorCaixaPermissions } from '../lib/default-permissions';
 
 const prisma = new PrismaClient();
 
@@ -34,86 +35,74 @@ async function main() {
   });
   console.log('✅ Configurações da loja criadas');
 
-  // ── Usuários ─────────────────────────────────────────────────────────────────
+  // ── Cargos ───────────────────────────────────────────────────────────────────
+  const superAdminRole = await prisma.role.upsert({
+    where: { name: 'SuperADMIN' },
+    update: { permissions: JSON.stringify(getSuperAdminPermissions()), isSystem: true },
+    create: {
+      name: 'SuperADMIN',
+      description: 'Acesso total ao sistema',
+      permissions: JSON.stringify(getSuperAdminPermissions()),
+      isSystem: true,
+    }
+  });
+
+  const adminRole = await prisma.role.upsert({
+    where: { name: 'Gerente' },
+    update: { permissions: JSON.stringify(getSuperAdminPermissions()), isSystem: true },
+    create: {
+      name: 'Gerente',
+      description: 'Acesso gerencial ao sistema',
+      permissions: JSON.stringify(getSuperAdminPermissions()), // Similar to superadmin for now
+      isSystem: true,
+    }
+  });
+
+  const tecnicoRole = await prisma.role.upsert({
+    where: { name: 'Técnico' },
+    update: { permissions: JSON.stringify(getTecnicoPermissions()), isSystem: true },
+    create: {
+      name: 'Técnico',
+      description: 'Acesso focado na assistência técnica',
+      permissions: JSON.stringify(getTecnicoPermissions()),
+      isSystem: true,
+    }
+  });
+
+  const caixaRole = await prisma.role.upsert({
+    where: { name: 'Operador de Caixa' },
+    update: { permissions: JSON.stringify(getOperadorCaixaPermissions()), isSystem: true },
+    create: {
+      name: 'Operador de Caixa',
+      description: 'Acesso focado em vendas e caixa',
+      permissions: JSON.stringify(getOperadorCaixaPermissions()),
+      isSystem: true,
+    }
+  });
+
+  console.log('✅ Cargos padrões criados');
+
   const adminHash = await bcryptjs.hash('admin123', 12);
-  const gerenteHash = await bcryptjs.hash('gerente123', 12);
-  const caixaHash = await bcryptjs.hash('caixa123', 12);
-  const tecnicoHash = await bcryptjs.hash('tecnico123', 12);
 
   const adminUser = await prisma.user.upsert({
-    where: { email: 'admin@flavio.com' },
+    where: { email: 'admin@flaviocelulares.com.br' },
     update: {
       passwordHash: adminHash,
       loginAttempts: 0,
       lockedUntil: null,
-      mustChangePassword: false,
+      mustChangePassword: true,
     },
     create: {
-      name: 'Flavio Silva (Admin)',
-      email: 'admin@flavio.com',
+      name: 'Administrador',
+      email: 'admin@flaviocelulares.com.br',
       passwordHash: adminHash,
-      role: 'SUPERADMIN',
+      roleId: superAdminRole.id,
       isActive: true,
-      mustChangePassword: false,
+      mustChangePassword: true,
     },
   });
 
-  const caixaUser = await prisma.user.upsert({
-    where: { email: 'caixa@flavio.com' },
-    update: {
-      passwordHash: caixaHash,
-      loginAttempts: 0,
-      lockedUntil: null,
-      mustChangePassword: false,
-    },
-    create: {
-      name: 'João Santos (Caixa)',
-      email: 'caixa@flavio.com',
-      passwordHash: caixaHash,
-      role: 'OPERADOR_CAIXA',
-      isActive: true,
-      mustChangePassword: false,
-    },
-  });
-
-  const gerenteUser = await prisma.user.upsert({
-    where: { email: 'gerente@flavio.com' },
-    update: {
-      passwordHash: gerenteHash,
-      loginAttempts: 0,
-      lockedUntil: null,
-      mustChangePassword: false,
-    },
-    create: {
-      name: 'Maria Clara (Gerente)',
-      email: 'gerente@flavio.com',
-      passwordHash: gerenteHash,
-      role: 'ADMIN',
-      isActive: true,
-      mustChangePassword: false,
-    },
-  });
-
-  const tecnicoUser = await prisma.user.upsert({
-    where: { email: 'tecnico@flavio.com' },
-    update: {
-      passwordHash: tecnicoHash,
-      loginAttempts: 0,
-      lockedUntil: null,
-      mustChangePassword: false,
-    },
-    create: {
-      name: 'Carlos Mendes (Técnico)',
-      email: 'tecnico@flavio.com',
-      passwordHash: tecnicoHash,
-      role: 'TECNICO',
-      isActive: true,
-      mustChangePassword: false,
-    },
-  });
-
-  console.log('✅ Usuários criados (admin, gerente, caixa, tecnico)');
-
+  console.log('✅ Usuário principal criado (Administrador)');
   // ── Categorias ───────────────────────────────────────────────────────────────
   const categories = [
     'Capas',
@@ -215,13 +204,9 @@ async function main() {
   }
 
   console.log('\n🎉 Seed concluído com sucesso!');
-  console.log('\n📋 Credenciais de desenvolvimento:');
-  console.log('   admin@flavio.com    / admin123   (SUPERADMIN)');
-  console.log('   gerente@flavio.com  / gerente123 (ADMIN)');
-  console.log('   caixa@flavio.com    / caixa123   (OPERADOR_CAIXA)');
-  console.log('   tecnico@flavio.com  / tecnico123 (TECNICO)');
-  console.log('\n⚠️  ATENÇÃO: Troca de senha obrigatória no primeiro acesso!');
-  console.log('⚠️  Essas senhas são apenas para DESENVOLVIMENTO. Altere em produção.\n');
+  console.log('\n📋 Credencial de acesso mestre gerada:');
+  console.log('   admin@flaviocelulares.com.br / admin123   (SUPERADMIN)');
+  console.log('\n⚠️  ATENÇÃO: Troca de senha obrigatória no primeiro acesso!\n');
 }
 
 main()

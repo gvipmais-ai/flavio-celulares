@@ -33,7 +33,7 @@ export async function GET(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'settings:manage');
+    await requirePermission(session, 'settings:manage');
 
     const body = await req.json();
     const data = StoreSettingsSchema.parse(body);

@@ -11,7 +11,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'service-orders:read');
+    await requirePermission(session, 'service-orders:read');
 
     const serviceOrder = await prisma.serviceOrder.findUnique({
       where: { id },

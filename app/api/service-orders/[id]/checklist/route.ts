@@ -12,7 +12,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'checklist:fill');
+    await requirePermission(session, 'checklist:fill');
 
     const body = await req.json();
     const data = ChecklistUpdateSchema.parse(body);

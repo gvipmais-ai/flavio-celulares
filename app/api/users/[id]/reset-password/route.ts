@@ -13,7 +13,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'users:manage');
+    await requirePermission(session, 'users:manage');
 
     const user = await prisma.user.findUnique({ where: { id } });
     if (!user) throw new NotFoundError('Usuário não encontrado');

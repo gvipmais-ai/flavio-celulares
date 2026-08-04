@@ -12,7 +12,7 @@ export default function UsuariosPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'SUPERADMIN' | 'TECNICO' | 'OPERADOR_CAIXA'>('OPERADOR_CAIXA');
+  const [role, setRole] = useState<'SuperADMIN' | 'Técnico' | 'Operador de Caixa'>('Operador de Caixa');
 
   const loadUsers = async () => {
     setIsLoading(true);
@@ -165,9 +165,9 @@ export default function UsuariosPage() {
                   onChange={(e) => setRole(e.target.value as any)}
                   className="input"
                 >
-                  <option value="OPERADOR_CAIXA">Operador de Caixa</option>
-                  <option value="TECNICO">Técnico</option>
-                  <option value="SUPERADMIN">SuperADMIN</option>
+                  <option value="Operador de Caixa">Operador de Caixa</option>
+                  <option value="Técnico">Técnico</option>
+                  <option value="SuperADMIN">SuperADMIN</option>
                 </select>
               </div>
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">

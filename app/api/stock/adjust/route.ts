@@ -9,7 +9,7 @@ import { createAuditLog } from '@/lib/audit';
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'stock:adjust');
+    await requirePermission(session, 'stock:adjust');
 
     const body = await req.json();
     const data = StockAdjustmentSchema.parse(body);

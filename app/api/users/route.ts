@@ -10,14 +10,14 @@ import { CreateUserSchema } from '@/lib/validations';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'users:manage');
+    await requirePermission(session, 'users:manage');
 
     const users = await prisma.user.findMany({
       select: {
         id: true,
         name: true,
         email: true,
-        role: true,
+        roleId: true,
         isActive: true,
         mustChangePassword: true,
         lastLoginAt: true,
@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'users:manage');
+    await requirePermission(session, 'users:manage');
 
     const body = await req.json();
     const data = CreateUserSchema.parse(body);
@@ -47,7 +47,7 @@ export async function POST(req: NextRequest) {
         name: data.name,
         email: data.email,
         passwordHash,
-        role: data.role,
+        roleId: data.roleId,
         isActive: true,
         mustChangePassword: true,
       },
@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
         id: true,
         name: true,
         email: true,
-        role: true,
+        roleId: true,
         isActive: true,
         createdAt: true,
       },
@@ -66,7 +66,7 @@ export async function POST(req: NextRequest) {
       action: 'USER_CREATED',
       entityType: 'User',
       entityId: user.id,
-      description: `Usuário ${user.name} (${user.email}) criado com cargo ${user.role}`,
+      description: `Usuário ${user.name} (${user.email}) criado com cargo ID ${user.roleId}`,
     });
 
     return NextResponse.json({ user }, { status: 201 });

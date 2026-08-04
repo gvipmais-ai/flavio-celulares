@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'cash:read:own');
+    await requirePermission(session, 'cash:read:own');
 
     const movements = await prisma.cashMovement.findMany({
       where: { cashSessionId: id },
@@ -35,7 +35,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'cash:supplement');
+    await requirePermission(session, 'cash:supplement');
 
     const cashSession = await prisma.cashSession.findUnique({
       where: { id },

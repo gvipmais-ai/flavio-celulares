@@ -3,7 +3,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { UserRole } from '@/lib/permissions';
 import {
   LayoutDashboard,
   ShoppingCart,
@@ -36,198 +35,198 @@ interface NavItem {
   href: string;
   label: string;
   icon: React.ReactNode;
-  roles: UserRole[];
+  roles: string[];
   exact?: boolean;
 }
 
 interface NavSection {
   title: string;
-  roles: UserRole[];
+  roles: string[];
   items: NavItem[];
 }
 
 const NAV_SECTIONS: NavSection[] = [
   {
     title: 'PRINCIPAL',
-    roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+    roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
     items: [
       {
         href: '/dashboard',
         label: 'Dashboard',
         icon: <LayoutDashboard className="h-4 w-4" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
         exact: true,
       },
     ],
   },
   {
     title: 'VENDAS & CAIXA',
-    roles: ['SUPERADMIN', 'ADMIN', 'OPERADOR_CAIXA'],
+    roles: ['SuperADMIN', 'Gerente', 'Operador de Caixa'],
     items: [
       {
         href: '/caixa',
         label: 'Frente de Caixa (PDV)',
         icon: <ShoppingCart className="h-4 w-4 text-emerald-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Operador de Caixa'],
       },
       {
         href: '/vendas',
         label: 'Histórico de Vendas',
         icon: <DollarSign className="h-4 w-4 text-emerald-500" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Operador de Caixa'],
       },
       {
         href: '/devolucoes',
         label: 'Devoluções e Trocas',
         icon: <ArrowUpDown className="h-4 w-4 text-emerald-300" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
       {
         href: '/garantias',
         label: 'Consulta de Garantia',
         icon: <ClipboardList className="h-4 w-4 text-emerald-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
       },
     ],
   },
   {
     title: 'ASSISTÊNCIA TÉCNICA',
-    roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+    roles: ['SuperADMIN', 'Gerente', 'Técnico'],
     items: [
       {
         href: '/ordens',
         label: 'Ordens de Serviço',
         icon: <Wrench className="h-4 w-4 text-amber-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
         exact: true,
       },
       {
         href: '/ordens/nova',
         label: 'Nova OS',
         icon: <PlusCircle className="h-4 w-4 text-amber-300" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
       {
         href: '/orcamentos',
         label: 'Orçamentos',
         icon: <FileText className="h-4 w-4 text-amber-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
       {
         href: '/manutencoes',
         label: 'Histórico de Manutenções',
         icon: <ScrollText className="h-4 w-4 text-amber-300" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
     ],
   },
   {
     title: 'ESTOQUE & PRODUTOS',
-    roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+    roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
     items: [
       {
         href: '/produtos',
         label: 'Produtos',
         icon: <Package className="h-4 w-4 text-blue-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
         exact: true,
       },
       {
         href: '/produtos/novo',
         label: 'Novo Produto',
         icon: <PlusCircle className="h-4 w-4 text-blue-300" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
       {
         href: '/estoque',
         label: 'Visão de Estoque',
         icon: <ClipboardList className="h-4 w-4 text-blue-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
         exact: true,
       },
       {
         href: '/estoque/movimentacoes',
         label: 'Movimentações',
         icon: <ArrowUpDown className="h-4 w-4 text-blue-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
       },
       {
         href: '/entradas',
         label: 'Notas de Entrada',
         icon: <Truck className="h-4 w-4 text-cyan-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
       {
         href: '/etiquetas',
         label: 'Etiquetas Code 128',
         icon: <Tag className="h-4 w-4 text-cyan-300" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico'],
       },
     ],
   },
   {
     title: 'CADASTROS',
-    roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+    roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
     items: [
       {
         href: '/clientes',
         label: 'CRM / Clientes',
         icon: <UserCheck className="h-4 w-4 text-indigo-400" />,
-        roles: ['SUPERADMIN', 'ADMIN', 'TECNICO', 'OPERADOR_CAIXA'],
+        roles: ['SuperADMIN', 'Gerente', 'Técnico', 'Operador de Caixa'],
       },
       {
         href: '/fornecedores',
         label: 'Fornecedores',
         icon: <Truck className="h-4 w-4 text-indigo-400" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
       {
         href: '/categorias',
         label: 'Categorias',
         icon: <FolderOpen className="h-4 w-4 text-indigo-300" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
       {
         href: '/marcas',
         label: 'Marcas',
         icon: <Star className="h-4 w-4 text-indigo-300" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
     ],
   },
   {
     title: 'ADMINISTRAÇÃO',
-    roles: ['SUPERADMIN', 'ADMIN'],
+    roles: ['SuperADMIN', 'Gerente'],
     items: [
       {
         href: '/relatorios',
         label: 'Relatórios Gerenciais',
         icon: <BarChart3 className="h-4 w-4 text-purple-400" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
       {
         href: '/usuarios',
         label: 'Usuários do Sistema',
         icon: <Users className="h-4 w-4 text-purple-400" />,
-        roles: ['SUPERADMIN'],
+        roles: ['SuperADMIN'],
       },
       {
         href: '/auditoria',
         label: 'Logs de Auditoria',
         icon: <ScrollText className="h-4 w-4 text-purple-300" />,
-        roles: ['SUPERADMIN'],
+        roles: ['SuperADMIN'],
       },
       {
         href: '/configuracoes',
         label: 'Configurações',
         icon: <Settings className="h-4 w-4 text-slate-400" />,
-        roles: ['SUPERADMIN', 'ADMIN'],
+        roles: ['SuperADMIN', 'Gerente'],
       },
       {
         href: '/admin/gerenciamento',
         label: 'Gerenciamento (SuperADMIN)',
         icon: <ShieldCheck className="h-4 w-4 text-emerald-400" />,
-        roles: ['SUPERADMIN'],
+        roles: ['SuperADMIN'],
       },
     ],
   },
@@ -288,10 +287,10 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
       {/* Navegação por Seções Categorizadas */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin scrollbar-thumb-slate-800">
         {NAV_SECTIONS.map((section) => {
-          if (!section.roles.includes(user.role as UserRole)) return null;
+          if (!section.roles.includes(user.roleName)) return null;
 
           const visibleSectionItems = section.items.filter((item) =>
-            item.roles.includes(user.role as UserRole)
+            item.roles.includes(user.roleName)
           );
 
           if (visibleSectionItems.length === 0) return null;
@@ -357,7 +356,7 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold text-slate-200">{user.name}</p>
-              <p className="truncate text-[10px] text-slate-400">{roleLabel[user.role] ?? user.role}</p>
+              <p className="truncate text-[10px] text-slate-400">{roleLabel[user.roleName] ?? user.roleName}</p>
             </div>
             <button
               onClick={() => logout()}

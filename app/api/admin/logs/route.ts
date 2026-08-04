@@ -6,7 +6,7 @@ import { handleApiError, UnauthorizedError } from '@/lib/errors';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    if (session?.role !== 'SUPERADMIN') throw new UnauthorizedError();
+    if (session?.roleName !== 'SuperADMIN') throw new UnauthorizedError();
 
     const searchParams = req.nextUrl.searchParams;
     const page = parseInt(searchParams.get('page') || '1');

@@ -1,11 +1,11 @@
 import { SignJWT, jwtVerify } from 'jose';
-import { UserRole } from '@/lib/permissions';
 
 export interface JWTPayload {
   sub: string; // userId
   email: string;
   name: string;
-  role: UserRole;
+  roleId: string;
+  roleName: string;
   iat?: number;
   exp?: number;
 }

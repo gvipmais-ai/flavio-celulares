@@ -12,7 +12,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'sales:cancel');
+    await requirePermission(session, 'sales:cancel');
 
     const body = await req.json();
     const data = CancelSaleSchema.parse(body);

@@ -5,7 +5,7 @@ import { getSessionFromRequest } from '@/lib/cookies';
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    if (!session || session.role !== 'SUPERADMIN') {
+    if (!session || session.roleName !== 'SuperADMIN') {
       return NextResponse.json({ error: 'Acesso negado. Apenas SUPERADMIN pode executar esta ação.' }, { status: 403 });
     }
 

@@ -7,7 +7,7 @@ import { createAuditLogTx } from '@/lib/audit';
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
-    if (session?.role !== 'SUPERADMIN') throw new UnauthorizedError();
+    if (session?.roleName !== 'SuperADMIN') throw new UnauthorizedError();
 
     const { id } = await params;
     const body = await req.json();
@@ -16,20 +16,23 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       const user = await tx.user.findUnique({ where: { id } });
       if (!user) throw new NotFoundError('Usuário não encontrado');
 
+      const data: any = {};
+      if (body.roleId !== undefined) {
+        data.roleId = body.roleId;
+      }
+      if (body.isActive !== undefined) {
+        data.isActive = body.isActive;
+      }
+
       const updated = await tx.user.update({
         where: { id },
-        data: {
-          role: body.role ?? user.role,
-          isActive: body.isActive ?? user.isActive,
-          permissions: body.permissions !== undefined ? (body.permissions ? JSON.stringify(body.permissions) : null) : user.permissions,
-        },
+        data,
         select: {
           id: true,
           name: true,
           email: true,
-          role: true,
+          role: { select: { name: true } },
           isActive: true,
-          permissions: true,
         },
       });
 
@@ -37,11 +40,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         action: 'UPDATE_USER',
         entityType: 'User',
         entityId: id,
-        description: `Usuário ${updated.name} atualizado (Cargo: ${updated.role}, Ativo: ${updated.isActive})`,
+        description: `Usuário ${updated.name} atualizado (Cargo: ${updated.role?.name || 'Sem cargo'}, Ativo: ${updated.isActive})`,
         userId: session.sub,
       });
 
-      return updated;
+      return {
+        ...updated,
+        role: updated.role?.name || 'Sem cargo',
+      };
     });
 
     return NextResponse.json({ data: updatedUser });

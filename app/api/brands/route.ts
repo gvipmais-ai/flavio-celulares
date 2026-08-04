@@ -11,7 +11,7 @@ import { createAuditLog } from '@/lib/audit';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    requirePermission(session, 'products:read');
+    await requirePermission(session, 'products:read');
 
     const { searchParams } = req.nextUrl;
     const search = searchParams.get('search') ?? undefined;
@@ -52,7 +52,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSession();
-    requirePermission(session, 'brands:manage');
+    await requirePermission(session, 'brands:manage');
 
     const body = await req.json();
     const data = BrandSchema.parse(body);

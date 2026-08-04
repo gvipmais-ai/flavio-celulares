@@ -2,7 +2,6 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { UserRole } from '@/lib/permissions';
 import { ShoppingCart, Wrench, Plus, Bell, User as UserIcon, Search } from 'lucide-react';
 import { Breadcrumb } from './breadcrumb';
 import { GlobalSearch } from '../GlobalSearch';
@@ -13,7 +12,7 @@ interface HeaderProps {
   session: {
     name: string;
     email: string;
-    role: UserRole;
+    roleName: string;
   };
 }
 
@@ -41,21 +40,21 @@ export function Header({ session }: HeaderProps) {
         <ThemeToggle />
 
         {/* Quick action buttons based on role */}
-        {session.role === 'OPERADOR_CAIXA' && (
+        {session.roleName === 'Operador de Caixa' && (
           <Link href="/caixa" className="btn-primary btn-sm">
             <ShoppingCart className="h-4 w-4" />
             Ir para Caixa
           </Link>
         )}
 
-        {session.role === 'TECNICO' && (
+        {session.roleName === 'Técnico' && (
           <Link href="/ordens/nova" className="btn-primary btn-sm">
             <Plus className="h-4 w-4" />
             Nova OS
           </Link>
         )}
 
-        {session.role === 'SUPERADMIN' && (
+        {session.roleName === 'SuperADMIN' && (
           <div className="flex items-center gap-2">
             <Link href="/caixa" className="btn-primary btn-sm">
               <ShoppingCart className="h-4 w-4" />
@@ -79,8 +78,8 @@ export function Header({ session }: HeaderProps) {
             <p className="text-sm font-medium text-slate-200 truncate max-w-[150px] leading-tight mb-0.5" title={session.name}>
               {session.name}
             </p>
-            <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[session.role] ?? ''}`}>
-              {roleName[session.role] ?? session.role}
+            <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[session.roleName] ?? ''}`}>
+              {roleName[session.roleName] ?? session.roleName}
             </span>
           </div>
         </div>

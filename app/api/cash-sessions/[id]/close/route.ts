@@ -14,7 +14,7 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'cash:close');
+    await requirePermission(session, 'cash:close');
 
     const cashSession = await prisma.cashSession.findUnique({
       where: { id },
@@ -24,7 +24,7 @@ export async function POST(
     if (!cashSession) throw new NotFoundError('Sessão de caixa não encontrada');
     if (cashSession.status === 'FECHADA') throw new InvalidOperationError('Caixa já está fechado.');
 
-    if (session?.role !== 'SUPERADMIN' && cashSession.operatorId !== session?.sub) {
+    if (session?.roleName !== 'SuperADMIN' && cashSession.operatorId !== session?.sub) {
       throw new InvalidOperationError('Você só pode fechar o seu próprio caixa.');
     }
 

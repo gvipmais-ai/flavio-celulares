@@ -12,7 +12,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'suppliers:manage');
+    await requirePermission(session, 'suppliers:manage');
 
     const supplier = await prisma.supplier.findUnique({ where: { id } });
     if (!supplier) throw new NotFoundError('Fornecedor não encontrado');
@@ -30,7 +30,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'suppliers:manage');
+    await requirePermission(session, 'suppliers:manage');
 
     const body = await req.json();
     const data = SupplierSchema.parse(body);
@@ -53,7 +53,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'suppliers:manage');
+    await requirePermission(session, 'suppliers:manage');
 
     await prisma.supplier.update({
       where: { id },

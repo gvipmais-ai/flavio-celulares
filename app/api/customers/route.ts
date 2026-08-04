@@ -8,7 +8,7 @@ import { CustomerSchema } from '@/lib/validations';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'customers:read');
+    await requirePermission(session, 'customers:read');
 
     const searchParams = req.nextUrl.searchParams;
     const search = searchParams.get('search') || '';
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'customers:create');
+    await requirePermission(session, 'customers:create');
 
     const body = await req.json();
     const data = CustomerSchema.parse(body);

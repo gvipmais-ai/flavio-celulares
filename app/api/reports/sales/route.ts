@@ -8,7 +8,7 @@ import { startOfMonth, endOfMonth, parseISO } from 'date-fns';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    requirePermission(session, 'reports:view');
+    await requirePermission(session, 'reports:view');
 
     const searchParams = new URL(req.url).searchParams;
     const monthStr = searchParams.get('month'); // YYYY-MM

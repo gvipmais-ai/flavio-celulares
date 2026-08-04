@@ -14,7 +14,7 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'products:read');
+    await requirePermission(session, 'products:read');
 
     const category = await prisma.category.findUnique({ where: { id } });
     if (!category) throw new NotFoundError('Categoria não encontrada');
@@ -34,7 +34,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'categories:manage');
+    await requirePermission(session, 'categories:manage');
 
     const body = await req.json();
     const data = CategorySchema.parse(body);
@@ -59,7 +59,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'categories:manage');
+    await requirePermission(session, 'categories:manage');
 
     const existing = await prisma.category.findUnique({ where: { id } });
     if (!existing) {

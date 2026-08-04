@@ -31,7 +31,7 @@ export default async function PDVLayout({
     id: session.sub,
     name: session.name,
     email: session.email,
-    role: session.role,
+    roleName: session.roleName,
     mustChangePassword: false,
   } : null;
 

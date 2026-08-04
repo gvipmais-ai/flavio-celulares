@@ -10,7 +10,7 @@ import { Decimal } from '@prisma/client/runtime/library';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'service-orders:read');
+    await requirePermission(session, 'service-orders:read');
 
     const searchParams = req.nextUrl.searchParams;
     const serviceOrderId = searchParams.get('serviceOrderId');
@@ -36,7 +36,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'quotes:create');
+    await requirePermission(session, 'quotes:create');
 
     const body = await req.json();
     const data = CreateQuoteSchema.parse(body);

@@ -9,7 +9,7 @@ import { createAuditLog } from '@/lib/audit';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'service-orders:read');
+    await requirePermission(session, 'service-orders:read');
 
     const searchParams = req.nextUrl.searchParams;
     const status = searchParams.get('status');
@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         where.status = status;
       }
     }
-    if (session?.role === 'TECNICO') {
+    if (session?.roleName === 'Técnico') {
       where.OR = [{ technicianId: session.sub }, { technicianId: null }];
     }
     if (search) {
@@ -59,7 +59,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'service-orders:create');
+    await requirePermission(session, 'service-orders:create');
 
     const body = await req.json();
     const data = ServiceOrderSchema.parse(body);

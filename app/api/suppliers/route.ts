@@ -8,7 +8,7 @@ import { SupplierSchema } from '@/lib/validations';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'suppliers:manage');
+    await requirePermission(session, 'suppliers:manage');
 
     const suppliers = await prisma.supplier.findMany({
       orderBy: { name: 'asc' },
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
-    requirePermission(session, 'suppliers:manage');
+    await requirePermission(session, 'suppliers:manage');
 
     const body = await req.json();
     const data = SupplierSchema.parse(body);

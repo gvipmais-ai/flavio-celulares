@@ -305,13 +305,13 @@ export const CreateUserSchema = z
     name: z.string().min(2).max(200),
     email: z.string().email('E-mail inválido'),
     password: z.string().min(8, 'Senha deve ter pelo menos 8 caracteres'),
-    role: z.enum(['SUPERADMIN', 'TECNICO', 'OPERADOR_CAIXA']),
+    roleId: z.string(),
   });
 
 export const UpdateUserSchema = z.object({
   name: z.string().min(2).max(200).optional(),
   email: z.string().email().optional(),
-  role: z.enum(['SUPERADMIN', 'TECNICO', 'OPERADOR_CAIXA']).optional(),
+  roleId: z.string().optional(),
   isActive: z.boolean().optional(),
 });
 
