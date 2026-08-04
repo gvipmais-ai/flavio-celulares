@@ -13,6 +13,7 @@ export default function SuperAdminPage() {
   
   // States for Users
   const [users, setUsers] = useState<any[]>([]);
+  const [roles, setRoles] = useState<any[]>([]);
   const [isLoadingUsers, setIsLoadingUsers] = useState(false);
   
   // States for Logs
@@ -30,11 +31,16 @@ export default function SuperAdminPage() {
   const fetchUsers = async () => {
     setIsLoadingUsers(true);
     try {
-      const res = await fetch('/api/admin/users');
-      const json = await res.json();
-      if (res.ok) setUsers(json.data);
+      const [resUsers, resRoles] = await Promise.all([
+        fetch('/api/admin/users'),
+        fetch('/api/roles')
+      ]);
+      const jsonUsers = await resUsers.json();
+      const jsonRoles = await resRoles.json();
+      if (resUsers.ok) setUsers(jsonUsers.data);
+      if (resRoles.ok) setRoles(jsonRoles.data);
     } catch {
-      toast.error('Erro ao carregar usuários');
+      toast.error('Erro ao carregar usuários e cargos');
     } finally {
       setIsLoadingUsers(false);
     }
@@ -172,12 +178,13 @@ export default function SuperAdminPage() {
                           <td>
                             <select 
                               className="input text-sm py-1 h-8 w-32"
-                              value={u.role}
-                              onChange={(e) => handleUpdateUser(u.id, { role: e.target.value })}
+                              value={u.roleId || ''}
+                              onChange={(e) => handleUpdateUser(u.id, { roleId: e.target.value })}
                             >
-                              <option value="Operador de Caixa">Caixa</option>
-                              <option value="Técnico">Técnico</option>
-                              <option value="SuperADMIN">SuperAdmin</option>
+                              <option value="" disabled>Selecione</option>
+                              {roles.map(r => (
+                                <option key={r.id} value={r.id}>{r.name}</option>
+                              ))}
                             </select>
                           </td>
                           <td>
