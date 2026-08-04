@@ -243,10 +243,14 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
 
   if (!user) return null;
 
+  const normalizedUserRole = user.roleName?.toUpperCase() || '';
+
   const roleLabel: Record<string, string> = {
     SUPERADMIN: 'Super Administrador',
     ADMIN: 'Gerente / Admin',
+    GERENTE: 'Gerente / Admin',
     TECNICO: 'Técnico',
+    'OPERADOR DE CAIXA': 'Operador de Caixa',
     OPERADOR_CAIXA: 'Operador de Caixa',
   };
 
@@ -287,10 +291,11 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
       {/* Navegação por Seções Categorizadas */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin scrollbar-thumb-slate-800">
         {NAV_SECTIONS.map((section) => {
-          if (!section.roles.includes(user.roleName)) return null;
+          const sectionRoles = section.roles.map(r => r.toUpperCase());
+          if (!sectionRoles.includes(normalizedUserRole)) return null;
 
           const visibleSectionItems = section.items.filter((item) =>
-            item.roles.includes(user.roleName)
+            item.roles.map(r => r.toUpperCase()).includes(normalizedUserRole)
           );
 
           if (visibleSectionItems.length === 0) return null;
@@ -356,7 +361,7 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold text-slate-200">{user.name}</p>
-              <p className="truncate text-[10px] text-slate-400">{roleLabel[user.roleName] ?? user.roleName}</p>
+              <p className="truncate text-[10px] text-slate-400">{roleLabel[normalizedUserRole] ?? user.roleName}</p>
             </div>
             <button
               onClick={() => logout()}

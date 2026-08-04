@@ -17,16 +17,22 @@ interface HeaderProps {
 }
 
 export function Header({ session }: HeaderProps) {
+  const normalizedUserRole = session.roleName?.toUpperCase() || '';
+
   const roleBadgeColor: Record<string, string> = {
     SUPERADMIN: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
     TECNICO: 'bg-amber-500/10 text-amber-400 border-amber-500/20',
+    'OPERADOR DE CAIXA': 'bg-blue-500/10 text-blue-400 border-blue-500/20',
     OPERADOR_CAIXA: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
+    GERENTE: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   };
 
   const roleName: Record<string, string> = {
     SUPERADMIN: 'Super Admin',
     TECNICO: 'Técnico',
+    'OPERADOR DE CAIXA': 'Caixa',
     OPERADOR_CAIXA: 'Caixa',
+    GERENTE: 'Gerente',
   };
 
   return (
@@ -40,21 +46,19 @@ export function Header({ session }: HeaderProps) {
         <ThemeToggle />
 
         {/* Quick action buttons based on role */}
-        {session.roleName === 'Operador de Caixa' && (
+        {(normalizedUserRole === 'OPERADOR DE CAIXA' || normalizedUserRole === 'OPERADOR_CAIXA') && (
           <Link href="/caixa" className="btn-primary btn-sm">
             <ShoppingCart className="h-4 w-4" />
             Ir para Caixa
           </Link>
         )}
-
-        {session.roleName === 'Técnico' && (
+        {normalizedUserRole === 'TECNICO' && (
           <Link href="/ordens/nova" className="btn-primary btn-sm">
-            <Plus className="h-4 w-4" />
+            <Wrench className="h-4 w-4" />
             Nova OS
           </Link>
         )}
-
-        {session.roleName === 'SuperADMIN' && (
+        {normalizedUserRole === 'SUPERADMIN' && (
           <div className="flex items-center gap-2">
             <Link href="/caixa" className="btn-primary btn-sm">
               <ShoppingCart className="h-4 w-4" />
@@ -74,12 +78,10 @@ export function Header({ session }: HeaderProps) {
           <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600/20 text-blue-400 font-semibold text-sm">
             {session.name.charAt(0).toUpperCase()}
           </div>
-          <div className="hidden md:flex flex-col items-start justify-center text-left">
-            <p className="text-sm font-medium text-slate-200 truncate max-w-[150px] leading-tight mb-0.5" title={session.name}>
-              {session.name}
-            </p>
-            <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[session.roleName] ?? ''}`}>
-              {roleName[session.roleName] ?? session.roleName}
+          <div className="hidden flex-col items-end sm:flex">
+            <span className="text-sm font-medium leading-none">{session.name}</span>
+            <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[normalizedUserRole] ?? ''}`}>
+              {roleName[normalizedUserRole] ?? session.roleName}
             </span>
           </div>
         </div>
