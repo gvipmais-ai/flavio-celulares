@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: searchTerms } },
-          { code: { contains: searchTerms } },
-          { barcode: { contains: searchTerms } },
+          { name: { contains: searchTerms, mode: 'insensitive' } },
+          { code: { contains: searchTerms, mode: 'insensitive' } },
+          { barcode: { contains: searchTerms, mode: 'insensitive' } },
         ],
         isActive: true,
       },
@@ -38,8 +38,8 @@ export async function GET(req: NextRequest) {
         id: p.id,
         type: 'PRODUCT',
         title: p.name,
-        subtitle: `Cód: \${p.code} | Estoque: \${p.stockOnHand - p.stockReserved}`,
-        link: `/produtos/\${p.id}`,
+        subtitle: `Cód: ${p.code} | Estoque: ${p.stockOnHand - p.stockReserved}`,
+        link: `/produtos/${p.id}`,
       });
     }
 
@@ -47,9 +47,9 @@ export async function GET(req: NextRequest) {
     const customers = await prisma.customer.findMany({
       where: {
         OR: [
-          { name: { contains: searchTerms } },
-          { cpf: { contains: searchTerms } },
-          { phone: { contains: searchTerms } },
+          { name: { contains: searchTerms, mode: 'insensitive' } },
+          { cpf: { contains: searchTerms, mode: 'insensitive' } },
+          { phone: { contains: searchTerms, mode: 'insensitive' } },
         ],
       },
       take: 3,
@@ -60,8 +60,8 @@ export async function GET(req: NextRequest) {
         id: c.id,
         type: 'CUSTOMER',
         title: c.name,
-        subtitle: `CPF: \${c.cpf || 'Não informado'} | Tel: \${c.phone || 'Não informado'}`,
-        link: `/clientes/\${c.id}`,
+        subtitle: `CPF: ${c.cpf || 'Não informado'} | Tel: ${c.phone || 'Não informado'}`,
+        link: `/clientes/${c.id}`,
       });
     }
 
@@ -69,8 +69,8 @@ export async function GET(req: NextRequest) {
     const sales = await prisma.sale.findMany({
       where: {
         OR: [
-          { clientTransactionId: { contains: searchTerms } },
-          { customerNameSnapshot: { contains: searchTerms } },
+          { clientTransactionId: { contains: searchTerms, mode: 'insensitive' } },
+          { customerNameSnapshot: { contains: searchTerms, mode: 'insensitive' } },
         ],
       },
       take: 3,
@@ -80,9 +80,9 @@ export async function GET(req: NextRequest) {
       results.push({
         id: s.id,
         type: 'SALE',
-        title: `Venda #\${s.sequentialNumber}`,
-        subtitle: `Cliente: \${s.customerNameSnapshot} | R$ \${Number(s.totalAmount).toFixed(2)}`,
-        link: `/vendas/\${s.id}`,
+        title: `Venda #${s.sequentialNumber}`,
+        subtitle: `Cliente: ${s.customerNameSnapshot} | R$ ${Number(s.totalAmount).toFixed(2)}`,
+        link: `/vendas/${s.id}`,
       });
     }
 
@@ -90,8 +90,8 @@ export async function GET(req: NextRequest) {
     const os = await prisma.serviceOrder.findMany({
       where: {
         OR: [
-          { customer: { name: { contains: searchTerms } } },
-          { deviceModel: { name: { contains: searchTerms } } },
+          { customer: { name: { contains: searchTerms, mode: 'insensitive' } } },
+          { deviceModel: { name: { contains: searchTerms, mode: 'insensitive' } } },
         ],
       },
       include: { customer: true, deviceModel: true },

@@ -37,9 +37,9 @@ export async function GET(req: NextRequest) {
     const where: any = {};
     if (search) {
       where.OR = [
-        { code: { contains: search } },
-        { name: { contains: search } },
-        { barcode: { contains: search } },
+        { code: { contains: search, mode: 'insensitive' } },
+        { name: { contains: search, mode: 'insensitive' } },
+        { barcode: { contains: search, mode: 'insensitive' } },
       ];
     }
     if (categoryId) where.categoryId = categoryId;
