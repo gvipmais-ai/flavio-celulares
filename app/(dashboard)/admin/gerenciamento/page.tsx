@@ -61,16 +61,17 @@ export default function SuperAdminPage() {
 
   const handleUpdateUser = async (id: string, updates: any) => {
     try {
-      const res = await fetch(`/api/admin/users/\${id}`, {
+      const res = await fetch(`/api/admin/users/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updates),
       });
-      if (!res.ok) throw new Error();
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error?.message || 'Erro desconhecido');
       toast.success('Usuário atualizado com sucesso');
       fetchUsers();
-    } catch {
-      toast.error('Erro ao atualizar usuário');
+    } catch (err: any) {
+      toast.error(err.message || 'Erro ao atualizar usuário');
     }
   };
 
