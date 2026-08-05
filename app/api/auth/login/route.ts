@@ -73,7 +73,10 @@ export async function POST(req: NextRequest) {
     const passwordMatch = await bcryptjs.compare(password, user.passwordHash);
 
     if (!passwordMatch) {
-      const newAttempts = user.loginAttempts + 1;
+      const hasLockoutExpired = user.lockedUntil && user.lockedUntil <= new Date();
+      const currentAttempts = hasLockoutExpired ? 0 : user.loginAttempts;
+      
+      const newAttempts = currentAttempts + 1;
       const shouldLock = newAttempts >= MAX_LOGIN_ATTEMPTS;
       const lockedUntil = shouldLock
         ? new Date(Date.now() + LOCKOUT_DURATION_MINUTES * 60 * 1000)
