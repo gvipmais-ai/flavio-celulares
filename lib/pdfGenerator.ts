@@ -177,7 +177,7 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   
   // Calculate dynamic height based on items
-  const baseHeight = 350;
+  const baseHeight = 450;
   const itemHeight = 25;
   const height = baseHeight + (sale.cartItems.length * itemHeight);
   
@@ -257,15 +257,20 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   y -= 5;
   
   const conditions = [
-    '1. A garantia legal cobre defeitos de fabricação',
-    'pelo prazo de 90 dias (ou conforme especificado).',
-    '2. CUIDADOS ESSENCIAIS: Evite quedas, umidade',
-    'excessiva, exposicao direta ao sol e liquidos.',
-    '3. LIMPEZA: Utilize apenas pano seco e macio.',
-    '4. INSTALACAO: Utilize voltagem e carregadores',
-    'originais recomendados pelo fabricante.',
-    '5. A perda desta via invalida a garantia.',
-    '6. Apresente este comprovante para acionar.'
+    '1. A garantia legal cobre APENAS defeitos de',
+    'fabricação da peça substituída.',
+    '2. PRAZO: 90 dias a contar da data de entrega',
+    'desta via, mediante apresentação da mesma.',
+    '3. PERDA DA GARANTIA: Quedas, quebras,',
+    'arranhões profundos, contato com líquidos ou',
+    'umidade, uso de carregadores de má qualidade',
+    'ou se o selo de garantia for rompido.',
+    '4. TELA/DISPLAY: Listras, manchas ou tela',
+    'apagada sem motivo aparente passarão por',
+    'análise técnica para atestar que não houve',
+    'pressão ou queda.',
+    '5. LIMPEZA: Utilize apenas pano macio e seco.',
+    '6. A PERDA DESTA VIA INVALIDA A GARANTIA.'
   ];
 
   conditions.forEach(c => {
@@ -273,15 +278,15 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
     y -= 12;
   });
 
-  y -= 10;
+  y -= 15;
   
   // Signature Box
   drawLine();
   y -= 10;
   drawText('CARIMBO DA LOJA E ASSINATURA', 8, true, 'center');
-  y -= 80; // Espaço GRANDE para carimbo e assinatura
+  y -= 100; // Espaço GRANDE para carimbo e assinatura
   drawLine();
-  drawText(`${settings?.tradeName || settings?.name || 'FLAVIO CELULARES'} - Vendedor`, 8, true, 'center');
+  drawText(`${settings?.tradeName || settings?.name || 'FLAVIO CELULARES'}`, 8, true, 'center');
 
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
