@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Loader2, Save, User as UserIcon, Shield, Search } from 'lucide-react';
+import { Users, Loader2, Save, User as UserIcon, Shield, Search, KeyRound } from 'lucide-react';
 import { toast } from 'sonner';
 
 const AVAILABLE_PERMISSIONS = [
@@ -41,6 +41,8 @@ export default function MasterUsersPage() {
   const [editForm, setEditForm] = useState<any>({});
   const [editPermissions, setEditPermissions] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
+  const [isResetting, setIsResetting] = useState(false);
+  const [tempPassword, setTempPassword] = useState<string | null>(null);
 
   useEffect(() => {
     fetchData();
@@ -61,6 +63,7 @@ export default function MasterUsersPage() {
 
   const handleSelectUser = (user: any) => {
     setSelectedUser(user);
+    setTempPassword(null);
     setEditForm({
       name: user.name,
       email: user.email,
@@ -109,6 +112,27 @@ export default function MasterUsersPage() {
       toast.error('Erro ao atualizar usuário');
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleResetPassword = async () => {
+    if (!selectedUser) return;
+    if (!confirm(`Tem certeza que deseja resetar a senha de ${selectedUser.name}? Isso revogará o acesso atual imediatamente.`)) return;
+    
+    setIsResetting(true);
+    setTempPassword(null);
+    try {
+      const res = await fetch(`/api/master/users/${selectedUser.id}/reset-password`, {
+        method: 'POST',
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error();
+      setTempPassword(data.temporaryPassword);
+      toast.success('Senha resetada com sucesso');
+    } catch {
+      toast.error('Erro ao resetar senha');
+    } finally {
+      setIsResetting(false);
     }
   };
 
@@ -259,7 +283,7 @@ export default function MasterUsersPage() {
                 </label>
               </div>
 
-              <div className="pt-6">
+              <div className="pt-6 flex flex-col gap-3">
                 <button
                   onClick={handleSave}
                   disabled={isSaving}
@@ -268,6 +292,23 @@ export default function MasterUsersPage() {
                   {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
                   Salvar Alterações
                 </button>
+
+                <button
+                  onClick={handleResetPassword}
+                  disabled={isResetting}
+                  className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-red-400 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
+                  Gerar Nova Senha
+                </button>
+
+                {tempPassword && (
+                  <div className="mt-2 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
+                    <p className="text-xs text-emerald-400 font-medium mb-1">Nova senha temporária gerada:</p>
+                    <p className="text-lg font-mono text-emerald-300 select-all">{tempPassword}</p>
+                    <p className="text-xs text-slate-400 mt-2">Copie e envie ao usuário. Ele poderá acessar o sistema com esta senha.</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
