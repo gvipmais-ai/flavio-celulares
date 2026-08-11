@@ -297,7 +297,14 @@ export async function generateOsEntryReceiptPDF(os: any, settings: StoreSettings
   const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
   const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
   
-  const height = 450;
+  let extraHeight = 0;
+  const latestQuote = os.quotes && os.quotes.length > 0 ? os.quotes[0] : null;
+  if (latestQuote) {
+    extraHeight += 80 + (latestQuote.items?.length || 0) * 15;
+    if (latestQuote.laborAmount > 0) extraHeight += 15;
+  }
+  
+  const height = 550 + extraHeight;
   const page = pdfDoc.addPage([THERMAL_WIDTH, height]);
   let y = height - MARGIN - 20;
 
@@ -387,26 +394,61 @@ export async function generateOsEntryReceiptPDF(os: any, settings: StoreSettings
     drawText(defectText.substring(i, i + 40), 8);
   }
 
+  // Se houver orçamento/peças usadas
+  if (latestQuote) {
+    y -= 5;
+    drawLine();
+    drawText('ORÇAMENTO / SERVIÇO:', 8, true);
+    y -= 2;
+    latestQuote.items?.forEach((item: any) => {
+      const line = `${item.quantity}x ${item.descriptionSnapshot}`;
+      page.drawText(line, { x: MARGIN, y, size: 8, font });
+      
+      const priceStr = formatCurrency(item.quantity * item.unitPrice);
+      page.drawText(priceStr, { x: THERMAL_WIDTH - MARGIN - font.widthOfTextAtSize(priceStr, 8), y, size: 8, font });
+      y -= 12;
+    });
+    
+    if (latestQuote.laborAmount > 0) {
+      page.drawText('Mão de Obra', { x: MARGIN, y, size: 8, font });
+      const laborStr = formatCurrency(latestQuote.laborAmount);
+      page.drawText(laborStr, { x: THERMAL_WIDTH - MARGIN - font.widthOfTextAtSize(laborStr, 8), y, size: 8, font });
+      y -= 12;
+    }
+    
+    y -= 5;
+    const totalStr = formatCurrency(latestQuote.totalAmount);
+    page.drawText('TOTAL PREVISTO:', { x: MARGIN, y, size: 9, font: fontBold });
+    page.drawText(totalStr, { x: THERMAL_WIDTH - MARGIN - fontBold.widthOfTextAtSize(totalStr, 9), y, size: 9, font: fontBold });
+    y -= 5;
+  }
+
   y -= 5;
   drawLine();
   drawText('TERMO DE RESPONSABILIDADE', 8, true, 'center');
   y -= 5;
   const terms = [
-    'O cliente autoriza a abertura do',
-    'aparelho para diagnostico tecnico.',
-    'Aparelhos nao retirados em 90 dias',
-    'serao considerados abandonados.',
-    'A loja nao se responsabiliza por',
-    'dados no aparelho. Faca backup.'
+    '1. Autorizo a abertura e avaliação.',
+    '2. Aparelhos não retirados em 90 dias',
+    'serão vendidos p/ custear o serviço.',
+    '3. A loja não se responsabiliza por',
+    'dados (fotos, contatos). Faça backup!',
+    '4. Garantia válida apenas para a peça',
+    'trocada, não cobre quedas ou água.',
+    '5. Sem este cupom, a retirada só será',
+    'feita pelo titular com documento.'
   ];
   terms.forEach(t => {
     drawText(t, 7, false, 'center');
   });
 
-  y -= 20;
+  y -= 70; // Espaço GRANDE para assinatura
   drawLine();
   y -= 5;
   drawText('ASSINATURA DO CLIENTE', 8, true, 'center');
+
+  y -= 15;
+  drawText('Data: _____/_____/_______', 8, false, 'center');
 
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
