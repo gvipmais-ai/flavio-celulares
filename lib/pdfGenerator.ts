@@ -7,6 +7,7 @@ interface SaleItem {
   quantity: number;
   unitPrice: number;
   discount: number;
+  warrantyMonths?: number;
 }
 
 interface SaleData {
@@ -78,8 +79,11 @@ export async function generateThermalReceiptPDF(sale: SaleData, settings: StoreS
   const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
   drawText(storeName, 12, true, 'center');
   y -= 2;
-  if (settings?.address) drawText(settings.address, 8, false, 'center');
-  drawText(`${settings?.phone ? 'Tel: '+settings.phone : ''} ${settings?.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
+  const address = settings?.address || 'Rua Da Maconaria, 464 - Carinhanha/BA';
+  drawText(address, 8, false, 'center');
+  const phone = settings?.phone || '(77) 99981-6265';
+  const cnpj = settings?.cnpj || '17.056.311/0001-75';
+  drawText(`Tel: ${phone}  CNPJ: ${cnpj}`, 8, false, 'center');
   
   y -= 5;
   drawLine();
@@ -212,8 +216,11 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
   drawText(storeName, 12, true, 'center');
   y -= 2;
-  if (settings?.address) drawText(settings.address, 8, false, 'center');
-  drawText(`${settings?.phone ? 'Tel: '+settings.phone : ''} ${settings?.cnpj ? ' CNPJ: '+settings.cnpj : ''}`, 8, false, 'center');
+  const address = settings?.address || 'Rua Da Maconaria, 464 - Carinhanha/BA';
+  drawText(address, 8, false, 'center');
+  const phone = settings?.phone || '(77) 99981-6265';
+  const cnpj = settings?.cnpj || '17.056.311/0001-75';
+  drawText(`Tel: ${phone}  CNPJ: ${cnpj}`, 8, false, 'center');
   
   y -= 5;
   drawLine();
@@ -235,7 +242,11 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
 
   sale.cartItems.forEach(item => {
     drawText(`[${item.code}] ${item.name}`, 8, true);
-    page.drawText(`Garantia: 3 meses (90 dias)`, { x: MARGIN, y, size: 8, font });
+    if (item.warrantyMonths && item.warrantyMonths > 0) {
+      page.drawText(`Garantia: ${item.warrantyMonths} meses`, { x: MARGIN, y, size: 8, font });
+    } else {
+      page.drawText(`Garantia: Sem garantia`, { x: MARGIN, y, size: 8, font });
+    }
     y -= 12;
   });
 

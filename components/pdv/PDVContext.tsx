@@ -11,6 +11,7 @@ export interface CartItem {
   quantity: number;
   discount: number;
   stockAvailable: number;
+  warrantyMonths: number;
 }
 
 export interface PaymentMethod {
@@ -178,7 +179,8 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
         unitPrice: Number(product.salePrice),
         quantity: qty,
         discount: 0,
-        stockAvailable: product.stockAvailable
+        stockAvailable: product.stockAvailable,
+        warrantyMonths: product.warrantyMonths !== undefined ? product.warrantyMonths : 3
       }];
     });
   };
