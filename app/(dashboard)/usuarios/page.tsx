@@ -12,23 +12,34 @@ export default function UsuariosPage() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<'SuperADMIN' | 'Técnico' | 'Operador de Caixa'>('Operador de Caixa');
+  const [roles, setRoles] = useState<any[]>([]);
+  const [roleId, setRoleId] = useState('');
 
-  const loadUsers = async () => {
+  const loadData = async () => {
     setIsLoading(true);
     try {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      setUsers(data.data || []);
+      const [resUsers, resRoles] = await Promise.all([
+        fetch('/api/users'),
+        fetch('/api/roles')
+      ]);
+      const dataUsers = await resUsers.json();
+      const dataRoles = await resRoles.json();
+      setUsers(dataUsers.data || []);
+      
+      const loadedRoles = dataRoles.data || [];
+      setRoles(loadedRoles);
+      if (loadedRoles.length > 0) {
+        setRoleId(loadedRoles[0].id);
+      }
     } catch {
-      toast.error('Erro ao carregar usuários');
+      toast.error('Erro ao carregar dados');
     } finally {
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    loadUsers();
+    loadData();
   }, []);
 
   const handleCreateUser = async (e: React.FormEvent) => {
@@ -37,7 +48,7 @@ export default function UsuariosPage() {
       const res = await fetch('/api/users', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ name, email, password, roleId }),
       });
 
       const data = await res.json();
@@ -51,7 +62,7 @@ export default function UsuariosPage() {
       setName('');
       setEmail('');
       setPassword('');
-      loadUsers();
+      loadData();
     } catch {
       toast.error('Erro de conexão');
     }
@@ -161,13 +172,13 @@ export default function UsuariosPage() {
               <div>
                 <label className="label">Cargo</label>
                 <select
-                  value={role}
-                  onChange={(e) => setRole(e.target.value as any)}
+                  value={roleId}
+                  onChange={(e) => setRoleId(e.target.value)}
                   className="input"
                 >
-                  <option value="Operador de Caixa">Operador de Caixa</option>
-                  <option value="Técnico">Técnico</option>
-                  <option value="SuperADMIN">SuperADMIN</option>
+                  {roles.map(r => (
+                    <option key={r.id} value={r.id}>{r.name}</option>
+                  ))}
                 </select>
               </div>
               <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">

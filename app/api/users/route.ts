@@ -18,6 +18,7 @@ export async function GET(req: NextRequest) {
         name: true,
         email: true,
         roleId: true,
+        role: { select: { name: true } },
         isActive: true,
         mustChangePassword: true,
         lastLoginAt: true,
@@ -26,7 +27,12 @@ export async function GET(req: NextRequest) {
       orderBy: { name: 'asc' },
     });
 
-    return NextResponse.json({ data: users });
+    const mappedUsers = users.map(u => ({
+      ...u,
+      role: u.role?.name || 'Sem Cargo'
+    }));
+
+    return NextResponse.json({ data: mappedUsers });
   } catch (error) {
     return handleApiError(error);
   }
