@@ -2,11 +2,10 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { Wrench, CheckCircle, Clock, AlertTriangle, FileText, ArrowLeft, Camera } from 'lucide-react';
+import { Wrench, CheckCircle, Clock, AlertTriangle, FileText, ArrowLeft, Printer } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { formatDateTime, formatCurrency } from '@/lib/formatters';
-import { DamageDiagram } from '@/components/ui/DamageDiagram';
 
 export default function DetalheOrdemPage() {
   const params = useParams();
@@ -17,7 +16,6 @@ export default function DetalheOrdemPage() {
   // Orçamento State
   const [laborAmount, setLaborAmount] = useState<number>(100);
   const [diagnosis, setDiagnosis] = useState('');
-  const [parts, setParts] = useState<any[]>([]);
 
   const loadOS = async () => {
     try {
@@ -34,25 +32,6 @@ export default function DetalheOrdemPage() {
   useEffect(() => {
     if (id) loadOS();
   }, [id]);
-
-  const handleUpdateChecklist = async (itemId: string, result: string) => {
-    try {
-      const updatedItems = os.checklistItems.map((i: any) =>
-        i.id === itemId ? { ...i, result } : { id: i.id, result: i.result }
-      );
-      const res = await fetch(`/api/service-orders/${id}/checklist`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: updatedItems }),
-      });
-      if (res.ok) {
-        toast.success('Checklist atualizado!');
-        loadOS();
-      }
-    } catch {
-      toast.error('Erro ao atualizar checklist');
-    }
-  };
 
   const handleCreateQuote = async () => {
     try {
@@ -114,6 +93,32 @@ export default function DetalheOrdemPage() {
     }
   };
 
+  const handlePrintEntryReceipt = async () => {
+    try {
+      const { generateOsEntryReceiptPDF } = await import('@/lib/pdfGenerator');
+      
+      const resSettings = await fetch('/api/settings');
+      let settings = {};
+      if (resSettings.ok) {
+        const data = await resSettings.json();
+        settings = data.settings || {};
+      }
+      
+      const pdfBase64 = await generateOsEntryReceiptPDF(os, settings);
+      
+      const win = window.open();
+      if (win) {
+        win.document.write(`
+          <iframe src="${pdfBase64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>
+        `);
+        win.document.title = `Entrada OS ${os.sequentialNumber}`;
+      }
+    } catch (e) {
+      toast.error('Erro ao gerar PDF da OS.');
+      console.error(e);
+    }
+  };
+
   if (isLoading || !os) {
     return <div className="p-8 text-center text-slate-500">Carregando Ordem de Serviço...</div>;
   }
@@ -135,11 +140,16 @@ export default function DetalheOrdemPage() {
             <p className="text-xs text-slate-400">Entrada: {formatDateTime(os.receivedAt)}</p>
           </div>
         </div>
-        <span className="badge badge-info text-sm py-1 px-3">{os.status}</span>
+        <div className="flex items-center gap-4">
+          <button onClick={handlePrintEntryReceipt} className="btn-secondary flex items-center gap-2">
+            <Printer className="h-4 w-4" /> Imprimir Entrada
+          </button>
+          <span className="badge badge-info text-sm py-1 px-3">{os.status}</span>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Coluna 1 & 2: Detalhes e Checklist */}
+        {/* Coluna 1 & 2: Detalhes do Cliente */}
         <div className="lg:col-span-2 space-y-6">
           <div className="card p-5 space-y-3">
             <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
@@ -157,70 +167,18 @@ export default function DetalheOrdemPage() {
                   {os.deviceBrandSnapshot} {os.deviceModelSnapshot}
                 </p>
                 <p className="text-xs text-slate-400">IMEI: {os.imei || 'Não informado'}</p>
+                <p className="text-xs text-slate-400">Cor: {os.color || 'Não informada'}</p>
               </div>
             </div>
+            {os.accessoriesReceived && (
+              <div className="pt-2 border-t border-slate-800 text-sm">
+                <p className="text-xs text-slate-500">Acessórios Deixados</p>
+                <p className="text-slate-200">{os.accessoriesReceived}</p>
+              </div>
+            )}
             <div className="pt-2 border-t border-slate-800 text-sm">
               <p className="text-xs text-slate-500">Defeito Relatado</p>
-              <p className="text-slate-200">{os.reportedIssue}</p>
-            </div>
-          </div>
-
-          {/* Vistoria Visual (Câmera e Diagrama) */}
-          {(os.devicePhotoUrl || os.damageMap) && (
-            <div className="card p-5 space-y-4">
-              <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider flex items-center gap-2">
-                <Camera className="w-4 h-4 text-primary" />
-                Vistoria Visual
-              </h2>
-              
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {os.devicePhotoUrl && (
-                  <div className="space-y-2">
-                    <p className="text-xs text-slate-500 font-medium">Foto do Aparelho na Entrada</p>
-                    <div className="border border-slate-700 rounded-lg overflow-hidden bg-black flex items-center justify-center aspect-video">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img src={os.devicePhotoUrl} alt="Foto do Aparelho" className="max-h-full max-w-full object-contain" />
-                    </div>
-                  </div>
-                )}
-                
-                {os.damageMap && (
-                  <div className="space-y-2">
-                    <DamageDiagram 
-                      value={JSON.parse(os.damageMap)} 
-                      onChange={() => {}} 
-                      readOnly={true} 
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Checklist */}
-          <div className="card p-5 space-y-3">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">
-              Checklist de Recebimento
-            </h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {os.checklistItems?.map((item: any) => (
-                <div
-                  key={item.id}
-                  className="flex items-center justify-between p-2.5 rounded bg-slate-800/40 text-xs"
-                >
-                  <span className="text-slate-300 font-medium">{item.descriptionSnapshot}</span>
-                  <select
-                    value={item.result}
-                    onChange={(e) => handleUpdateChecklist(item.id, e.target.value)}
-                    className="bg-slate-900 border border-slate-700 rounded px-2 py-1 text-xs text-slate-200"
-                  >
-                    <option value="OK">OK</option>
-                    <option value="COM_DEFEITO">COM DEFEITO</option>
-                    <option value="NAO_TESTADO">NÃO TESTADO</option>
-                    <option value="NAO_SE_APLICA">N/A</option>
-                  </select>
-                </div>
-              ))}
+              <p className="text-slate-200 font-medium">{os.reportedIssue}</p>
             </div>
           </div>
         </div>
@@ -254,7 +212,7 @@ export default function DetalheOrdemPage() {
                     onClick={() => handleApproveQuote(latestQuote.id)}
                     className="btn-primary w-full mt-2"
                   >
-                    Aprovar Orçamento (Reservar Peças)
+                    Aprovar Orçamento
                   </button>
                 )}
 
@@ -263,7 +221,7 @@ export default function DetalheOrdemPage() {
                     onClick={() => handleConsumeParts(latestQuote.id)}
                     className="btn-primary w-full mt-2 bg-emerald-600 hover:bg-emerald-500"
                   >
-                    Iniciar Reparo (Consumir Peças)
+                    Iniciar Reparo
                   </button>
                 )}
               </div>

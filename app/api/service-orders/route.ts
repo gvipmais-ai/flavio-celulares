@@ -64,11 +64,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const data = ServiceOrderSchema.parse(body);
 
-    const checklistTemplates = await prisma.checklistTemplateItem.findMany({
-      where: { isActive: true },
-      orderBy: { displayOrder: 'asc' },
-    });
-
     const result = await prisma.$transaction(async (tx) => {
       const settings = await tx.storeSettings.update({
         where: { id: 'singleton' },
@@ -97,14 +92,6 @@ export async function POST(req: NextRequest) {
             : null,
           status: 'RECEBIDO',
           createdById: session!.sub,
-          checklistItems: {
-            create: checklistTemplates.map((t) => ({
-              descriptionSnapshot: t.description,
-              result: 'NAO_TESTADO',
-              displayOrder: t.displayOrder,
-              suggestedPartType: t.suggestedPartType,
-            })),
-          },
           statusHistory: {
             create: {
               previousStatus: null,

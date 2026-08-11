@@ -286,3 +286,124 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
   return pdfBytes;
 }
+
+export async function generateOsEntryReceiptPDF(os: any, settings: StoreSettings): Promise<string> {
+  const pdfDoc = await PDFDocument.create();
+  const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
+  const fontBold = await pdfDoc.embedFont(StandardFonts.HelveticaBold);
+  
+  const height = 450;
+  const page = pdfDoc.addPage([THERMAL_WIDTH, height]);
+  let y = height - MARGIN - 20;
+
+  const drawText = (text: string, size: number, isBold = false, align: 'left'|'center'|'right' = 'left', customY?: number) => {
+    const activeFont = isBold ? fontBold : font;
+    const textWidth = activeFont.widthOfTextAtSize(text, size);
+    let x = MARGIN;
+    if (align === 'center') x = (THERMAL_WIDTH - textWidth) / 2;
+    if (align === 'right') x = THERMAL_WIDTH - MARGIN - textWidth;
+    
+    page.drawText(text, {
+      x,
+      y: customY ?? y,
+      size,
+      font: activeFont,
+      color: rgb(0, 0, 0),
+    });
+    if (customY === undefined) y -= (size + 4);
+  };
+
+  const drawLine = () => {
+    page.drawLine({
+      start: { x: MARGIN, y },
+      end: { x: THERMAL_WIDTH - MARGIN, y },
+      thickness: 1,
+      color: rgb(0.5, 0.5, 0.5),
+      dashArray: [2, 2],
+    });
+    y -= 10;
+  };
+
+  // Header
+  const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
+  drawText(storeName, 12, true, 'center');
+  y -= 2;
+  const address = 'Rua Da Maconaria, 464 - Carinhanha/BA';
+  drawText(address, 8, false, 'center');
+  const phone = '(77) 99981-6265';
+  const cnpj = '17.056.311/0001-75';
+  drawText(`Tel: ${phone}  CNPJ: ${cnpj}`, 8, false, 'center');
+  
+  y -= 5;
+  drawLine();
+
+  // Title
+  drawText('ORDEM DE SERVIÇO', 11, true, 'center');
+  drawText(`COMPROVANTE DE ENTRADA`, 9, true, 'center');
+  drawText(`OS Nº ${os.sequentialNumber}`, 10, true, 'center');
+  
+  y -= 5;
+  drawLine();
+
+  // Customer & Device
+  const dateStr = os.receivedAt ? new Date(os.receivedAt).toLocaleString('pt-BR') : new Date().toLocaleString('pt-BR');
+  drawText(`Data: ${dateStr}`, 8);
+  drawText(`Cliente: ${os.customer?.name || os.customerNameSnapshot}`, 8);
+  if (os.customer?.phone) drawText(`Tel: ${os.customer.phone}`, 8);
+  
+  y -= 5;
+  drawLine();
+  drawText('DADOS DO APARELHO:', 8, true);
+  y -= 2;
+  drawText(`Modelo: ${os.deviceBrandSnapshot} ${os.deviceModelSnapshot}`, 8);
+  if (os.imei) drawText(`IMEI: ${os.imei}`, 8);
+  if (os.color) drawText(`Cor: ${os.color}`, 8);
+  
+  if (os.accessoriesReceived) {
+    y -= 5;
+    drawText('ACESSÓRIOS DEIXADOS:', 8, true);
+    y -= 2;
+    
+    // Simple wrap for accessories text (max 40 chars per line for 80mm paper)
+    const accText = os.accessoriesReceived;
+    for (let i = 0; i < accText.length; i += 40) {
+      drawText(accText.substring(i, i + 40), 8);
+    }
+  }
+
+  y -= 5;
+  drawLine();
+  drawText('DEFEITO RELATADO:', 8, true);
+  y -= 2;
+  
+  // Wrap defect text
+  const defectText = os.reportedIssue;
+  for (let i = 0; i < defectText.length; i += 40) {
+    drawText(defectText.substring(i, i + 40), 8);
+  }
+
+  y -= 5;
+  drawLine();
+  drawText('TERMO DE RESPONSABILIDADE', 8, true, 'center');
+  y -= 5;
+  const terms = [
+    'O cliente autoriza a abertura do',
+    'aparelho para diagnostico tecnico.',
+    'Aparelhos nao retirados em 90 dias',
+    'serao considerados abandonados.',
+    'A loja nao se responsabiliza por',
+    'dados no aparelho. Faca backup.'
+  ];
+  terms.forEach(t => {
+    drawText(t, 7, false, 'center');
+  });
+
+  y -= 20;
+  drawLine();
+  y -= 5;
+  drawText('ASSINATURA DO CLIENTE', 8, true, 'center');
+
+  const pdfBytes = await pdfDoc.saveAsBase64({ dataUri: true });
+  return pdfBytes;
+}
+

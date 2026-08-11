@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { Wrench, Loader2, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
-import { CameraCapture } from '@/components/ui/CameraCapture';
-import { DamageDiagram, DamagePin } from '@/components/ui/DamageDiagram';
 
 export default function NovaOrdemPage() {
   const router = useRouter();
@@ -14,16 +12,12 @@ export default function NovaOrdemPage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const [customerId, setCustomerId] = useState('');
-  const [deviceBrand, setDeviceBrand] = useState('Apple');
-  const [deviceModel, setDeviceModel] = useState('iPhone 13');
+  const [deviceBrand, setDeviceBrand] = useState('');
+  const [deviceModel, setDeviceModel] = useState('');
   const [imei, setImei] = useState('');
   const [color, setColor] = useState('');
   const [accessories, setAccessories] = useState('');
   const [reportedIssue, setReportedIssue] = useState('');
-  
-  // New Checklist State
-  const [devicePhoto, setDevicePhoto] = useState<string>('');
-  const [damagePins, setDamagePins] = useState<DamagePin[]>([]);
 
   useEffect(() => {
     async function loadCustomers() {
@@ -48,24 +42,6 @@ export default function NovaOrdemPage() {
 
     setIsLoading(true);
     try {
-      let uploadedPhotoUrl = null;
-
-      // Se houver uma foto capturada, faz o upload primeiro
-      if (devicePhoto) {
-        const uploadRes = await fetch('/api/upload', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ base64Data: devicePhoto, filename: 'os_entry.jpg' })
-        });
-        
-        if (uploadRes.ok) {
-          const uploadData = await uploadRes.json();
-          uploadedPhotoUrl = uploadData.url;
-        } else {
-          toast.error('Aviso: Falha ao salvar a foto, mas a OS será criada.');
-        }
-      }
-
       const res = await fetch('/api/service-orders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -77,9 +53,6 @@ export default function NovaOrdemPage() {
           color,
           accessoriesReceived: accessories,
           reportedIssue,
-          visualCondition: damagePins.length > 0 ? `${damagePins.length} avaria(s) marcada(s)` : 'Nenhuma',
-          devicePhotoUrl: uploadedPhotoUrl,
-          damageMap: damagePins.length > 0 ? JSON.stringify(damagePins) : null,
         }),
       });
 
@@ -113,7 +86,7 @@ export default function NovaOrdemPage() {
       <div className="card p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">Cliente</label>
+            <label className="label">Cliente *</label>
             <select
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
@@ -130,7 +103,7 @@ export default function NovaOrdemPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <div>
-              <label className="label">Marca do Aparelho</label>
+              <label className="label">Marca do Aparelho *</label>
               <input
                 type="text"
                 required
@@ -142,7 +115,7 @@ export default function NovaOrdemPage() {
             </div>
 
             <div>
-              <label className="label">Modelo do Aparelho</label>
+              <label className="label">Modelo do Aparelho *</label>
               <input
                 type="text"
                 required
@@ -167,7 +140,7 @@ export default function NovaOrdemPage() {
             </div>
 
             <div>
-              <label className="label">Cor</label>
+              <label className="label">Cor (opcional)</label>
               <input
                 type="text"
                 value={color}
@@ -179,13 +152,13 @@ export default function NovaOrdemPage() {
           </div>
 
           <div>
-            <label className="label">Acessórios Entregues Junto</label>
+            <label className="label">Acessórios Deixados Pelo Cliente (opcional)</label>
             <input
               type="text"
               value={accessories}
               onChange={(e) => setAccessories(e.target.value)}
               className="input"
-              placeholder="Ex: Capa, Cabo, Carregador, Chip"
+              placeholder="Ex: Capa preta, Película trincada, Chip da Claro..."
             />
           </div>
 
@@ -198,12 +171,6 @@ export default function NovaOrdemPage() {
               className="input h-24"
               placeholder="Ex: Tela quebrada, aparelho não liga após queda..."
             />
-          </div>
-
-          <div className="space-y-4 pt-4 border-t border-slate-800">
-            <h2 className="text-sm font-bold text-slate-300 uppercase tracking-wider">Checklist Técnico Visual</h2>
-            <CameraCapture onCapture={setDevicePhoto} currentImage={devicePhoto} />
-            <DamageDiagram value={damagePins} onChange={setDamagePins} />
           </div>
 
           <div className="flex justify-end gap-3 pt-4 border-t border-slate-800">
@@ -219,3 +186,4 @@ export default function NovaOrdemPage() {
     </div>
   );
 }
+
