@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Wrench, Loader2, ArrowLeft } from 'lucide-react';
+import { Loader2, ArrowLeft, Plus } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
 
@@ -19,17 +19,27 @@ export default function NovaOrdemPage() {
   const [accessories, setAccessories] = useState('');
   const [reportedIssue, setReportedIssue] = useState('');
 
-  useEffect(() => {
-    async function loadCustomers() {
-      try {
-        const res = await fetch('/api/customers');
-        const data = await res.json();
-        setCustomers(data.data || []);
-        if (data.data?.[0]) setCustomerId(data.data[0].id);
-      } catch {
-        toast.error('Erro ao carregar clientes');
+  // Quick Customer Modal
+  const [showCustomerModal, setShowCustomerModal] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState('');
+  const [newCustomerPhone, setNewCustomerPhone] = useState('');
+
+  async function loadCustomers(selectId?: string) {
+    try {
+      const res = await fetch('/api/customers');
+      const data = await res.json();
+      setCustomers(data.data || []);
+      if (selectId) {
+        setCustomerId(selectId);
+      } else if (data.data?.[0] && !customerId) {
+        setCustomerId(data.data[0].id);
       }
+    } catch {
+      toast.error('Erro ao carregar clientes');
     }
+  }
+
+  useEffect(() => {
     loadCustomers();
   }, []);
 
@@ -71,6 +81,33 @@ export default function NovaOrdemPage() {
     }
   };
 
+  const handleCreateCustomer = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('/api/customers', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newCustomerName, phone: newCustomerPhone }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        toast.error(data.error?.message || 'Erro ao criar cliente');
+        return;
+      }
+
+      toast.success('Cliente cadastrado com sucesso!');
+      setShowCustomerModal(false);
+      setNewCustomerName('');
+      setNewCustomerPhone('');
+      
+      // Reload and auto-select new customer
+      loadCustomers(data.customer.id);
+    } catch {
+      toast.error('Erro de conexão ao cadastrar cliente');
+    }
+  };
+
   return (
     <div className="mx-auto max-w-3xl space-y-6">
       <div className="flex items-center gap-4">
@@ -86,13 +123,23 @@ export default function NovaOrdemPage() {
       <div className="card p-6">
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="label">Cliente *</label>
+            <div className="flex items-center justify-between mb-1">
+              <label className="label mb-0">Cliente *</label>
+              <button 
+                type="button" 
+                onClick={() => setShowCustomerModal(true)}
+                className="text-xs text-primary flex items-center gap-1 hover:underline"
+              >
+                <Plus className="h-3 w-3" /> Novo Cliente
+              </button>
+            </div>
             <select
               value={customerId}
               onChange={(e) => setCustomerId(e.target.value)}
               className="input"
               required
             >
+              <option value="" disabled>Selecione um cliente...</option>
               {customers.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name} {c.cpf ? `(${c.cpf})` : ''}
@@ -183,6 +230,48 @@ export default function NovaOrdemPage() {
           </div>
         </form>
       </div>
+
+      {showCustomerModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4">
+          <div className="card w-full max-w-sm p-6 space-y-4">
+            <h2 className="text-lg font-bold text-white">Cadastro Rápido</h2>
+            <form onSubmit={handleCreateCustomer} className="space-y-3">
+              <div>
+                <label className="label">Nome Completo *</label>
+                <input
+                  type="text"
+                  required
+                  value={newCustomerName}
+                  onChange={(e) => setNewCustomerName(e.target.value)}
+                  className="input"
+                />
+              </div>
+              <div>
+                <label className="label">Telefone (opcional)</label>
+                <input
+                  type="text"
+                  value={newCustomerPhone}
+                  onChange={(e) => setNewCustomerPhone(e.target.value)}
+                  className="input"
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+              <div className="flex justify-end gap-3 pt-3 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setShowCustomerModal(false)}
+                  className="btn-secondary"
+                >
+                  Cancelar
+                </button>
+                <button type="submit" className="btn-primary">
+                  Salvar
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
