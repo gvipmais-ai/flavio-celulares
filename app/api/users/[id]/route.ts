@@ -21,9 +21,9 @@ export async function GET(
         id: true,
         name: true,
         email: true,
-        roleId: true,
+        cargo: true,
+        permissoes: true,
         isActive: true,
-        mustChangePassword: true,
         lastLoginAt: true,
         createdAt: true,
       },
@@ -49,14 +49,14 @@ export async function PUT(
     const body = await req.json();
     const data = UpdateUserSchema.parse(body);
 
-    if (id === session?.sub && data.roleId) {
+    if (id === session?.sub && data.cargo) {
       throw new InvalidOperationError('Você não pode alterar seu próprio cargo.');
     }
 
     const updateData: any = {};
     if (data.name) updateData.name = data.name;
     if (data.email) updateData.email = data.email;
-    if (data.roleId) updateData.roleId = data.roleId;
+    if (data.cargo) updateData.cargo = data.cargo;
     if (data.isActive !== undefined) updateData.isActive = data.isActive;
 
     const updatedUser = await prisma.user.update({
@@ -66,7 +66,7 @@ export async function PUT(
         id: true,
         name: true,
         email: true,
-        roleId: true,
+        cargo: true,
         isActive: true,
         updatedAt: true,
       },

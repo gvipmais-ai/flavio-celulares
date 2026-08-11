@@ -243,7 +243,7 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
 
   if (!user) return null;
 
-  const normalizedUserRole = user.roleName?.toUpperCase() || '';
+  const normalizedUserRole = user.cargo?.toUpperCase() || '';
 
   const roleLabel: Record<string, string> = {
     SUPERADMIN: 'Super Administrador',
@@ -361,7 +361,7 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
             </div>
             <div className="min-w-0 flex-1">
               <p className="truncate text-xs font-semibold text-slate-200">{user.name}</p>
-              <p className="truncate text-[10px] text-slate-400">{roleLabel[normalizedUserRole] ?? user.roleName}</p>
+              <p className="truncate text-[10px] text-slate-400">{roleLabel[normalizedUserRole] ?? user.cargo}</p>
             </div>
             <button
               onClick={() => logout()}

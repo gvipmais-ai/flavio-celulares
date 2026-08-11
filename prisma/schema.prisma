@@ -9,20 +9,25 @@ datasource db {
 
 // ─── Modelos ──────────────────────────────────────────────────────────────────
 
+enum Cargo {
+  OPERADOR
+  TECNICO
+  SUPERADMIN
+}
+
 model User {
-  id                 String    @id @default(cuid())
-  name               String
-  email              String    @unique
-  passwordHash       String
-  roleId             String?
-  role               Role?     @relation(fields: [roleId], references: [id])
-  isActive           Boolean   @default(true)
-  mustChangePassword Boolean   @default(true)
-  loginAttempts      Int       @default(0)
-  lockedUntil        DateTime?
-  lastLoginAt        DateTime?
-  createdAt          DateTime  @default(now())
-  updatedAt          DateTime  @updatedAt
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  cargo         Cargo     @default(OPERADOR)
+  permissoes    Json?
+  isActive      Boolean   @default(true)
+  loginAttempts Int       @default(0)
+  lockedUntil   DateTime?
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
 
   createdProducts     Product[]                   @relation("ProductCreatedBy")
   inventoryMovements  InventoryMovement[]
@@ -45,22 +50,9 @@ model User {
   @@map("users")
 }
 
-model Role {
-  id          String   @id @default(cuid())
-  name        String   @unique
-  description String?
-  permissions String // JSON string com a estrutura de permissões (módulos e ações)
-  isSystem    Boolean  @default(false) // Se true, não pode ser excluído
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  users       User[]
-
-  @@map("roles")
-}
-
 model StoreSettings {
-  id                     String   @id @default("singleton")
-  name                   String   @default("Flavio Celulares")
+  id                     String  @id @default("singleton")
+  name                   String  @default("Flavio Celulares")
   tradeName              String?
   taxId                  String?
   address                String?
@@ -70,28 +62,28 @@ model StoreSettings {
   phone                  String?
   email                  String?
   logoUrl                String?
-  receiptFooterText      String?  @default("Obrigado pela preferência! Garantia legal de 90 dias conforme CDC.")
-  serviceOrderTerms      String?  @default("Aparelhos não retirados em até 90 dias após a conclusão serão vendidos para custeio do reparo.")
-  defaultQuoteValidDays  Int      @default(7)
-  defaultMinStock        Int      @default(3)
-  maxOperatorDiscountPct Decimal  @default(5.0)
-  allowNegativeStock     Boolean  @default(false)
-  showWarrantyOnReceipt  Boolean  @default(true)
-  showCostToOperator     Boolean  @default(false)
-  saleSequence           Int      @default(1000)
-  serviceOrderSequence   Int      @default(5000)
-  quoteSequence          Int      @default(100)
+  receiptFooterText      String? @default("Obrigado pela preferência! Garantia legal de 90 dias conforme CDC.")
+  serviceOrderTerms      String? @default("Aparelhos não retirados em até 90 dias após a conclusão serão vendidos para custeio do reparo.")
+  defaultQuoteValidDays  Int     @default(7)
+  defaultMinStock        Int     @default(3)
+  maxOperatorDiscountPct Decimal @default(5.0)
+  allowNegativeStock     Boolean @default(false)
+  showWarrantyOnReceipt  Boolean @default(true)
+  showCostToOperator     Boolean @default(false)
+  saleSequence           Int     @default(1000)
+  serviceOrderSequence   Int     @default(5000)
+  quoteSequence          Int     @default(100)
   warrantyTerms          String?
   activeModules          String? // JSON string para módulos ativos (ex: {"etiquetas": true, "pdv": true})
-  
+
   // Customizações de Layout Mestre
-  primaryColor           String?  @default("#0891b2") // cyan-600
-  secondaryColor         String?  @default("#10b981") // emerald-500
-  backgroundColor        String?  @default("#020617") // slate-950
-  textColor              String?  @default("#f8fafc") // slate-50
-  fontFamily             String?  @default("Inter")
-  
-  updatedAt              DateTime @updatedAt
+  primaryColor    String? @default("#0891b2") // cyan-600
+  secondaryColor  String? @default("#10b981") // emerald-500
+  backgroundColor String? @default("#020617") // slate-950
+  textColor       String? @default("#f8fafc") // slate-50
+  fontFamily      String? @default("Inter")
+
+  updatedAt DateTime @updatedAt
 
   @@map("store_settings")
 }
@@ -594,7 +586,7 @@ model MasterToken {
   criadoEm  DateTime  @default(now())
   expiraEm  DateTime?
   ativo     Boolean   @default(true)
-  criadoPor String?   // "SISTEMA" ou o ID do usuário/mestre que gerou
+  criadoPor String? // "SISTEMA" ou o ID do usuário/mestre que gerou
 
   @@map("master_tokens")
 }
@@ -606,8 +598,7 @@ model AuditoriaMestre {
   ip        String?
   userAgent String?
   data      DateTime @default(now())
-  mestreId  String?  // Referência opcional de qual token realizou a ação
+  mestreId  String? // Referência opcional de qual token realizou a ação
 
   @@map("auditoria_mestre")
 }
-

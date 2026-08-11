@@ -25,7 +25,7 @@ export async function GET(
 
     if (!sale) throw new NotFoundError('Venda não encontrada');
 
-    if (session?.roleName === 'Operador de Caixa' && sale.operatorId !== session.sub) {
+    if (session?.cargo === 'Operador de Caixa' && sale.operatorId !== session.sub) {
       throw new NotFoundError('Venda não encontrada');
     }
 

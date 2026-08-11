@@ -9,7 +9,7 @@ export async function GET(req: NextRequest) {
     const session = await getSessionFromRequest(req);
     
     // Apenas SuperADMIN pode exportar o backup do sistema
-    if (session?.roleName !== 'SuperADMIN') {
+    if (session?.cargo !== 'SuperADMIN') {
       throw new UnauthorizedError('Apenas o Administrador pode realizar o backup completo do sistema.');
     }
 
@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       brands
     ] = await Promise.all([
       prisma.user.findMany({
-        select: { id: true, name: true, email: true, isActive: true, role: true }
+        select: { id: true, name: true, email: true, isActive: true,  }
       }),
       prisma.product.findMany(),
       prisma.sale.findMany({

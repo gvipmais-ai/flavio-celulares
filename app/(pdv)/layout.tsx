@@ -16,23 +16,19 @@ export default async function PDVLayout({
 
   const user = await prisma.user.findUnique({
     where: { id: session.sub },
-    select: { mustChangePassword: true, isActive: true },
+    select: { isActive: true },
   });
 
   if (!user || !user.isActive) {
     redirect('/login');
   }
 
-  if (user.mustChangePassword) {
-    redirect('/alterar-senha?obrigatorio=true');
-  }
-
   const initialUser = session ? {
     id: session.sub,
     name: session.name,
     email: session.email,
-    roleName: session.roleName,
-    mustChangePassword: false,
+    cargo: session.cargo,
+    
   } : null;
 
   return (

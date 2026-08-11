@@ -106,8 +106,8 @@ export async function GET(req: NextRequest) {
       : products;
 
     // Determine cost price visibility
-    let showCost = session?.roleName === 'SuperADMIN' || session?.roleName === 'Técnico';
-    if (session!.roleName === 'Operador de Caixa') {
+    let showCost = session?.cargo === 'SuperADMIN' || session?.cargo === 'Técnico';
+    if (session!.cargo === 'Operador de Caixa') {
       const settings = await prisma.storeSettings.findUnique({
         where: { id: 'singleton' },
         select: { showCostToOperator: true },
@@ -139,7 +139,7 @@ export async function POST(req: NextRequest) {
     const session = await getSession();
     await requirePermission(session, 'products:read');
 
-    if (session!.roleName === 'Operador de Caixa') {
+    if (session!.cargo === 'Operador de Caixa') {
       throw new ForbiddenError('Operadores de caixa não podem cadastrar produtos.');
     }
 
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
     const code = parsed.code?.trim() ? parsed.code.trim() : `P${Date.now()}`;
 
     // SUPERADMIN → APROVADO; TECNICO → PENDENTE_REVISAO
-    const approvalStatus = session!.roleName === 'SuperADMIN' ? 'APROVADO' : 'PENDENTE_REVISAO';
+    const approvalStatus = session!.cargo === 'SuperADMIN' ? 'APROVADO' : 'PENDENTE_REVISAO';
 
     const { compatibleDeviceModelIds, ...productData } = parsed;
 
@@ -182,7 +182,7 @@ export async function POST(req: NextRequest) {
       entityType: 'Product',
       entityId: product.id,
       description: `Produto "${product.name}" (${code}) criado com status "${approvalStatus}".`,
-      metadata: { approvalStatus, role: session!.roleName },
+      metadata: { approvalStatus, role: session!.cargo },
     });
 
     return NextResponse.json({ ...product, product }, { status: 201 });

@@ -1,16 +1,45 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Users, Loader2, Save, KeyRound } from 'lucide-react';
+import { Users, Loader2, Save, User as UserIcon, Shield, Search } from 'lucide-react';
 import { toast } from 'sonner';
+
+const AVAILABLE_PERMISSIONS = [
+  { id: 'caixa', label: 'Operar PDV / Caixa' },
+  { id: 'fechamento_caixa', label: 'Gestão de Caixa (Abrir/Fechar)' },
+  { id: 'historico_vendas', label: 'Histórico de Vendas' },
+  { id: 'estoque_visualizar', label: 'Visualizar Estoque' },
+  { id: 'ajuste_estoque', label: 'Ajuste de Estoque' },
+  { id: 'produtos_cadastrar', label: 'Cadastrar Produtos' },
+  { id: 'produtos_editar', label: 'Editar Produtos' },
+  { id: 'produtos_excluir', label: 'Excluir Produtos' },
+  { id: 'clientes_visualizar', label: 'Visualizar Clientes' },
+  { id: 'clientes_cadastrar', label: 'Cadastrar/Editar Clientes' },
+  { id: 'entrada_estoque', label: 'Entradas de Estoque' },
+  { id: 'historico_manutencoes', label: 'Histórico de Manutenções' },
+  { id: 'checklist', label: 'Ordens de Serviço (Checklist/Peças)' },
+  { id: 'orcamentos', label: 'Orçamentos' },
+  { id: 'etiquetas_gerar', label: 'Gerar Etiquetas' },
+  { id: 'relatorios_vendas', label: 'Relatórios Financeiros/Vendas' },
+  { id: 'relatorios_estoque', label: 'Relatórios de Estoque' },
+  { id: 'relatorios_manutencao', label: 'Relatórios de Manutenção' },
+  { id: 'garantia_registrar', label: 'Registrar/Aprovar Garantias' },
+  { id: 'garantia_consultar', label: 'Consultar Garantias' },
+  { id: 'configuracoes_usuarios', label: 'Gerenciar Usuários (Convencionais)' },
+  { id: 'configuracoes_loja', label: 'Configurações da Loja' },
+  { id: 'painel_mestre', label: 'Acesso a Auditoria' },
+];
 
 export default function MasterUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
-  const [roles, setRoles] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   
-  const [editingUser, setEditingUser] = useState<any | null>(null);
-  const [forcePassword, setForcePassword] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [cargoFilter, setCargoFilter] = useState('ALL');
+
+  const [selectedUser, setSelectedUser] = useState<any | null>(null);
+  const [editForm, setEditForm] = useState<any>({});
+  const [editPermissions, setEditPermissions] = useState<Record<string, boolean>>({});
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -18,11 +47,11 @@ export default function MasterUsersPage() {
   }, []);
 
   const fetchData = async () => {
+    setIsLoading(true);
     try {
       const res = await fetch('/api/master/users');
       const data = await res.json();
       if (data.users) setUsers(data.users);
-      if (data.roles) setRoles(data.roles);
     } catch {
       toast.error('Erro ao carregar usuários');
     } finally {
@@ -30,18 +59,36 @@ export default function MasterUsersPage() {
     }
   };
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!editingUser) return;
-    
+  const handleSelectUser = (user: any) => {
+    setSelectedUser(user);
+    setEditForm({
+      name: user.name,
+      email: user.email,
+      cargo: user.cargo,
+      isActive: user.isActive,
+    });
+    setEditPermissions(user.permissoes ? { ...user.permissoes } : {});
+  };
+
+  const togglePermission = (permId: string) => {
+    setEditPermissions((prev) => ({
+      ...prev,
+      [permId]: !prev[permId]
+    }));
+  };
+
+  const handleSave = async () => {
+    if (!selectedUser) return;
     setIsSaving(true);
     try {
-      const payload: any = {
-        id: editingUser.id,
-        roleId: editingUser.roleId,
-        isActive: editingUser.isActive,
+      const payload = {
+        id: selectedUser.id,
+        name: editForm.name,
+        email: editForm.email,
+        cargo: editForm.cargo,
+        isActive: editForm.isActive,
+        permissoes: editPermissions,
       };
-      if (forcePassword) payload.forcePassword = forcePassword;
 
       const res = await fetch('/api/master/users', {
         method: 'PUT',
@@ -51,10 +98,13 @@ export default function MasterUsersPage() {
 
       if (!res.ok) throw new Error();
 
-      toast.success('Usuário forçado/editado com sucesso');
-      setEditingUser(null);
-      setForcePassword('');
+      toast.success('Usuário atualizado com sucesso');
       fetchData();
+      
+      // Update local state temporarily until fetch completes fully
+      setUsers((prev) => prev.map((u) => u.id === selectedUser.id ? { ...u, ...payload } : u));
+      setSelectedUser({ ...selectedUser, ...payload });
+
     } catch {
       toast.error('Erro ao atualizar usuário');
     } finally {
@@ -62,115 +112,209 @@ export default function MasterUsersPage() {
     }
   };
 
-  if (isLoading) return <div className="p-8 text-slate-400">Carregando...</div>;
+  const filteredUsers = users.filter((u) => {
+    const matchesSearch = u.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          u.email.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCargo = cargoFilter === 'ALL' || u.cargo === cargoFilter;
+    return matchesSearch && matchesCargo;
+  });
+
+  if (isLoading) return <div className="p-8 text-slate-400 flex items-center gap-2"><Loader2 className="animate-spin" /> Carregando...</div>;
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8">
-      <div>
-        <h1 className="text-2xl font-bold text-white flex items-center gap-2">
-          <Users className="h-6 w-6 text-slate-400" />
-          Gestão Absoluta de Usuários
-        </h1>
-        <p className="text-slate-400 mt-1">
-          Altere cargos, ative/desative ou force senhas ignorando qualquer restrição.
-        </p>
-      </div>
-
-      <div className="bg-slate-900 border border-slate-800 rounded-xl overflow-hidden">
-        <table className="w-full text-sm text-left text-slate-300">
-          <thead className="text-xs text-slate-400 uppercase bg-slate-950/50">
-            <tr>
-              <th className="px-6 py-3">Nome</th>
-              <th className="px-6 py-3">E-mail</th>
-              <th className="px-6 py-3">Cargo Atual</th>
-              <th className="px-6 py-3">Status</th>
-              <th className="px-6 py-3 text-right">Ação</th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr key={user.id} className="border-b border-slate-800/50 hover:bg-slate-800/20">
-                <td className="px-6 py-4 font-medium text-white">{user.name}</td>
-                <td className="px-6 py-4">{user.email}</td>
-                <td className="px-6 py-4">{user.role?.name || 'Sem Cargo'}</td>
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                    user.isActive ? 'bg-emerald-950 text-emerald-400' : 'bg-red-950 text-red-400'
-                  }`}>
-                    {user.isActive ? 'Ativo' : 'Bloqueado'}
-                  </span>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <button
-                    onClick={() => setEditingUser(user)}
-                    className="text-blue-400 hover:text-blue-300 font-bold"
-                  >
-                    FORÇAR EDIÇÃO
-                  </button>
-                </td>
-              </tr>
+    <div className="flex h-[calc(100vh-4rem)] flex-col lg:flex-row gap-6 p-4">
+      {/* LEFT COLUMN: Lista de Usuários (25%) */}
+      <div className="flex flex-col w-full lg:w-1/4 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden h-full">
+        <div className="p-4 border-b border-slate-800 space-y-4">
+          <h2 className="text-lg font-bold text-white flex items-center gap-2">
+            <Users className="w-5 h-5 text-indigo-400" />
+            Usuários
+          </h2>
+          
+          <div className="relative">
+            <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
+            <input
+              type="text"
+              placeholder="Buscar usuário..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-lg pl-9 pr-4 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+          
+          <div className="flex gap-2 text-xs">
+            {['ALL', 'OPERADOR', 'TECNICO', 'SUPERADMIN'].map((c) => (
+              <button
+                key={c}
+                onClick={() => setCargoFilter(c)}
+                className={`px-3 py-1 rounded-full border transition-colors ${
+                  cargoFilter === c 
+                    ? 'bg-indigo-500/20 text-indigo-400 border-indigo-500/50' 
+                    : 'border-slate-800 text-slate-500 hover:text-slate-300'
+                }`}
+              >
+                {c === 'ALL' ? 'Todos' : c}
+              </button>
             ))}
-          </tbody>
-        </table>
+          </div>
+        </div>
+        
+        <div className="flex-1 overflow-y-auto p-2 space-y-1">
+          {filteredUsers.length === 0 ? (
+            <p className="text-center text-slate-500 text-sm p-4">Nenhum usuário encontrado</p>
+          ) : (
+            filteredUsers.map((user) => (
+              <button
+                key={user.id}
+                onClick={() => handleSelectUser(user)}
+                className={`w-full text-left p-3 rounded-lg flex items-center justify-between transition-colors ${
+                  selectedUser?.id === user.id ? 'bg-indigo-500/10 border border-indigo-500/30' : 'hover:bg-slate-800/50 border border-transparent'
+                }`}
+              >
+                <div>
+                  <p className="text-sm font-medium text-slate-200 truncate">{user.name}</p>
+                  <p className="text-xs text-slate-500 truncate">{user.email}</p>
+                </div>
+                <div className="flex flex-col items-end gap-1">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full ${
+                    user.cargo === 'SUPERADMIN' ? 'bg-amber-500/20 text-amber-400' :
+                    user.cargo === 'TECNICO' ? 'bg-blue-500/20 text-blue-400' :
+                    'bg-slate-700 text-slate-300'
+                  }`}>
+                    {user.cargo}
+                  </span>
+                  {!user.isActive && <span className="text-[10px] text-red-400 bg-red-400/10 px-2 py-0.5 rounded-full">Inativo</span>}
+                </div>
+              </button>
+            ))
+          )}
+        </div>
       </div>
 
-      {editingUser && (
-        <div className="fixed inset-0 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-slate-900 border border-slate-800 rounded-xl shadow-2xl max-w-md w-full p-6">
-            <h2 className="text-xl font-bold text-white mb-4">Editando: {editingUser.name}</h2>
+      {/* CENTER & RIGHT CONTENT */}
+      {selectedUser ? (
+        <div className="flex flex-1 gap-6 h-full">
+          
+          {/* CENTER COLUMN: Dados (50% do total, aprox 66% deste flex restante) */}
+          <div className="flex-1 bg-slate-900 border border-slate-800 rounded-xl p-6 overflow-y-auto">
+            <h2 className="text-xl font-bold text-white flex items-center gap-2 mb-6">
+              <UserIcon className="w-5 h-5 text-indigo-400" />
+              Dados do Usuário
+            </h2>
             
-            <form onSubmit={handleSave} className="space-y-4">
+            <div className="space-y-6 max-w-md">
               <div>
-                <label className="label">Forçar Cargo (Role)</label>
-                <select
-                  value={editingUser.roleId || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, roleId: e.target.value })}
-                  className="input mt-1"
-                >
-                  <option value="">Sem cargo</option>
-                  {roles.map(r => (
-                    <option key={r.id} value={r.id}>{r.name}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="label">Status</label>
-                <select
-                  value={editingUser.isActive ? 'true' : 'false'}
-                  onChange={(e) => setEditingUser({ ...editingUser, isActive: e.target.value === 'true' })}
-                  className="input mt-1"
-                >
-                  <option value="true">Ativo / Desbloqueado</option>
-                  <option value="false">Bloqueado / Inativo</option>
-                </select>
-              </div>
-
-              <div className="pt-4 border-t border-slate-800">
-                <label className="label flex items-center gap-2">
-                  <KeyRound className="h-4 w-4" /> Forçar Nova Senha
-                </label>
-                <p className="text-xs text-slate-500 mb-2">Deixe em branco para manter a atual</p>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Nome Completo</label>
                 <input
                   type="text"
-                  value={forcePassword}
-                  onChange={(e) => setForcePassword(e.target.value)}
-                  placeholder="Nova senha (texto limpo)"
-                  className="input font-mono"
+                  value={editForm.name}
+                  onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
                 />
               </div>
 
-              <div className="flex justify-end gap-3 pt-6">
-                <button type="button" className="btn-secondary" onClick={() => { setEditingUser(null); setForcePassword(''); }}>
-                  Cancelar
-                </button>
-                <button type="submit" disabled={isSaving} className="btn-primary flex items-center gap-2">
-                  {isSaving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  Aplicar Força Mestre
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-1">E-mail</label>
+                <input
+                  type="email"
+                  value={editForm.email}
+                  onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-400 mb-1">Cargo no Sistema</label>
+                <select
+                  value={editForm.cargo}
+                  onChange={(e) => setEditForm({ ...editForm, cargo: e.target.value })}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-4 py-2.5 text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors"
+                >
+                  <option value="OPERADOR">OPERADOR (Acesso Restrito)</option>
+                  <option value="TECNICO">TÉCNICO (Manutenções e Orçamentos)</option>
+                  <option value="SUPERADMIN">SUPERADMIN (Acesso Total)</option>
+                </select>
+                {editForm.cargo === 'SUPERADMIN' && (
+                  <p className="mt-2 text-xs text-amber-400 bg-amber-400/10 p-2 rounded border border-amber-400/20">
+                    O cargo SuperADMIN ignora as regras de permissões abaixo.
+                  </p>
+                )}
+              </div>
+
+              <div>
+                <label className="flex items-center justify-between p-4 bg-slate-950 border border-slate-800 rounded-lg cursor-pointer hover:border-slate-700 transition-colors">
+                  <div>
+                    <div className="text-sm font-medium text-slate-200">Status da Conta</div>
+                    <div className="text-xs text-slate-500">Bloqueia ou libera o acesso ao sistema</div>
+                  </div>
+                  <div className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${editForm.isActive ? 'bg-emerald-500' : 'bg-slate-700'}`}>
+                    <input
+                      type="checkbox"
+                      className="sr-only"
+                      checked={editForm.isActive}
+                      onChange={(e) => setEditForm({ ...editForm, isActive: e.target.checked })}
+                    />
+                    <span className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${editForm.isActive ? 'translate-x-6' : 'translate-x-1'}`} />
+                  </div>
+                </label>
+              </div>
+
+              <div className="pt-6">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
+                >
+                  {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  Salvar Alterações
                 </button>
               </div>
-            </form>
+            </div>
           </div>
+
+          {/* RIGHT COLUMN: Permissões (25% do total, aprox 33% deste flex restante) */}
+          <div className="w-full lg:w-[320px] xl:w-[400px] bg-slate-900 border border-slate-800 rounded-xl overflow-hidden flex flex-col h-full">
+            <div className="p-4 border-b border-slate-800 bg-slate-900/50">
+              <h2 className="text-lg font-bold text-white flex items-center gap-2">
+                <Shield className="w-5 h-5 text-indigo-400" />
+                Permissões (PBAC)
+              </h2>
+              <p className="text-xs text-slate-500 mt-1">Configuração granular de acessos</p>
+            </div>
+            
+            <div className="flex-1 overflow-y-auto p-4 space-y-2">
+              {AVAILABLE_PERMISSIONS.map((perm) => {
+                const isOn = !!editPermissions[perm.id];
+                const isDisabled = editForm.cargo === 'SUPERADMIN';
+                
+                return (
+                  <button
+                    key={perm.id}
+                    onClick={() => !isDisabled && togglePermission(perm.id)}
+                    disabled={isDisabled}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg border text-left transition-colors ${
+                      isDisabled ? 'opacity-50 cursor-not-allowed border-slate-800 bg-slate-900' :
+                      isOn ? 'bg-indigo-500/10 border-indigo-500/30' : 'bg-slate-950 border-slate-800 hover:border-slate-700'
+                    }`}
+                  >
+                    <span className={`text-sm ${isOn && !isDisabled ? 'text-indigo-300' : 'text-slate-300'}`}>
+                      {perm.label}
+                    </span>
+                    <div className={`relative inline-flex h-5 w-9 items-center rounded-full transition-colors ${isOn ? 'bg-indigo-500' : 'bg-slate-700'}`}>
+                      <span className={`inline-block h-3 w-3 transform rounded-full bg-white transition-transform ${isOn ? 'translate-x-5' : 'translate-x-1'}`} />
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
+        </div>
+      ) : (
+        <div className="flex-1 flex flex-col items-center justify-center bg-slate-900/50 border border-slate-800/50 rounded-xl border-dashed">
+          <Users className="w-16 h-16 text-slate-700 mb-4" />
+          <h3 className="text-lg font-medium text-slate-400">Nenhum usuário selecionado</h3>
+          <p className="text-sm text-slate-500">Selecione um usuário na lista ao lado para gerenciar.</p>
         </div>
       )}
     </div>

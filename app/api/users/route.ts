@@ -17,20 +17,16 @@ export async function GET(req: NextRequest) {
         id: true,
         name: true,
         email: true,
-        roleId: true,
-        role: { select: { name: true } },
+        cargo: true,
+        permissoes: true,
         isActive: true,
-        mustChangePassword: true,
         lastLoginAt: true,
         createdAt: true,
       },
       orderBy: { name: 'asc' },
     });
 
-    const mappedUsers = users.map(u => ({
-      ...u,
-      role: u.role?.name || 'Sem Cargo'
-    }));
+    const mappedUsers = users;
 
     return NextResponse.json({ data: mappedUsers });
   } catch (error) {
@@ -53,15 +49,14 @@ export async function POST(req: NextRequest) {
         name: data.name,
         email: data.email,
         passwordHash,
-        roleId: data.roleId,
+        cargo: data.cargo,
         isActive: true,
-        mustChangePassword: true,
       },
       select: {
         id: true,
         name: true,
         email: true,
-        roleId: true,
+        cargo: true,
         isActive: true,
         createdAt: true,
       },
@@ -72,7 +67,7 @@ export async function POST(req: NextRequest) {
       action: 'USER_CREATED',
       entityType: 'User',
       entityId: user.id,
-      description: `Usuário ${user.name} (${user.email}) criado com cargo ID ${user.roleId}`,
+      description: `Usuário ${user.name} (${user.email}) criado com cargo ${user.cargo}`,
     });
 
     return NextResponse.json({ user }, { status: 201 });

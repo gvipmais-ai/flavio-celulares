@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
     const session = await getSessionFromRequest(req);
     await requirePermission(session, 'cash:read:own');
 
-    const where = session?.roleName === 'SuperADMIN' ? {} : { operatorId: session?.sub };
+    const where = session?.cargo === 'SuperADMIN' ? {} : { operatorId: session?.sub };
 
     const sessions = await prisma.cashSession.findMany({
       where,

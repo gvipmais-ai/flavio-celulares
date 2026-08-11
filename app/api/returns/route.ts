@@ -50,14 +50,14 @@ export async function POST(req: NextRequest) {
       const openSession = await prisma.cashSession.findFirst({
         where: { operatorId: session.sub, status: 'ABERTA' },
       });
-      if (!openSession && session.roleName !== 'SuperADMIN' && session.roleName !== 'Gerente') {
+      if (!openSession && session.cargo !== 'SuperADMIN' && session.cargo !== 'Gerente') {
         return NextResponse.json({ error: { code: 'BAD_REQUEST', message: 'Você precisa de um caixa aberto para realizar uma troca direta.' } }, { status: 400 });
       }
       cashSessionId = openSession?.id;
     }
 
     const isOutOfWarranty = data.type === 'DEVOLUCAO_FORA_GARANTIA';
-    const isManager = session.roleName === 'SuperADMIN' || session.roleName === 'Gerente';
+    const isManager = session.cargo === 'SuperADMIN' || session.cargo === 'Gerente';
 
     const result = await processReturnOrExchange({
       saleId: data.saleId,

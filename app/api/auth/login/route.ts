@@ -20,8 +20,7 @@ export async function POST(req: NextRequest) {
 
     // Busca o usuário pelo email — mensagem genérica para não revelar se existe ou não
     const user = await prisma.user.findUnique({ 
-      where: { email },
-      include: { role: true }
+      where: { email }
     });
 
     if (!user || !user.isActive) {
@@ -126,8 +125,7 @@ export async function POST(req: NextRequest) {
       sub: user.id,
       email: user.email,
       name: user.name,
-      roleId: user.roleId || '',
-      roleName: user.role?.name || 'Sem Cargo',
+      cargo: user.cargo,
     });
 
     // Monta a resposta
@@ -136,23 +134,21 @@ export async function POST(req: NextRequest) {
         id: string;
         name: string;
         email: string;
-        roleName: string;
-        mustChangePassword: boolean;
+        cargo: string;
+        
       };
-      mustChangePassword?: boolean;
+      
     } = {
       user: {
         id: user.id,
         name: user.name,
         email: user.email,
-        roleName: user.role?.name || 'Sem Cargo',
-        mustChangePassword: user.mustChangePassword,
+        cargo: user.cargo,
+        
       },
     };
 
-    if (user.mustChangePassword) {
-      responseBody.mustChangePassword = true;
-    }
+    
 
     const response = NextResponse.json(responseBody, { status: 200 });
     setAuthCookie(response, token);
@@ -163,7 +159,7 @@ export async function POST(req: NextRequest) {
       entityType: 'User',
       entityId: user.id,
       description: `Login realizado com sucesso: ${user.email}`,
-      metadata: { email: user.email, role: user.role },
+      metadata: { email: user.email, cargo: user.cargo },
       ipAddress,
       userAgent,
     });

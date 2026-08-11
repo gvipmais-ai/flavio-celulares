@@ -4,8 +4,7 @@ export interface JWTPayload {
   sub: string; // userId
   email: string;
   name: string;
-  roleId: string;
-  roleName: string;
+  cargo: string;
   scope?: string;
   iat?: number;
   exp?: number;

@@ -7,7 +7,7 @@ import { createAuditLogTx } from '@/lib/audit';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    if (!session || !['SuperADMIN', 'Gerente', 'Operador de Caixa'].includes(session.roleName)) {
+    if (!session || !['SuperADMIN', 'Gerente', 'Operador de Caixa'].includes(session.cargo)) {
       throw new UnauthorizedError();
     }
 

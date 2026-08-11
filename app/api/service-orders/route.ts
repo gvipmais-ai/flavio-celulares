@@ -25,7 +25,7 @@ export async function GET(req: NextRequest) {
         where.status = status;
       }
     }
-    if (session?.roleName === 'Técnico') {
+    if (session?.cargo === 'Técnico') {
       where.OR = [{ technicianId: session.sub }, { technicianId: null }];
     }
     if (search) {

@@ -85,8 +85,7 @@ export async function POST(req: NextRequest) {
       sub: masterId,
       email: 'master@system.local',
       name: 'Administrador Mestre',
-      roleId: 'master',
-      roleName: 'Mestre',
+      cargo: "SUPERADMIN",
       scope: 'master',
     });
 

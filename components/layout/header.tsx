@@ -12,12 +12,12 @@ interface HeaderProps {
   session: {
     name: string;
     email: string;
-    roleName: string;
+    cargo: string;
   };
 }
 
 export function Header({ session }: HeaderProps) {
-  const normalizedUserRole = session.roleName?.toUpperCase() || '';
+  const normalizedUserRole = session.cargo?.toUpperCase() || '';
 
   const roleBadgeColor: Record<string, string> = {
     SUPERADMIN: 'bg-purple-500/10 text-purple-400 border-purple-500/20',
@@ -27,7 +27,7 @@ export function Header({ session }: HeaderProps) {
     GERENTE: 'bg-blue-500/10 text-blue-400 border-blue-500/20',
   };
 
-  const roleName: Record<string, string> = {
+  const roleLabel: Record<string, string> = {
     SUPERADMIN: 'Super Admin',
     TECNICO: 'Técnico',
     'OPERADOR DE CAIXA': 'Caixa',
@@ -81,7 +81,7 @@ export function Header({ session }: HeaderProps) {
           <div className="hidden flex-col items-end sm:flex">
             <span className="text-sm font-medium leading-none">{session.name}</span>
             <span className={`inline-flex whitespace-nowrap items-center justify-center rounded-full border px-2 py-0.5 text-[10px] leading-none font-semibold ${roleBadgeColor[normalizedUserRole] ?? ''}`}>
-              {roleName[normalizedUserRole] ?? session.roleName}
+              {roleLabel[normalizedUserRole] ?? session.cargo}
             </span>
           </div>
         </div>

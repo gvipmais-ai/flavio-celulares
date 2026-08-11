@@ -1,6 +1,5 @@
 import { type JWTPayload } from './jwt';
 import { prisma } from '@/lib/prisma';
-import { DEFAULT_MODULES_SCHEMA } from './default-permissions';
 
 // ─── Tipos ────────────────────────────────────────────────────────────────────
 
@@ -58,129 +57,98 @@ export type Permission =
   | 'settings:manage'
   | 'audit:view';
 
-// ─── Mapa de Transição (Legado -> Novo JSON) ──────────────────────────────────
-// Mapeia as antigas permissões baseadas em strings para os caminhos do novo JSON
-const PERMISSION_MAPPING: Record<Permission, { module: keyof typeof DEFAULT_MODULES_SCHEMA; action: string }> = {
-  'sales:create': { module: 'caixa', action: 'criarVenda' },
-  'sales:read:own': { module: 'caixa', action: 'visualizar' },
-  'sales:read:all': { module: 'caixa', action: 'visualizar' },
-  'sales:cancel': { module: 'caixa', action: 'cancelarVenda' },
-  'sales:receipt:reprint': { module: 'caixa', action: 'reimprimirRecibo' },
-  'cash:open': { module: 'caixa', action: 'abrirFecharCaixa' },
-  'cash:close': { module: 'caixa', action: 'abrirFecharCaixa' },
-  'cash:supplement': { module: 'caixa', action: 'sangriaSuprimento' },
-  'cash:withdrawal': { module: 'caixa', action: 'sangriaSuprimento' },
-  'cash:read:own': { module: 'caixa', action: 'visualizar' },
-  'cash:read:all': { module: 'caixa', action: 'visualizar' },
-  'products:read': { module: 'estoque', action: 'visualizar' },
-  'products:create': { module: 'estoque', action: 'cadastrarProduto' },
-  'products:edit': { module: 'estoque', action: 'editar' },
-  'products:activate': { module: 'estoque', action: 'excluirProduto' },
-  'products:approve': { module: 'estoque', action: 'editar' },
-  'products:read:cost': { module: 'estoque', action: 'verCusto' },
-  'products:change:price': { module: 'estoque', action: 'editar' },
-  'stock:read': { module: 'estoque', action: 'visualizar' },
-  'stock:adjust': { module: 'estoque', action: 'ajustarEstoque' },
-  'categories:manage': { module: 'estoque', action: 'editar' },
-  'brands:manage': { module: 'estoque', action: 'editar' },
-  'suppliers:manage': { module: 'fornecedores', action: 'editar' },
-  'customers:read': { module: 'clientes', action: 'visualizar' },
-  'customers:create': { module: 'clientes', action: 'cadastrar' },
-  'customers:edit': { module: 'clientes', action: 'editar' },
-  'purchase-entries:create': { module: 'estoque', action: 'cadastrarProduto' },
-  'purchase-entries:confirm': { module: 'estoque', action: 'cadastrarProduto' },
-  'purchase-entries:cancel': { module: 'estoque', action: 'cadastrarProduto' },
-  'service-orders:read': { module: 'ordensServico', action: 'visualizar' },
-  'service-orders:create': { module: 'ordensServico', action: 'criar' },
-  'service-orders:update': { module: 'ordensServico', action: 'editar' },
-  'checklist:fill': { module: 'checklist', action: 'criar' },
-  'quotes:create': { module: 'checklist', action: 'gerarOrcamento' },
-  'quotes:approve': { module: 'checklist', action: 'gerarOrcamento' },
-  'parts:reserve': { module: 'ordensServico', action: 'editar' },
-  'parts:consume': { module: 'ordensServico', action: 'editar' },
-  'labels:generate': { module: 'estoque', action: 'gerarEtiquetas' },
-  'reports:view': { module: 'relatorios', action: 'visualizar' },
-  'reports:financial': { module: 'relatorios', action: 'visualizar' },
-  'reports:sales': { module: 'relatorios', action: 'visualizar' },
-  'reports:inventory': { module: 'relatorios', action: 'visualizar' },
-  'reports:maintenance': { module: 'relatorios', action: 'visualizar' },
-  'reports:warranty': { module: 'relatorios', action: 'visualizar' },
-  'returns:create': { module: 'caixa', action: 'criarVenda' },
-  'returns:approve': { module: 'caixa', action: 'cancelarVenda' },
-  'returns:read': { module: 'caixa', action: 'visualizar' },
-  'warranties:query': { module: 'caixa', action: 'visualizar' },
-  'users:manage': { module: 'usuarios', action: 'editar' },
-  'settings:manage': { module: 'configuracoes', action: 'editar' },
-  'audit:view': { module: 'relatorios', action: 'visualizar' },
+// Mapeia permissões antigas para as novas chaves
+const PERMISSION_MAPPING: Record<Permission, string> = {
+  'sales:create': 'caixa',
+  'sales:read:own': 'historico_vendas',
+  'sales:read:all': 'historico_vendas',
+  'sales:cancel': 'historico_vendas',
+  'sales:receipt:reprint': 'historico_vendas',
+  'cash:open': 'fechamento_caixa',
+  'cash:close': 'fechamento_caixa',
+  'cash:supplement': 'fechamento_caixa',
+  'cash:withdrawal': 'fechamento_caixa',
+  'cash:read:own': 'fechamento_caixa',
+  'cash:read:all': 'fechamento_caixa',
+  'products:read': 'estoque_visualizar',
+  'products:create': 'produtos_cadastrar',
+  'products:edit': 'produtos_editar',
+  'products:activate': 'produtos_excluir',
+  'products:approve': 'produtos_editar',
+  'products:read:cost': 'estoque_visualizar',
+  'products:change:price': 'produtos_editar',
+  'stock:read': 'estoque_visualizar',
+  'stock:adjust': 'ajuste_estoque',
+  'categories:manage': 'produtos_editar',
+  'brands:manage': 'produtos_editar',
+  'suppliers:manage': 'produtos_editar',
+  'customers:read': 'clientes_visualizar',
+  'customers:create': 'clientes_cadastrar',
+  'customers:edit': 'clientes_cadastrar', // Simplificado
+  'purchase-entries:create': 'entrada_estoque',
+  'purchase-entries:confirm': 'entrada_estoque',
+  'purchase-entries:cancel': 'entrada_estoque',
+  'service-orders:read': 'historico_manutencoes',
+  'service-orders:create': 'checklist',
+  'service-orders:update': 'checklist',
+  'checklist:fill': 'checklist',
+  'quotes:create': 'orcamentos',
+  'quotes:approve': 'orcamentos',
+  'parts:reserve': 'checklist',
+  'parts:consume': 'checklist',
+  'labels:generate': 'etiquetas_gerar',
+  'reports:view': 'relatorios_vendas',
+  'reports:financial': 'relatorios_vendas',
+  'reports:sales': 'relatorios_vendas',
+  'reports:inventory': 'relatorios_estoque',
+  'reports:maintenance': 'relatorios_manutencao',
+  'reports:warranty': 'relatorios_vendas',
+  'returns:create': 'garantia_registrar',
+  'returns:approve': 'garantia_registrar',
+  'returns:read': 'garantia_consultar',
+  'warranties:query': 'garantia_consultar',
+  'users:manage': 'configuracoes_usuarios',
+  'settings:manage': 'configuracoes_loja',
+  'audit:view': 'painel_mestre',
 };
 
 // ─── Funções Principais de Validação ──────────────────────────────────────────
 
-/**
- * Guard para Server Components e Route Handlers.
- * Lança erro se o usuário não tiver a permissão solicitada.
- * Busca as permissões direto do banco para garantir tempo real.
- */
 export async function requirePermission(session: JWTPayload | null, legacyPermission: Permission): Promise<void> {
-  if (!session || !session.roleId) {
-    throw new UnauthorizedError('Não autenticado ou cargo inválido');
-  }
-
-  const role = await prisma.role.findUnique({
-    where: { id: session.roleId },
-    select: { permissions: true, name: true },
-  });
-
-  if (!role) {
-    throw new ForbiddenError('Cargo associado não encontrado.');
-  }
-
-  const mapped = PERMISSION_MAPPING[legacyPermission];
-  if (!mapped) {
-    // Fallback: se não estiver mapeado, negar por segurança
-    throw new ForbiddenError(`Permissão "${legacyPermission}" não mapeada.`);
-  }
-
-  try {
-    const permsJson = JSON.parse(role.permissions);
-    const hasAccess = permsJson.modulos?.[mapped.module]?.[mapped.action] === true;
-
-    if (!hasAccess) {
-      throw new ForbiddenError(`Cargo "${role.name}" não pode realizar a ação "${mapped.action}" no módulo "${mapped.module}".`);
-    }
-  } catch (e) {
-    if (e instanceof ForbiddenError) throw e;
-    throw new ForbiddenError('Erro ao ler as permissões do cargo.');
-  }
-}
-
-/**
- * Valida a permissão baseada no novo JSON dinamicamente
- */
-export async function requireModulePermission(session: JWTPayload | null, module: keyof typeof DEFAULT_MODULES_SCHEMA, action: string): Promise<void> {
-  if (!session || !session.roleId) {
+  if (!session || !session.sub) {
     throw new UnauthorizedError('Não autenticado');
   }
 
-  const role = await prisma.role.findUnique({
-    where: { id: session.roleId },
-    select: { permissions: true, name: true },
+  // Master Token (bypass total)
+  if (session.scope === 'master') return;
+
+  const user = await prisma.user.findUnique({
+    where: { id: session.sub },
+    select: { cargo: true, permissoes: true, isActive: true },
   });
 
-  if (!role) {
-    throw new ForbiddenError('Cargo associado não encontrado.');
+  if (!user || !user.isActive) {
+    throw new ForbiddenError('Usuário bloqueado ou não encontrado.');
+  }
+
+  // SuperADMIN tem passe livre
+  if (user.cargo === 'SUPERADMIN') return;
+
+  const mappedKey = PERMISSION_MAPPING[legacyPermission];
+  if (!mappedKey) {
+    throw new ForbiddenError(`Permissão legado "${legacyPermission}" não mapeada.`);
   }
 
   try {
-    const permsJson = JSON.parse(role.permissions);
-    const hasAccess = permsJson.modulos?.[module]?.[action] === true;
+    const permsJson = user.permissoes ? (user.permissoes as Record<string, boolean>) : {};
+    const hasAccess = permsJson[mappedKey] === true;
 
     if (!hasAccess) {
-      throw new ForbiddenError(`Permissão insuficiente para ação "${action}" no módulo "${module}".`);
+      throw new ForbiddenError(`Você não tem permissão para a ação "${mappedKey}".`);
     }
   } catch (e) {
     if (e instanceof ForbiddenError) throw e;
-    throw new ForbiddenError('Erro ao ler as permissões do cargo.');
+    throw new ForbiddenError('Erro ao ler as permissões do usuário.');
   }
 }
 

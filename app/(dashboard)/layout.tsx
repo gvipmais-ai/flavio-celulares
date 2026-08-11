@@ -18,15 +18,11 @@ export default async function DashboardLayout({
 
   const user = await prisma.user.findUnique({
     where: { id: session.sub },
-    select: { mustChangePassword: true, isActive: true },
+    select: { isActive: true },
   });
 
   if (!user || !user.isActive) {
     redirect('/login');
-  }
-
-  if (user.mustChangePassword) {
-    redirect('/alterar-senha?obrigatorio=true');
   }
 
   const result = await prisma.$queryRaw<[{ count: bigint | number }]>`
@@ -40,8 +36,8 @@ export default async function DashboardLayout({
     id: session.sub,
     name: session.name,
     email: session.email,
-    roleName: session.roleName,
-    mustChangePassword: false,
+    cargo: session.cargo,
+    
   } : null;
 
   return (

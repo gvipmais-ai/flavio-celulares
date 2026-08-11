@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: {
         passwordHash: newPasswordHash,
-        mustChangePassword: false,
+        
       },
     });
 

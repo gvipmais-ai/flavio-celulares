@@ -53,12 +53,12 @@ export default function DashboardPage() {
       <div>
         <h1 className="text-2xl font-bold text-white">Bem-vindo(a), {user.name} 👋</h1>
         <p className="text-sm text-slate-400">
-          Visão geral do sistema Flavio Celulares — Cargo: <span className="font-semibold text-blue-400">{user.roleName}</span>
+          Visão geral do sistema Flavio Celulares — Cargo: <span className="font-semibold text-blue-400">{user.cargo}</span>
         </p>
       </div>
 
       {/* SUPERADMIN DASHBOARD */}
-      {user.roleName === 'SuperADMIN' && (
+      {user.cargo === "SUPERADMIN" && (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <div className="stat-card">
@@ -126,7 +126,7 @@ export default function DashboardPage() {
       )}
 
       {/* OPERADOR_CAIXA DASHBOARD */}
-      {user.roleName === 'Operador de Caixa' && (
+      {user.cargo === "OPERADOR" && (
         <div className="space-y-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div className="card p-6 flex flex-col items-center justify-center text-center">
@@ -152,7 +152,7 @@ export default function DashboardPage() {
       )}
 
       {/* TECNICO DASHBOARD */}
-      {user.roleName === 'Técnico' && (
+      {user.cargo === "TECNICO" && (
         <div className="space-y-6">
           <div className="flex justify-between items-center">
             <h2 className="text-lg font-semibold text-white">Painel Técnico</h2>

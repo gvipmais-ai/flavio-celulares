@@ -6,7 +6,7 @@ import { handleApiError, UnauthorizedError } from '@/lib/errors';
 export async function GET(req: NextRequest) {
   try {
     const session = await getSession();
-    if (session?.roleName !== 'SuperADMIN') throw new UnauthorizedError();
+    if (session?.cargo !== 'SuperADMIN') throw new UnauthorizedError();
 
     const users = await prisma.user.findMany({
       select: {
@@ -15,17 +15,14 @@ export async function GET(req: NextRequest) {
         email: true,
         isActive: true,
         lastLoginAt: true,
-        roleId: true,
-        role: { select: { name: true } },
+        cargo: true,
       },
       orderBy: { name: 'asc' },
     });
 
     const mappedUsers = users.map(u => ({
       ...u,
-      role: u.role?.name || 'Sem Cargo',
-      roleId: u.roleId
-
+      cargo: u.cargo
     }));
 
     return NextResponse.json({ data: mappedUsers });

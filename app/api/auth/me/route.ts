@@ -21,9 +21,10 @@ export async function GET() {
         id: true,
         name: true,
         email: true,
-        role: true,
+        cargo: true,
+        permissoes: true,
         isActive: true,
-        mustChangePassword: true,
+        
         lastLoginAt: true,
       },
     });
@@ -40,8 +41,8 @@ export async function GET() {
         id: user.id,
         name: user.name,
         email: user.email,
-        roleName: user.role?.name || 'Sem Cargo',
-        mustChangePassword: user.mustChangePassword,
+        cargo: user.cargo,
+        permissoes: user.permissoes,
         lastLoginAt: user.lastLoginAt,
       },
     });

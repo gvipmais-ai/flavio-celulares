@@ -48,31 +48,7 @@ export async function POST(req: NextRequest) {
       prisma.category.deleteMany(),
       prisma.customer.deleteMany(),
       prisma.user.deleteMany(),
-      prisma.role.deleteMany(),
     ]);
-
-    // Recriar Role inicial (SuperADMIN) e Usuário Admin para não quebrar o app
-    const superAdminRole = await prisma.role.create({
-      data: {
-        name: 'SuperADMIN',
-        description: 'Acesso total ao sistema',
-        permissions: JSON.stringify({
-          produtos: ['visualizar', 'criar', 'editar', 'excluir', 'aprovar'],
-          clientes: ['visualizar', 'criar', 'editar', 'excluir'],
-          fornecedores: ['visualizar', 'criar', 'editar', 'excluir'],
-          entradas: ['visualizar', 'criar', 'confirmar', 'cancelar'],
-          estoque: ['visualizar', 'ajustar'],
-          pdv: ['acessar', 'abrir_caixa', 'fechar_caixa', 'sangria_suprimento', 'vender', 'cancelar_venda', 'desconto_livre'],
-          os: ['visualizar', 'criar', 'editar', 'mudar_status', 'orcamento', 'checklist'],
-          relatorios: ['visualizar'],
-          gerenciamentoUsuarios: ['visualizar', 'criar', 'editar', 'excluir'],
-          gerenciamentoCargos: ['visualizar', 'criar', 'editar', 'excluir'],
-          configuracoes: ['visualizar', 'editar'],
-          garantias: ['visualizar', 'solicitar', 'autorizar'],
-        }),
-        isSystem: true,
-      },
-    });
 
     const defaultAdminHash = await bcryptjs.hash('admin123', 12);
     await prisma.user.create({
@@ -80,9 +56,9 @@ export async function POST(req: NextRequest) {
         name: 'Admin Sistema',
         email: 'admin@flaviocelulares.com.br',
         passwordHash: defaultAdminHash,
-        roleId: superAdminRole.id,
+        cargo: "SUPERADMIN",
         isActive: true,
-        mustChangePassword: true,
+        
       },
     });
 

@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
         entityType: 'User',
         entityId: session.sub,
         description: `Logout realizado: ${session.email}`,
-        metadata: { email: session.email, role: session.roleName },
+        metadata: { email: session.email, role: session.cargo },
         ipAddress,
         userAgent,
       });

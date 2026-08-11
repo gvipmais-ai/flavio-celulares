@@ -35,53 +35,7 @@ async function main() {
   });
   console.log('✅ Configurações da loja criadas');
 
-  // ── Cargos ───────────────────────────────────────────────────────────────────
-  const superAdminRole = await prisma.role.upsert({
-    where: { name: 'SuperADMIN' },
-    update: { permissions: JSON.stringify(getSuperAdminPermissions()), isSystem: true },
-    create: {
-      name: 'SuperADMIN',
-      description: 'Acesso total ao sistema',
-      permissions: JSON.stringify(getSuperAdminPermissions()),
-      isSystem: true,
-    }
-  });
-
-  const adminRole = await prisma.role.upsert({
-    where: { name: 'Gerente' },
-    update: { permissions: JSON.stringify(getSuperAdminPermissions()), isSystem: true },
-    create: {
-      name: 'Gerente',
-      description: 'Acesso gerencial ao sistema',
-      permissions: JSON.stringify(getSuperAdminPermissions()), // Similar to superadmin for now
-      isSystem: true,
-    }
-  });
-
-  const tecnicoRole = await prisma.role.upsert({
-    where: { name: 'Técnico' },
-    update: { permissions: JSON.stringify(getTecnicoPermissions()), isSystem: true },
-    create: {
-      name: 'Técnico',
-      description: 'Acesso focado na assistência técnica',
-      permissions: JSON.stringify(getTecnicoPermissions()),
-      isSystem: true,
-    }
-  });
-
-  const caixaRole = await prisma.role.upsert({
-    where: { name: 'Operador de Caixa' },
-    update: { permissions: JSON.stringify(getOperadorCaixaPermissions()), isSystem: true },
-    create: {
-      name: 'Operador de Caixa',
-      description: 'Acesso focado em vendas e caixa',
-      permissions: JSON.stringify(getOperadorCaixaPermissions()),
-      isSystem: true,
-    }
-  });
-
-  console.log('✅ Cargos padrões criados');
-
+  // ── Cargos não são mais dinâmicos (Enum) ──────────────────────────────────
   const adminHash = await bcryptjs.hash('admin123', 12);
 
   const adminUser = await prisma.user.upsert({
@@ -90,15 +44,15 @@ async function main() {
       passwordHash: adminHash,
       loginAttempts: 0,
       lockedUntil: null,
-      mustChangePassword: true,
+      
     },
     create: {
       name: 'Administrador',
       email: 'admin@flaviocelulares.com.br',
       passwordHash: adminHash,
-      roleId: superAdminRole.id,
+      cargo: "SUPERADMIN",
       isActive: true,
-      mustChangePassword: true,
+      
     },
   });
 
@@ -206,7 +160,7 @@ async function main() {
   console.log('\n🎉 Seed concluído com sucesso!');
   console.log('\n📋 Credencial de acesso mestre gerada:');
   console.log('   admin@flaviocelulares.com.br / admin123   (SUPERADMIN)');
-  console.log('\n⚠️  ATENÇÃO: Troca de senha obrigatória no primeiro acesso!\n');
+
 }
 
 main()

@@ -17,7 +17,7 @@ export async function GET(req: NextRequest) {
     const status = searchParams.get('status');
 
     const where: any = {};
-    if (session?.roleName === 'Operador de Caixa') {
+    if (session?.cargo === 'Operador de Caixa') {
       where.operatorId = session.sub;
     }
     if (status) {

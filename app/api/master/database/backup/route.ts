@@ -13,7 +13,6 @@ export async function GET(req: NextRequest) {
     // Fetches all essential data for a backup
     const [
       users,
-      roles,
       categories,
       brands,
       suppliers,
@@ -22,7 +21,6 @@ export async function GET(req: NextRequest) {
       storeSettings
     ] = await Promise.all([
       prisma.user.findMany(),
-      prisma.role.findMany(),
       prisma.category.findMany(),
       prisma.brand.findMany(),
       prisma.supplier.findMany(),
@@ -36,7 +34,6 @@ export async function GET(req: NextRequest) {
       version: '1.0',
       data: {
         storeSettings,
-        roles,
         users,
         categories,
         brands,
@@ -50,8 +47,7 @@ export async function GET(req: NextRequest) {
     await prisma.auditoriaMestre.create({
       data: {
         acao: 'BACKUP_DB',
-        detalhes: { tables: ['users', 'roles', 'products', 'categories', 'brands', 'suppliers', 'customers'] },
-        ip: req.headers.get('x-forwarded-for') ?? req.headers.get('x-real-ip'),
+        detalhes: { tables: ['users', 'products', 'categories', 'brands', 'suppliers', 'customers'] },
         mestreId: session.sub !== 'env-token' ? session.sub : null,
       }
     });

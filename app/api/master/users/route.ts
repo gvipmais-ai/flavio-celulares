@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from '@/lib/cookies';
 import { prisma } from '@/lib/prisma';
 import { handleApiError } from '@/lib/errors';
-import bcryptjs from 'bcryptjs';
 
 export async function GET(req: NextRequest) {
   try {
@@ -12,13 +11,10 @@ export async function GET(req: NextRequest) {
     }
 
     const users = await prisma.user.findMany({
-      include: { role: true },
-      orderBy: { createdAt: 'desc' },
+      orderBy: { name: 'asc' },
     });
 
-    const roles = await prisma.role.findMany();
-
-    return NextResponse.json({ users, roles });
+    return NextResponse.json({ users });
   } catch (error) {
     return handleApiError(error);
   }
@@ -31,15 +27,14 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Acesso negado' } }, { status: 403 });
     }
 
-    const { id, roleId, forcePassword, isActive } = await req.json();
+    const { id, name, email, cargo, isActive, permissoes } = await req.json();
 
     const dataToUpdate: any = {};
-    if (roleId !== undefined) dataToUpdate.roleId = roleId;
+    if (name !== undefined) dataToUpdate.name = name;
+    if (email !== undefined) dataToUpdate.email = email;
+    if (cargo !== undefined) dataToUpdate.cargo = cargo;
     if (isActive !== undefined) dataToUpdate.isActive = isActive;
-    if (forcePassword) {
-      dataToUpdate.passwordHash = await bcryptjs.hash(forcePassword, 12);
-      dataToUpdate.mustChangePassword = true;
-    }
+    if (permissoes !== undefined) dataToUpdate.permissoes = permissoes;
 
     const user = await prisma.user.update({
       where: { id },

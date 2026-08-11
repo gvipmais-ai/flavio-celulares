@@ -46,8 +46,8 @@ export async function GET(
     }
 
     // Determine cost visibility
-    let showCost = session!.roleName !== 'Operador de Caixa';
-    if (session!.roleName === 'Operador de Caixa') {
+    let showCost = session!.cargo !== 'Operador de Caixa';
+    if (session!.cargo === 'Operador de Caixa') {
       const settings = await prisma.storeSettings.findUnique({
         where: { id: 'singleton' },
         select: { showCostToOperator: true },
@@ -86,7 +86,7 @@ export async function PUT(
     const parsed = ProductSchema.parse(body);
 
     // TECNICO cannot change salePrice
-    if (session!.roleName === 'Técnico') {
+    if (session!.cargo === 'Técnico') {
       // Compare as strings to avoid float precision issues (salePrice is Decimal in DB)
       const existingPrice = Number(existing.salePrice);
       const requestedPrice = Number(parsed.salePrice);

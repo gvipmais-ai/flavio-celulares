@@ -7,8 +7,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  roleName: string;
-  mustChangePassword: boolean;
+  cargo: string;
 }
 
 interface AuthContextType {

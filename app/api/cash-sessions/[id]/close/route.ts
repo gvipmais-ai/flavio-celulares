@@ -24,7 +24,7 @@ export async function POST(
     if (!cashSession) throw new NotFoundError('Sessão de caixa não encontrada');
     if (cashSession.status === 'FECHADA') throw new InvalidOperationError('Caixa já está fechado.');
 
-    if (session?.roleName !== 'SuperADMIN' && cashSession.operatorId !== session?.sub) {
+    if (session?.cargo !== 'SuperADMIN' && cashSession.operatorId !== session?.sub) {
       throw new InvalidOperationError('Você só pode fechar o seu próprio caixa.');
     }
 
