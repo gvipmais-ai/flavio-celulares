@@ -36,6 +36,7 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   roles: string[];
+  permissionKey?: string;
   exact?: boolean;
 }
 
@@ -68,24 +69,28 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Frente de Caixa (PDV)',
         icon: <ShoppingCart className="h-4 w-4 text-emerald-400" />,
         roles: ['SUPERADMIN', 'OPERADOR'],
+        permissionKey: 'caixa',
       },
       {
         href: '/vendas',
         label: 'Histórico de Vendas',
         icon: <DollarSign className="h-4 w-4 text-emerald-500" />,
         roles: ['SUPERADMIN', 'OPERADOR'],
+        permissionKey: 'historico_vendas',
       },
       {
         href: '/devolucoes',
         label: 'Devoluções e Trocas',
         icon: <ArrowUpDown className="h-4 w-4 text-emerald-300" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'garantia_registrar',
       },
       {
         href: '/garantias',
         label: 'Consulta de Garantia',
         icon: <ClipboardList className="h-4 w-4 text-emerald-400" />,
         roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
+        permissionKey: 'garantia_consultar',
       },
     ],
   },
@@ -98,6 +103,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Ordens de Serviço',
         icon: <Wrench className="h-4 w-4 text-amber-400" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'historico_manutencoes',
         exact: true,
       },
       {
@@ -105,18 +111,21 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Nova OS',
         icon: <PlusCircle className="h-4 w-4 text-amber-300" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'checklist',
       },
       {
         href: '/orcamentos',
         label: 'Orçamentos',
         icon: <FileText className="h-4 w-4 text-amber-400" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'orcamentos',
       },
       {
         href: '/manutencoes',
         label: 'Histórico de Manutenções',
         icon: <ScrollText className="h-4 w-4 text-amber-300" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'historico_manutencoes',
       },
     ],
   },
@@ -129,6 +138,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Produtos',
         icon: <Package className="h-4 w-4 text-blue-400" />,
         roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
+        permissionKey: 'estoque_visualizar',
         exact: true,
       },
       {
@@ -136,12 +146,14 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Novo Produto',
         icon: <PlusCircle className="h-4 w-4 text-blue-300" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'produtos_cadastrar',
       },
       {
         href: '/estoque',
         label: 'Visão de Estoque',
         icon: <ClipboardList className="h-4 w-4 text-blue-400" />,
         roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
+        permissionKey: 'estoque_visualizar',
         exact: true,
       },
       {
@@ -149,18 +161,21 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Movimentações',
         icon: <ArrowUpDown className="h-4 w-4 text-blue-400" />,
         roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
+        permissionKey: 'estoque_visualizar',
       },
       {
         href: '/entradas',
         label: 'Notas de Entrada',
         icon: <Truck className="h-4 w-4 text-cyan-400" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'entrada_estoque',
       },
       {
         href: '/etiquetas',
         label: 'Etiquetas Code 128',
         icon: <Tag className="h-4 w-4 text-cyan-300" />,
         roles: ['SUPERADMIN', 'TECNICO'],
+        permissionKey: 'etiquetas_gerar',
       },
     ],
   },
@@ -173,24 +188,28 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'CRM / Clientes',
         icon: <UserCheck className="h-4 w-4 text-indigo-400" />,
         roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
+        permissionKey: 'clientes_visualizar',
       },
       {
         href: '/fornecedores',
         label: 'Fornecedores',
         icon: <Truck className="h-4 w-4 text-indigo-400" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'fornecedores_gerenciar',
       },
       {
         href: '/categorias',
         label: 'Categorias',
         icon: <FolderOpen className="h-4 w-4 text-indigo-300" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'produtos_editar',
       },
       {
         href: '/marcas',
         label: 'Marcas',
         icon: <Star className="h-4 w-4 text-indigo-300" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'produtos_editar',
       },
     ],
   },
@@ -203,12 +222,14 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Relatórios Gerenciais',
         icon: <BarChart3 className="h-4 w-4 text-purple-400" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'relatorios_vendas',
       },
       {
         href: '/usuarios',
         label: 'Usuários do Sistema',
         icon: <Users className="h-4 w-4 text-purple-400" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'configuracoes_usuarios',
       },
       {
         href: '/auditoria',
@@ -221,6 +242,7 @@ const NAV_SECTIONS: NavSection[] = [
         label: 'Configurações',
         icon: <Settings className="h-4 w-4 text-slate-400" />,
         roles: ['SUPERADMIN'],
+        permissionKey: 'configuracoes_loja',
       },
       {
         href: '/admin/gerenciamento',
@@ -291,12 +313,11 @@ export function Sidebar({ lowStockCount = 0 }: SidebarProps) {
       {/* Navegação por Seções Categorizadas */}
       <nav className="flex-1 overflow-y-auto px-3 py-4 space-y-5 scrollbar-thin scrollbar-thumb-slate-800">
         {NAV_SECTIONS.map((section) => {
-          const sectionRoles = section.roles.map(r => r.toUpperCase());
-          if (!sectionRoles.includes(normalizedUserRole)) return null;
-
-          const visibleSectionItems = section.items.filter((item) =>
-            item.roles.map(r => r.toUpperCase()).includes(normalizedUserRole)
-          );
+          const visibleSectionItems = section.items.filter((item) => {
+            if (normalizedUserRole === 'SUPERADMIN') return true;
+            if (item.permissionKey && user.permissoes?.[item.permissionKey] === true) return true;
+            return item.roles.map(r => r.toUpperCase()).includes(normalizedUserRole);
+          });
 
           if (visibleSectionItems.length === 0) return null;
 

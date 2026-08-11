@@ -8,6 +8,7 @@ interface User {
   name: string;
   email: string;
   cargo: string;
+  permissoes?: Record<string, boolean>;
 }
 
 interface AuthContextType {
