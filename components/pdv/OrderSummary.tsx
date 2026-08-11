@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { usePDV } from './PDVContext';
 import { formatCurrency } from '@/lib/formatters';
-import { User, Wallet, Percent, ChevronRight, X, DollarSign, CreditCard, Smartphone, Banknote } from 'lucide-react';
+import { User, Wallet, Percent, ChevronRight, X, DollarSign, CreditCard, Smartphone, Banknote, Gift } from 'lucide-react';
 import { toast } from 'sonner';
 
 export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
@@ -52,6 +52,7 @@ export function OrderSummary({ onCheckout }: { onCheckout: () => void }) {
     { method: 'PIX', label: 'Pix', icon: Smartphone, color: 'text-teal-500 bg-teal-50 hover:bg-teal-100 border-teal-200' },
     { method: 'CARTAO_CREDITO', label: 'Crédito', icon: CreditCard, color: 'text-blue-500 bg-blue-50 hover:bg-blue-100 border-blue-200' },
     { method: 'CARTAO_DEBITO', label: 'Débito', icon: CreditCard, color: 'text-indigo-500 bg-indigo-50 hover:bg-indigo-100 border-indigo-200' },
+    { method: 'BRINDE', label: 'Brinde', icon: Gift, color: 'text-pink-500 bg-pink-50 hover:bg-pink-100 border-pink-200' },
   ];
 
   return (
