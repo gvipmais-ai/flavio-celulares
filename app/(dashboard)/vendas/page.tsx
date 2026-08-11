@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ShoppingCart, Search, Printer, XCircle, Eye } from 'lucide-react';
+import { ShoppingCart, Search, Printer, XCircle, Eye, ShieldCheck } from 'lucide-react';
 import { formatCurrency, formatDateTime, formatPaymentMethod } from '@/lib/formatters';
 import { toast } from 'sonner';
 
@@ -50,6 +50,48 @@ export default function VendasPage() {
       loadVendas();
     } catch {
       toast.error('Erro de conexão');
+    }
+  };
+
+  const handlePrint = async (sale: any, type: 'RECEIPT' | 'WARRANTY') => {
+    try {
+      const { generateThermalReceiptPDF, generateWarrantyTermPDF } = await import('@/lib/pdfGenerator');
+      
+      const resSettings = await fetch('/api/settings');
+      let settings = {};
+      if (resSettings.ok) {
+        const data = await resSettings.json();
+        settings = data.settings || {};
+      }
+
+      // Format sale to match SaleData expected by pdfGenerator
+      const saleData = {
+        ...sale,
+        dateFormatted: formatDateTime(sale.createdAt),
+        cartItems: sale.items.map((i: any) => ({
+          code: i.productCodeSnapshot,
+          name: i.productNameSnapshot,
+          quantity: i.quantity,
+          unitPrice: Number(i.unitPrice),
+          discount: Number(i.discount),
+          warrantyMonths: i.warrantyMonthsSnapshot,
+        })),
+      };
+      
+      const pdfBase64 = type === 'RECEIPT' 
+        ? await generateThermalReceiptPDF(saleData, settings)
+        : await generateWarrantyTermPDF(saleData, settings);
+      
+      const win = window.open();
+      if (win) {
+        win.document.write(`
+          <iframe src="${pdfBase64}" frameborder="0" style="border:0; top:0px; left:0px; bottom:0px; right:0px; width:100%; height:100%;" allowfullscreen></iframe>
+        `);
+        win.document.title = type === 'RECEIPT' ? `Cupom ${sale.sequentialNumber}` : `Garantia ${sale.sequentialNumber}`;
+      }
+    } catch (e) {
+      toast.error('Erro ao gerar PDF.');
+      console.error(e);
     }
   };
 
@@ -183,7 +225,21 @@ export default function VendasPage() {
               <span className="text-emerald-400">{formatCurrency(selectedVenda.totalAmount)}</span>
             </div>
 
-            <div className="flex justify-end pt-4">
+            <div className="flex justify-between pt-4">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handlePrint(selectedVenda, 'RECEIPT')}
+                  className="btn-secondary flex items-center gap-2"
+                >
+                  <Printer className="h-4 w-4" /> 2ª Via Comprovante
+                </button>
+                <button
+                  onClick={() => handlePrint(selectedVenda, 'WARRANTY')}
+                  className="btn-secondary flex items-center gap-2"
+                >
+                  <ShieldCheck className="h-4 w-4" /> 2ª Via Garantia
+                </button>
+              </div>
               <button onClick={() => setSelectedVenda(null)} className="btn-secondary">
                 Fechar
               </button>
