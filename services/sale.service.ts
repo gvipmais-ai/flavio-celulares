@@ -40,7 +40,7 @@ export async function createSale(input: CreateSaleInput) {
       if (!cashSession) throw new CashSessionRequiredError();
 
       // 3. Buscar produtos
-      const productIds = input.items.map((i) => i.productId).filter(id => id && id.length === 25) as string[];
+      const productIds = input.items.map((i) => i.productId).filter(id => id && id.trim() !== '') as string[];
       const products = await tx.product.findMany({
         where: { id: { in: productIds }, isActive: true, approvalStatus: 'APROVADO' },
       });
@@ -59,7 +59,7 @@ export async function createSale(input: CreateSaleInput) {
         let warrantyMonths = 3;
         let finalProductId = item.productId || null;
 
-        if (item.productId && item.productId.length === 25) { // É cuid
+        if (item.productId && item.productId.trim() !== '') { // Tem ID válido
           const product = products.find((p) => p.id === item.productId);
           if (product) {
             unitPrice = product.salePrice;
@@ -163,7 +163,7 @@ export async function createSale(input: CreateSaleInput) {
       // Se for OS, as peças já foram baixadas durante o fluxo da OS (Iniciar Reparo).
       if (!input.serviceOrderId) {
         for (const item of input.items) {
-          if (item.productId && item.productId.length === 25) {
+          if (item.productId && item.productId.trim() !== '') {
             await decrementStock(
               tx,
               item.productId,
