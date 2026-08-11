@@ -79,10 +79,10 @@ export async function generateThermalReceiptPDF(sale: SaleData, settings: StoreS
   const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
   drawText(storeName, 12, true, 'center');
   y -= 2;
-  const address = settings?.address || 'Rua Da Maconaria, 464 - Carinhanha/BA';
+  const address = 'Rua Da Maconaria, 464 - Carinhanha/BA';
   drawText(address, 8, false, 'center');
-  const phone = settings?.phone || '(77) 99981-6265';
-  const cnpj = settings?.cnpj || '17.056.311/0001-75';
+  const phone = '(77) 99981-6265';
+  const cnpj = '17.056.311/0001-75';
   drawText(`Tel: ${phone}  CNPJ: ${cnpj}`, 8, false, 'center');
   
   y -= 5;
@@ -216,10 +216,10 @@ export async function generateWarrantyTermPDF(sale: SaleData, settings: StoreSet
   const storeName = settings?.tradeName || settings?.name || 'FLAVIO CELULARES';
   drawText(storeName, 12, true, 'center');
   y -= 2;
-  const address = settings?.address || 'Rua Da Maconaria, 464 - Carinhanha/BA';
+  const address = 'Rua Da Maconaria, 464 - Carinhanha/BA';
   drawText(address, 8, false, 'center');
-  const phone = settings?.phone || '(77) 99981-6265';
-  const cnpj = settings?.cnpj || '17.056.311/0001-75';
+  const phone = '(77) 99981-6265';
+  const cnpj = '17.056.311/0001-75';
   drawText(`Tel: ${phone}  CNPJ: ${cnpj}`, 8, false, 'center');
   
   y -= 5;
