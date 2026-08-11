@@ -334,6 +334,7 @@ model Sale {
   type                 String    @default("VENDA")
   originSaleId         String?
   customerId           String?
+  serviceOrderId       String?
   customerNameSnapshot String
   customerCpfSnapshot  String?
   grossAmount          Decimal
@@ -349,6 +350,7 @@ model Sale {
   createdAt            DateTime  @default(now())
 
   customer          Customer?     @relation(fields: [customerId], references: [id])
+  serviceOrder      ServiceOrder? @relation(fields: [serviceOrderId], references: [id])
   operator          User          @relation("SaleOperator", fields: [operatorId], references: [id])
   cashSession       CashSession   @relation(fields: [cashSessionId], references: [id])
   canceledBy        User?         @relation("SaleCanceledBy", fields: [canceledById], references: [id])
@@ -427,6 +429,7 @@ model ServiceOrder {
   statusHistory  ServiceOrderStatusHistory[]
   quotes         Quote[]
   reservations   StockReservation[]
+  sales          Sale[]
 
   @@map("service_orders")
 }

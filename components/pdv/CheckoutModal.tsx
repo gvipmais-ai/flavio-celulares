@@ -17,7 +17,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
     customerName, customerCpf, 
     payments, 
     grossTotal, totalDiscount, netTotal, totalPaid, change,
-    clearCart, registerShortcut, settings, reloadSession
+    clearCart, registerShortcut, settings, reloadSession, serviceOrderId
   } = usePDV();
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -67,6 +67,7 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
           clientTransactionId,
           customerNameSnapshot: customerName,
           customerCpfSnapshot: customerCpf || null,
+          serviceOrderId,
           items: itemsPayload,
           payments: payments.map(p => ({ paymentMethod: p.method, amount: p.amount })),
         }),

@@ -136,6 +136,20 @@ export default function DetalheOrdemPage() {
     }
   };
 
+  const handleMarkAsReady = async () => {
+    try {
+      const res = await fetch(`/api/service-orders/${id}/ready`, { method: 'POST' });
+      if (res.ok) {
+        toast.success('Aparelho marcado como pronto!');
+        loadOS();
+      } else {
+        toast.error('Erro ao marcar como pronto');
+      }
+    } catch {
+      toast.error('Erro de conexão');
+    }
+  };
+
   const handlePrintEntryReceipt = async () => {
     try {
       const { generateOsEntryReceiptPDF } = await import('@/lib/pdfGenerator');
@@ -276,13 +290,31 @@ export default function DetalheOrdemPage() {
                   </button>
                 )}
 
-                {latestQuote.status === 'APROVADO' && os.status !== 'EM_REPARO' && (
+                {latestQuote.status === 'APROVADO' && os.status !== 'EM_REPARO' && os.status !== 'PRONTO_PARA_ENTREGA' && os.status !== 'ENTREGUE' && (
                   <button
                     onClick={() => handleConsumeParts(latestQuote.id)}
                     className="btn-primary w-full mt-2 bg-emerald-600 hover:bg-emerald-500"
                   >
                     Iniciar Reparo
                   </button>
+                )}
+
+                {os.status === 'EM_REPARO' && (
+                  <button
+                    onClick={handleMarkAsReady}
+                    className="btn-primary w-full mt-2 bg-blue-600 hover:bg-blue-500"
+                  >
+                    Marcar como Pronto
+                  </button>
+                )}
+
+                {os.status === 'PRONTO_PARA_ENTREGA' && (
+                  <Link
+                    href={`/caixa?osId=${os.id}`}
+                    className="btn-primary w-full mt-2 bg-purple-600 hover:bg-purple-500 flex items-center justify-center"
+                  >
+                    Receber no Caixa
+                  </Link>
                 )}
               </div>
             ) : (

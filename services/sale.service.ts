@@ -21,6 +21,7 @@ interface CreateSaleInput {
   cashSessionId: string;
   type?: 'VENDA' | 'TROCA';
   originSaleId?: string;
+  serviceOrderId?: string | null;
 }
 
 export async function createSale(input: CreateSaleInput) {
@@ -114,6 +115,7 @@ export async function createSale(input: CreateSaleInput) {
           type: input.type || 'VENDA',
           originSaleId: input.originSaleId,
           customerId: input.customerId,
+          serviceOrderId: input.serviceOrderId,
           customerNameSnapshot: input.customerNameSnapshot,
           customerCpfSnapshot: input.customerCpfSnapshot,
           grossAmount,
@@ -133,17 +135,44 @@ export async function createSale(input: CreateSaleInput) {
         include: { items: true, payments: true },
       });
 
-      // Baixar estoque
-      for (const item of input.items) {
-        await decrementStock(
-          tx,
-          item.productId,
-          item.quantity,
-          'VENDA' as any,
-          'SALE',
-          sale.id,
-          input.operatorId
-        );
+      // Baixar estoque (se não for OS)
+      // Se for OS, as peças já foram baixadas durante o fluxo da OS (Iniciar Reparo).
+      // Os serviços também não precisam de baixa. Mas por segurança, podemos só pular baixa se for serviço ou se veio da OS.
+      // O modo correto é: se tem serviceOrderId, ignoramos a baixa de estoque dos itens (já foi feito).
+      if (!input.serviceOrderId) {
+        for (const item of input.items) {
+          await decrementStock(
+            tx,
+            item.productId,
+            item.quantity,
+            'VENDA' as any,
+            'SALE',
+            sale.id,
+            input.operatorId
+          );
+        }
+      }
+
+      // Se for pagamento de OS, atualizar a OS para ENTREGUE
+      if (input.serviceOrderId) {
+        const os = await tx.serviceOrder.findUnique({ where: { id: input.serviceOrderId } });
+        if (os) {
+          await tx.serviceOrder.update({
+            where: { id: input.serviceOrderId },
+            data: {
+              status: 'ENTREGUE',
+              deliveredAt: new Date(),
+              statusHistory: {
+                create: {
+                  previousStatus: os.status,
+                  newStatus: 'ENTREGUE',
+                  notes: `Pagamento recebido no caixa. Venda #${sequentialNumber}.`,
+                  userId: input.operatorId,
+                },
+              },
+            },
+          });
+        }
       }
 
       // Movimentação de caixa física (APENAS DINHEIRO LÍQUIDO)

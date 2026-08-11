@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 
 export interface CartItem {
@@ -55,6 +56,10 @@ interface PDVContextData {
   
   settings: any;
 
+  // OS Link
+  serviceOrderId: string | null;
+  setServiceOrderId: (id: string | null) => void;
+
   // Shortcuts
   registerShortcut: (key: string, callback: () => void) => void;
   unregisterShortcut: (key: string) => void;
@@ -73,6 +78,10 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<any>(null);
   const [isLoadingSession, setIsLoadingSession] = useState(true);
   const [isReady, setIsReady] = useState(false);
+
+  const [serviceOrderId, setServiceOrderId] = useState<string | null>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
   // Keyboard Shortcuts map
   const shortcutsRef = React.useRef<Map<string, () => void>>(new Map());
@@ -140,6 +149,7 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
         if (p.customerCpf) setCustomerCpf(p.customerCpf);
         if (p.payments) setPayments(p.payments);
         if (p.generalDiscount) setGeneralDiscount(p.generalDiscount);
+        if (p.serviceOrderId) setServiceOrderId(p.serviceOrderId);
       } catch (e) {
         console.error('Failed to parse pdv state');
       }
@@ -151,10 +161,68 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (isReady) {
       localStorage.setItem('pdvStateV2', JSON.stringify({
-        cart, customerName, customerCpf, payments, generalDiscount
+        cart, customerName, customerCpf, payments, generalDiscount, serviceOrderId
       }));
     }
-  }, [cart, customerName, customerCpf, payments, generalDiscount, isReady]);
+  }, [cart, customerName, customerCpf, payments, generalDiscount, serviceOrderId, isReady]);
+
+  // Load OS if osId is in URL
+  useEffect(() => {
+    const osId = searchParams.get('osId');
+    if (osId && osId !== serviceOrderId) {
+      async function loadOS() {
+        try {
+          const res = await fetch(`/api/service-orders/${osId}`);
+          const data = await res.json();
+          const os = data.serviceOrder;
+          
+          if (os && os.status === 'PRONTO_PARA_ENTREGA') {
+            setServiceOrderId(os.id);
+            setCustomerName(os.customer?.name || 'Cliente Consumidor');
+            
+            const latestQuote = os.quotes?.[0];
+            if (latestQuote && latestQuote.status === 'APROVADO') {
+               const newCart: CartItem[] = [];
+               for (const item of latestQuote.items) {
+                 newCart.push({
+                   productId: item.productId || `os-item-${item.id}`,
+                   code: item.itemType === 'PECA' ? 'PECA' : 'SERVICO',
+                   name: item.descriptionSnapshot,
+                   unitPrice: Number(item.unitPrice),
+                   quantity: item.quantity,
+                   discount: 0,
+                   stockAvailable: 999,
+                   warrantyMonths: 3
+                 });
+               }
+               if (latestQuote.laborAmount > 0) {
+                 newCart.push({
+                   productId: 'MAO_DE_OBRA',
+                   code: 'SERVICO',
+                   name: 'Mão de Obra Técnica',
+                   unitPrice: Number(latestQuote.laborAmount),
+                   quantity: 1,
+                   discount: 0,
+                   stockAvailable: 999,
+                   warrantyMonths: 3
+                 });
+               }
+               setCart(newCart);
+               toast.success('OS carregada no caixa!');
+               
+               // Remove osId from URL so it doesn't reload on refresh
+               router.replace('/caixa');
+            }
+          } else {
+            toast.error('OS não está pronta para entrega.');
+          }
+        } catch (e) {
+          toast.error('Erro ao carregar OS no caixa');
+        }
+      }
+      loadOS();
+    }
+  }, [searchParams, serviceOrderId, router]);
 
   // Cart actions
   const addToCart = (product: any, qty = 1) => {
@@ -213,6 +281,7 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
     setGeneralDiscount(0);
     setCustomerName('Cliente Consumidor');
     setCustomerCpf('');
+    setServiceOrderId(null);
   };
 
   const addPayment = (method: string, amount: number) => {
@@ -252,6 +321,7 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
       generalDiscount, setGeneralDiscount,
       grossTotal, totalDiscount, netTotal, totalPaid, change, remainingToPay,
       cashSession, setCashSession, isLoadingSession, setIsLoadingSession, reloadSession, settings,
+      serviceOrderId, setServiceOrderId,
       registerShortcut, unregisterShortcut
     }}>
       {children}

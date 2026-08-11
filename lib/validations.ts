@@ -177,6 +177,7 @@ export const SalePaymentSchema = z.object({
 export const CreateSaleSchema = z.object({
   clientTransactionId: z.string().min(1, 'ID de transação obrigatório'),
   customerId: z.string().cuid().optional().nullable(),
+  serviceOrderId: z.string().cuid().optional().nullable(),
   customerNameSnapshot: z.string().min(1, 'Nome do cliente obrigatório').max(200),
   customerCpfSnapshot: z
     .string()
