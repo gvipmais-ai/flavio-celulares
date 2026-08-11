@@ -6,6 +6,7 @@ export interface JWTPayload {
   name: string;
   roleId: string;
   roleName: string;
+  scope?: string;
   iat?: number;
   exp?: number;
 }

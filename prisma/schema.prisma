@@ -83,6 +83,14 @@ model StoreSettings {
   quoteSequence          Int      @default(100)
   warrantyTerms          String?
   activeModules          String? // JSON string para módulos ativos (ex: {"etiquetas": true, "pdv": true})
+  
+  // Customizações de Layout Mestre
+  primaryColor           String?  @default("#0891b2") // cyan-600
+  secondaryColor         String?  @default("#10b981") // emerald-500
+  backgroundColor        String?  @default("#020617") // slate-950
+  textColor              String?  @default("#f8fafc") // slate-50
+  fontFamily             String?  @default("Inter")
+  
   updatedAt              DateTime @updatedAt
 
   @@map("store_settings")
@@ -576,3 +584,30 @@ model Return {
 
   @@map("returns")
 }
+
+// ─── Mestre (Nível Deus) ──────────────────────────────────────────────────────
+
+model MasterToken {
+  id        String    @id @default(cuid())
+  token     String    @unique // Hash do token gerado
+  descricao String?
+  criadoEm  DateTime  @default(now())
+  expiraEm  DateTime?
+  ativo     Boolean   @default(true)
+  criadoPor String?   // "SISTEMA" ou o ID do usuário/mestre que gerou
+
+  @@map("master_tokens")
+}
+
+model AuditoriaMestre {
+  id        Int      @id @default(autoincrement())
+  acao      String
+  detalhes  Json?
+  ip        String?
+  userAgent String?
+  data      DateTime @default(now())
+  mestreId  String?  // Referência opcional de qual token realizou a ação
+
+  @@map("auditoria_mestre")
+}
+

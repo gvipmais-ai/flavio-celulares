@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from './lib/cookies';
 
 // Rotas públicas — não requerem autenticação
-const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/health'];
+const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/health', '/master-login', '/api/master/login'];
 
 // Rotas de API — devolvem JSON em vez de redirecionar
 const API_PREFIX = '/api';
@@ -35,13 +35,33 @@ export async function middleware(req: NextRequest) {
         { status: 401 }
       );
     }
+    // Se tentou acessar área master
+    if (pathname.startsWith('/master')) {
+      return NextResponse.redirect(new URL('/master-login', req.url));
+    }
     const loginUrl = new URL('/login', req.url);
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }
 
-  // Usuário autenticado tentando acessar /login → redireciona ao dashboard
-  if (pathname === '/login') {
+  // Verifica acesso Master
+  if (pathname.startsWith('/master') || pathname.startsWith('/api/master')) {
+    if (session.scope !== 'master') {
+      if (pathname.startsWith(API_PREFIX)) {
+        return NextResponse.json({ error: { code: 'FORBIDDEN', message: 'Acesso Mestre negado.' } }, { status: 403 });
+      }
+      return NextResponse.redirect(new URL('/dashboard', req.url));
+    }
+  }
+
+  // Se for mestre tentando acessar rotas normais, podemos permitir, mas por segurança ele foca no /master.
+  // Vamos permitir para que ele possa usar o sistema normalmente.
+
+  // Usuário autenticado tentando acessar /login ou /master-login
+  if (pathname === '/login' || pathname === '/master-login') {
+    if (session.scope === 'master') {
+      return NextResponse.redirect(new URL('/master/dashboard', req.url));
+    }
     return NextResponse.redirect(new URL('/dashboard', req.url));
   }
 
