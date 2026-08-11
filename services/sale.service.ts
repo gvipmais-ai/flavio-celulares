@@ -15,7 +15,7 @@ interface CreateSaleInput {
   customerNameSnapshot: string;
   customerCpfSnapshot?: string | null;
   notes?: string | null;
-  items: Array<{ productId: string; quantity: number; discount: number }>;
+  items: Array<{ productId?: string | null; productName?: string; unitPrice?: number; quantity: number; discount: number }>;
   payments: Array<{ paymentMethod: string; amount: number }>;
   operatorId: string;
   cashSessionId: string;
@@ -40,7 +40,7 @@ export async function createSale(input: CreateSaleInput) {
       if (!cashSession) throw new CashSessionRequiredError();
 
       // 3. Buscar produtos
-      const productIds = input.items.map((i) => i.productId);
+      const productIds = input.items.map((i) => i.productId).filter(id => id && id.length === 25) as string[];
       const products = await tx.product.findMany({
         where: { id: { in: productIds }, isActive: true, approvalStatus: 'APROVADO' },
       });
@@ -52,10 +52,34 @@ export async function createSale(input: CreateSaleInput) {
       const saleItems = [];
 
       for (const item of input.items) {
-        const product = products.find((p) => p.id === item.productId);
-        if (!product) throw new NotFoundError(`Produto ID ${item.productId} não encontrado ou inativo.`);
+        let unitPrice: Decimal;
+        let productCode = 'OS-ITEM';
+        let productName = item.productName || 'Item Personalizado';
+        let costPrice = new Decimal(0);
+        let warrantyMonths = 3;
+        let finalProductId = item.productId || null;
 
-        const unitPrice = product.salePrice;
+        if (item.productId && item.productId.length === 25) { // É cuid
+          const product = products.find((p) => p.id === item.productId);
+          if (product) {
+            unitPrice = product.salePrice;
+            productCode = product.code;
+            productName = product.name;
+            costPrice = product.costPrice;
+            warrantyMonths = product.warrantyMonths;
+          } else if (input.serviceOrderId) {
+             // Aceita itens de OS mesmo se produto inativo (ex: apagado ou inativado)
+             unitPrice = new Decimal(item.unitPrice || 0);
+          } else {
+            throw new NotFoundError(`Produto ID ${item.productId} não encontrado ou inativo.`);
+          }
+        } else {
+          // Serviço ou peça customizada da OS
+          finalProductId = null;
+          unitPrice = new Decimal(item.unitPrice || 0);
+          productCode = item.productName === 'Mão de Obra Técnica' ? 'SERVICO' : 'CUSTOM';
+        }
+
         const itemGross = unitPrice.mul(item.quantity);
         const itemDiscount = new Decimal(item.discount || 0);
 
@@ -68,15 +92,15 @@ export async function createSale(input: CreateSaleInput) {
         totalDiscount = totalDiscount.plus(itemDiscount);
 
         saleItems.push({
-          productId: product.id,
-          productCodeSnapshot: product.code,
-          productNameSnapshot: product.name,
+          productId: finalProductId,
+          productCodeSnapshot: productCode,
+          productNameSnapshot: productName,
           quantity: item.quantity,
-          costPriceSnapshot: product.costPrice,
+          costPriceSnapshot: costPrice,
           unitPrice,
           discount: itemDiscount,
           subtotal,
-          warrantyMonthsSnapshot: product.warrantyMonths,
+          warrantyMonthsSnapshot: warrantyMonths,
         });
       }
 
@@ -137,19 +161,19 @@ export async function createSale(input: CreateSaleInput) {
 
       // Baixar estoque (se não for OS)
       // Se for OS, as peças já foram baixadas durante o fluxo da OS (Iniciar Reparo).
-      // Os serviços também não precisam de baixa. Mas por segurança, podemos só pular baixa se for serviço ou se veio da OS.
-      // O modo correto é: se tem serviceOrderId, ignoramos a baixa de estoque dos itens (já foi feito).
       if (!input.serviceOrderId) {
         for (const item of input.items) {
-          await decrementStock(
-            tx,
-            item.productId,
-            item.quantity,
-            'VENDA' as any,
-            'SALE',
-            sale.id,
-            input.operatorId
-          );
+          if (item.productId && item.productId.length === 25) {
+            await decrementStock(
+              tx,
+              item.productId,
+              item.quantity,
+              'VENDA' as any,
+              'SALE',
+              sale.id,
+              input.operatorId
+            );
+          }
         }
       }
 
@@ -227,16 +251,18 @@ export async function cancelSale(saleId: string, reason: string, adminId: string
 
     // Devolver itens ao estoque
     for (const item of sale.items) {
-      await incrementStock(
-        tx,
-        item.productId,
-        item.quantity,
-        'CANCELAMENTO_VENDA' as any,
-        'SALE_CANCEL',
-        sale.id,
-        adminId,
-        `Estorno de venda #${sale.sequentialNumber}`
-      );
+      if (item.productId) {
+        await incrementStock(
+          tx,
+          item.productId,
+          item.quantity,
+          'CANCELAMENTO_VENDA' as any,
+          'SALE_CANCEL',
+          sale.id,
+          adminId,
+          `Estorno de venda #${sale.sequentialNumber}`
+        );
+      }
     }
 
     // Estorno no caixa (APENAS DINHEIRO LÍQUIDO DEVOLVIDO)

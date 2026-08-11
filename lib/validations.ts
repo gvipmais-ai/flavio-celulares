@@ -156,7 +156,9 @@ export const CashMovementSchema = z.object({
 // ─── Vendas ───────────────────────────────────────────────────────────────────
 
 export const SaleItemSchema = z.object({
-  productId: z.string().cuid('Produto inválido'),
+  productId: z.string().cuid('Produto inválido').optional().nullable(),
+  productName: z.string().optional(),
+  unitPrice: z.coerce.number().optional(),
   quantity: z.coerce.number().int().min(1, 'Quantidade mínima é 1'),
   discount: z.coerce.number().min(0).default(0),
 });

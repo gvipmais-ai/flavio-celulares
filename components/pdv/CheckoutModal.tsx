@@ -54,7 +54,9 @@ export function CheckoutModal({ isOpen, onClose }: CheckoutModalProps) {
         }
 
         return {
-          productId: item.productId,
+          productId: (item.productId === 'MAO_DE_OBRA' || item.productId.startsWith('os-item-')) ? null : item.productId,
+          productName: item.name,
+          unitPrice: item.unitPrice,
           quantity: item.quantity,
           discount: Number(finalItemDiscount.toFixed(2)),
         };

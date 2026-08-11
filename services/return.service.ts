@@ -30,6 +30,7 @@ export async function processReturnOrExchange(input: {
     });
     if (!saleItem) throw new NotFoundError('Item da venda não encontrado');
     if (saleItem.saleId !== sale.id) throw new InvalidOperationError('O item não pertence à venda informada');
+    if (!saleItem.productId || !saleItem.product) throw new InvalidOperationError('Não é possível devolver serviços ou itens customizados');
 
     // 2. Validate quantity
     const existingReturns = await tx.return.aggregate({
