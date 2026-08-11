@@ -657,6 +657,7 @@ export default function EntradasPage() {
                     onChange={(e) => setQuickProduct({ ...quickProduct, warrantyMonths: Number(e.target.value) })}
                     className="input text-xs"
                   >
+                    <option value={0}>Sem Garantia</option>
                     <option value={1}>1 Mês (30 dias)</option>
                     <option value={3}>3 Meses (90 dias)</option>
                     <option value={6}>6 Meses</option>
