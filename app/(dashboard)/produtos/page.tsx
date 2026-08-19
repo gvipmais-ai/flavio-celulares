@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, Plus, Search, CheckCircle, AlertTriangle } from 'lucide-react';
+import { Package, Plus, Search, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from 'sonner';
 
@@ -37,6 +37,34 @@ export default function ProdutosPage() {
       }
     } catch {
       toast.error('Erro ao aprovar produto');
+    }
+  };
+
+  const handleUpdatePrice = async (id: string, currentPrice: number) => {
+    const val = prompt('Informe o novo preço de venda para este produto:', currentPrice.toString());
+    if (val === null) return;
+    
+    const num = parseFloat(val.replace(',', '.'));
+    if (isNaN(num) || num < 0) {
+      toast.error('Valor inválido');
+      return;
+    }
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ salePrice: num }),
+      });
+      if (res.ok) {
+        toast.success('Preço atualizado!');
+        loadProducts();
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData?.error?.message || 'Erro ao atualizar preço');
+      }
+    } catch {
+      toast.error('Erro ao atualizar preço');
     }
   };
 
@@ -115,7 +143,18 @@ export default function ProdutosPage() {
                         {isLow && <AlertTriangle className="inline h-3.5 w-3.5 ml-1 text-amber-400" />}
                       </td>
                       <td className="font-bold text-emerald-400">{prod.stockAvailable}</td>
-                      <td className="font-bold text-slate-200">{formatCurrency(prod.salePrice)}</td>
+                      <td className="font-bold text-slate-200 group/price relative">
+                        <div className="flex items-center gap-2">
+                          {formatCurrency(prod.salePrice)}
+                          <button 
+                            onClick={() => handleUpdatePrice(prod.id, prod.salePrice)}
+                            className="opacity-0 group-hover/price:opacity-100 p-1 text-slate-400 hover:text-emerald-400 transition-all rounded hover:bg-slate-700/50"
+                            title="Ajustar Preço"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </td>
                       <td>
                         <span
                           className={`badge ${

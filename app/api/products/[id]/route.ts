@@ -199,3 +199,50 @@ export async function DELETE(
     return handleApiError(error);
   }
 }
+
+// ─── PATCH /api/products/[id] ─────────────────────────────────────────────────
+
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  try {
+    const { id } = await params;
+    const session = await getSessionFromRequest(req);
+    await requirePermission(session, 'products:edit');
+
+    const body = await req.json();
+
+    const existing = await prisma.product.findUnique({ where: { id } });
+    if (!existing) {
+      throw new NotFoundError('Produto não encontrado.');
+    }
+
+    // TÉCNICO cannot change price
+    if (session!.cargo === 'Técnico' && body.salePrice !== undefined) {
+      throw new ForbiddenError('Técnicos não podem alterar o preço de venda de um produto.');
+    }
+
+    const updateData: any = {};
+    if (body.salePrice !== undefined) {
+      updateData.salePrice = Number(body.salePrice);
+    }
+
+    const product = await prisma.product.update({
+      where: { id },
+      data: updateData,
+    });
+
+    void createAuditLog({
+      userId: session!.sub,
+      action: 'PRODUCT_UPDATED',
+      entityType: 'Product',
+      entityId: id,
+      description: `Preço do produto "${existing.name}" (${existing.code}) atualizado para ${updateData.salePrice}.`,
+    });
+
+    return NextResponse.json(product);
+  } catch (error) {
+    return handleApiError(error);
+  }
+}
