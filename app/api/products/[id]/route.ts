@@ -85,16 +85,6 @@ export async function PUT(
     const body = await req.json();
     const parsed = ProductSchema.parse(body);
 
-    // TECNICO cannot change salePrice
-    if (session!.cargo === 'Técnico') {
-      // Compare as strings to avoid float precision issues (salePrice is Decimal in DB)
-      const existingPrice = Number(existing.salePrice);
-      const requestedPrice = Number(parsed.salePrice);
-      if (Math.abs(existingPrice - requestedPrice) > 0.001) {
-        throw new ForbiddenError('Técnicos não podem alterar o preço de venda de um produto.');
-      }
-    }
-
     const { compatibleDeviceModelIds, code, ...restProductData } = parsed;
     const productData: any = { ...restProductData };
     if (code && code.trim() !== '') {
@@ -209,18 +199,13 @@ export async function PATCH(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    await requirePermission(session, 'products:edit');
+    await requirePermission(session, 'products:read');
 
     const body = await req.json();
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
       throw new NotFoundError('Produto não encontrado.');
-    }
-
-    // TÉCNICO cannot change price
-    if (session!.cargo === 'Técnico' && body.salePrice !== undefined) {
-      throw new ForbiddenError('Técnicos não podem alterar o preço de venda de um produto.');
     }
 
     const updateData: any = {};
