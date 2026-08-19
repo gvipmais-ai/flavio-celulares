@@ -95,7 +95,11 @@ export async function PUT(
       }
     }
 
-    const { compatibleDeviceModelIds, ...productData } = parsed;
+    const { compatibleDeviceModelIds, code, ...restProductData } = parsed;
+    const productData: any = { ...restProductData };
+    if (code && code.trim() !== '') {
+      productData.code = code.trim();
+    }
 
     type PrismaTx = Parameters<Parameters<typeof prisma.$transaction>[0]>[0];
 

@@ -24,10 +24,11 @@ export const ChangePasswordSchema = z
 export const ProductSchema = z.object({
   code: z
     .string()
-    .min(1, 'Código obrigatório')
     .max(50, 'Código muito longo')
-    .regex(/^[a-zA-Z0-9\-_]+$/, 'Código inválido — use apenas letras, números, hífens e underscore'),
-  barcode: z.string().max(50).optional().nullable(),
+    .regex(/^[a-zA-Z0-9\-_]*$/, 'Código inválido — use apenas letras, números, hífens e underscore')
+    .optional()
+    .nullable(),
+  barcode: z.string().max(50).optional().nullable().transform(v => v?.trim() || null),
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres').max(200),
   description: z.string().max(1000).optional().nullable(),
   productType: z.enum(['ACESSORIO', 'PECA_MANUTENCAO']),

@@ -24,7 +24,7 @@ export default function NovoProdutoPage() {
   } = useForm<ProductInput>({
     resolver: zodResolver(ProductSchema) as any,
     defaultValues: {
-      code: '0' + Math.floor(1000 + Math.random() * 9000),
+      code: '',
       productType: 'ACESSORIO',
       costPrice: 0,
       salePrice: 0,
