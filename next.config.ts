@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   images: {
-    domains: ['flavio-celulares.vercel.app'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'flavio-celulares.vercel.app',
+      },
+    ],
   },
 };
 
