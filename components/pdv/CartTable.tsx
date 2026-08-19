@@ -6,7 +6,7 @@ import { Trash2, Minus, Plus, ShoppingCart, Percent } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 
 export function CartTable() {
-  const { cart, updateQuantity, removeFromCart, updateDiscount } = usePDV();
+  const { cart, updateQuantity, removeFromCart, updateDiscount, updateUnitPrice } = usePDV();
 
   if (cart.length === 0) {
     return (
@@ -70,8 +70,22 @@ export function CartTable() {
                       </button>
                     </div>
                   </td>
-                  <td className="px-4 py-4 text-right text-sm font-medium">
-                    {formatCurrency(item.unitPrice)}
+                  <td className="px-4 py-4 text-right text-sm font-medium group/price">
+                    <span 
+                      className="cursor-pointer border-b border-dashed border-slate-400 hover:text-emerald-500 hover:border-emerald-500 transition-colors"
+                      onClick={() => {
+                        const val = prompt('Informe o novo valor unitário em R$ para este item:', item.unitPrice.toString());
+                        if (val !== null) {
+                          const num = parseFloat(val.replace(',', '.'));
+                          if (!isNaN(num) && num >= 0) {
+                            updateUnitPrice(item.productId, num);
+                          }
+                        }
+                      }}
+                      title="Clique para alterar o preço unitário"
+                    >
+                      {formatCurrency(item.unitPrice)}
+                    </span>
                   </td>
                   <td className="px-4 py-4 text-right">
                     <div className="relative group/desc inline-block">

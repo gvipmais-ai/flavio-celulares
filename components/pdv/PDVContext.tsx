@@ -25,6 +25,7 @@ interface PDVContextData {
   addToCart: (product: any, qty?: number) => void;
   updateQuantity: (productId: string, qty: number) => void;
   updateDiscount: (productId: string, discount: number) => void;
+  updateUnitPrice: (productId: string, unitPrice: number) => void;
   removeFromCart: (productId: string) => void;
   clearCart: () => void;
 
@@ -268,7 +269,15 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
   };
 
   const updateDiscount = (productId: string, discount: number) => {
-    setCart(prev => prev.map(i => i.productId === productId ? { ...i, discount } : i));
+    setCart(prev => prev.map(item => 
+      item.productId === productId ? { ...item, discount: Math.max(0, discount) } : item
+    ));
+  };
+
+  const updateUnitPrice = (productId: string, unitPrice: number) => {
+    setCart(prev => prev.map(item => 
+      item.productId === productId ? { ...item, unitPrice: Math.max(0, unitPrice) } : item
+    ));
   };
 
   const removeFromCart = (productId: string) => {
@@ -315,7 +324,7 @@ export function PDVProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PDVContext.Provider value={{
-      cart, addToCart, updateQuantity, updateDiscount, removeFromCart, clearCart,
+      cart, addToCart, updateQuantity, updateDiscount, updateUnitPrice, removeFromCart, clearCart,
       customerName, setCustomerName, customerCpf, setCustomerCpf,
       payments, addPayment, removePayment, clearPayments,
       generalDiscount, setGeneralDiscount,
