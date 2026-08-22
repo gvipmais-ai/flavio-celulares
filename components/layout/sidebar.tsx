@@ -167,7 +167,7 @@ const NAV_SECTIONS: NavSection[] = [
         href: '/entradas',
         label: 'Notas de Entrada',
         icon: <Truck className="h-4 w-4 text-cyan-400" />,
-        roles: ['SUPERADMIN', 'TECNICO'],
+        roles: ['SUPERADMIN', 'TECNICO', 'OPERADOR'],
         permissionKey: 'entrada_estoque',
       },
       {

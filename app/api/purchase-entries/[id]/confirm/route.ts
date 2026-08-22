@@ -13,7 +13,10 @@ export async function POST(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    await requirePermission(session, 'purchase-entries:confirm');
+    const cargo = session?.cargo?.toUpperCase() || '';
+    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'TECNICO') {
+      await requirePermission(session, 'purchase-entries:confirm');
+    }
 
     const result = await prisma.$transaction(async (tx) => {
       const entry = await tx.purchaseEntry.findUnique({
