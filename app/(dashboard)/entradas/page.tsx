@@ -499,7 +499,9 @@ export default function EntradasPage() {
                               <span className="font-bold font-mono text-cyan-400">[{prod.code}]</span> {prod.name}
                               <p className="text-[10px] text-slate-400">Estoque Atual: {prod.stockOnHand}</p>
                             </div>
-                            <span className="font-bold text-emerald-400">R$ {Number(prod.costPrice).toFixed(2)}</span>
+                            <span className="font-bold text-emerald-400">
+                              R$ {prod.costPrice !== undefined ? Number(prod.costPrice).toFixed(2) : '--'}
+                            </span>
                           </div>
                         ))}
                       </div>

@@ -106,8 +106,9 @@ export async function GET(req: NextRequest) {
       : products;
 
     // Determine cost price visibility
-    let showCost = session?.cargo === 'SuperADMIN' || session?.cargo === 'Técnico';
-    if (session!.cargo === 'Operador de Caixa') {
+    const cargo = session?.cargo?.toUpperCase() || '';
+    let showCost = cargo === 'SUPERADMIN' || cargo === 'TECNICO' || cargo === 'ADMIN';
+    if (cargo === 'OPERADOR_CAIXA' || cargo === 'OPERADOR DE CAIXA') {
       const settings = await prisma.storeSettings.findUnique({
         where: { id: 'singleton' },
         select: { showCostToOperator: true },
