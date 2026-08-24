@@ -76,6 +76,9 @@ export async function POST(
       });
 
       return confirmedEntry;
+    }, {
+      maxWait: 10000,
+      timeout: 30000
     });
 
     return NextResponse.json({ entry: result });
