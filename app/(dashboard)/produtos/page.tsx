@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Package, Plus, Search, CheckCircle, AlertTriangle, Pencil } from 'lucide-react';
+import { Package, Plus, Search, CheckCircle, AlertTriangle, Pencil, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/lib/formatters';
 import { toast } from 'sonner';
 
@@ -68,6 +68,47 @@ export default function ProdutosPage() {
     }
   };
 
+  const handleUpdateName = async (id: string, currentName: string) => {
+    const val = prompt('Informe o novo nome para este produto:', currentName);
+    if (val === null || val.trim() === '') return;
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: val.trim() }),
+      });
+      if (res.ok) {
+        toast.success('Nome atualizado!');
+        loadProducts();
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData?.error?.message || 'Erro ao atualizar nome');
+      }
+    } catch {
+      toast.error('Erro ao atualizar nome');
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('Deseja realmente apagar este produto do estoque? Esta ação desativará o produto.')) return;
+
+    try {
+      const res = await fetch(`/api/products/${id}`, {
+        method: 'DELETE',
+      });
+      if (res.ok) {
+        toast.success('Produto apagado com sucesso!');
+        loadProducts();
+      } else {
+        const errorData = await res.json();
+        toast.error(errorData?.error?.message || 'Erro ao apagar produto');
+      }
+    } catch {
+      toast.error('Erro ao apagar produto');
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
@@ -128,7 +169,16 @@ export default function ProdutosPage() {
                     <tr key={prod.id}>
                       <td className="font-mono font-bold text-blue-400">{prod.code}</td>
                       <td>
-                        <div className="font-medium text-slate-200">{prod.name}</div>
+                        <div className="font-medium text-slate-200 group/name relative flex items-center gap-2">
+                          {prod.name}
+                          <button 
+                            onClick={() => handleUpdateName(prod.id, prod.name)}
+                            className="opacity-0 group-hover/name:opacity-100 p-1 text-slate-400 hover:text-emerald-400 transition-all rounded hover:bg-slate-700/50"
+                            title="Alterar Nome"
+                          >
+                            <Pencil className="h-3 w-3" />
+                          </button>
+                        </div>
                         <div className="text-xs text-slate-500">
                           {prod.category?.name} • {prod.brand?.name}
                         </div>
@@ -175,6 +225,13 @@ export default function ProdutosPage() {
                             <CheckCircle className="h-3.5 w-3.5" /> Aprovar
                           </button>
                         )}
+                        <button
+                          onClick={() => handleDeleteProduct(prod.id)}
+                          className="btn-ghost btn-sm text-rose-400 hover:text-rose-300"
+                          title="Apagar Produto"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
                       </td>
                     </tr>
                   );

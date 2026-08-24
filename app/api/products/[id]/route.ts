@@ -141,7 +141,7 @@ export async function DELETE(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    await requirePermission(session, 'products:activate');
+    // LIVRE PARA TODOS OS CARGOS (sem bloqueio)
 
     const existing = await prisma.product.findUnique({ where: { id } });
     if (!existing) {
@@ -199,7 +199,7 @@ export async function PATCH(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    await requirePermission(session, 'products:read');
+    // LIVRE PARA TODOS OS CARGOS (sem bloqueio)
 
     const body = await req.json();
 
@@ -211,6 +211,9 @@ export async function PATCH(
     const updateData: any = {};
     if (body.salePrice !== undefined) {
       updateData.salePrice = Number(body.salePrice);
+    }
+    if (body.name !== undefined && body.name.trim() !== '') {
+      updateData.name = body.name.trim();
     }
 
     const product = await prisma.product.update({
