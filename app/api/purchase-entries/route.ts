@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
     const cargo = session?.cargo?.toUpperCase() || '';
-    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'TECNICO') {
+    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'OPERADOR' && cargo !== 'TECNICO') {
       await requirePermission(session, 'purchase-entries:create');
     }
 
@@ -33,7 +33,7 @@ export async function POST(req: NextRequest) {
   try {
     const session = await getSessionFromRequest(req);
     const cargo = session?.cargo?.toUpperCase() || '';
-    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'TECNICO') {
+    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'OPERADOR' && cargo !== 'TECNICO') {
       await requirePermission(session, 'purchase-entries:create');
     }
 

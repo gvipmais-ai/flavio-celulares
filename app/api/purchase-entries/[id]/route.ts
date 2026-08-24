@@ -11,7 +11,10 @@ export async function GET(
   try {
     const { id } = await params;
     const session = await getSessionFromRequest(req);
-    await requirePermission(session, 'purchase-entries:create');
+    const cargo = session?.cargo?.toUpperCase() || '';
+    if (cargo !== 'SUPERADMIN' && cargo !== 'OPERADOR DE CAIXA' && cargo !== 'OPERADOR_CAIXA' && cargo !== 'OPERADOR' && cargo !== 'TECNICO') {
+      await requirePermission(session, 'purchase-entries:create');
+    }
 
     const entry = await prisma.purchaseEntry.findUnique({
       where: { id },
