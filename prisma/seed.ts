@@ -4,7 +4,7 @@ import { getSuperAdminPermissions, getTecnicoPermissions, getOperadorCaixaPermis
 
 const prisma = new PrismaClient();
 
-async function main() {
+export async function seedDatabase() {
   console.log('🌱 Iniciando seed do banco de dados...');
 
   // ── Store Settings ──────────────────────────────────────────────────────────
@@ -159,15 +159,7 @@ async function main() {
 
   console.log('\n🎉 Seed concluído com sucesso!');
   console.log('\n📋 Credencial de acesso mestre gerada:');
-  console.log('   admin@flaviocelulares.com.br / admin123   (SUPERADMIN)');
+  console.log('✅ Status das O.S. (Workflow) configurados');
 
+  console.log('🎉 Seed finalizado com sucesso!');
 }
-
-main()
-  .catch((e) => {
-    console.error('❌ Erro no seed:', e);
-    process.exit(1);
-  })
-  .finally(async () => {
-    await prisma.$disconnect();
-  });
