@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSessionFromRequest } from './lib/cookies';
 
 // Rotas públicas — não requerem autenticação
-const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/health', '/master-login', '/api/master/login'];
+const PUBLIC_PATHS = ['/login', '/api/auth/login', '/api/health', '/master-login', '/api/master/login', '/api/setup-db'];
 
 // Rotas de API — devolvem JSON em vez de redirecionar
 const API_PREFIX = '/api';
