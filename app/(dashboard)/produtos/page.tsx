@@ -25,7 +25,10 @@ export default function ProdutosPage() {
   };
 
   useEffect(() => {
-    loadProducts();
+    const timer = setTimeout(() => {
+      loadProducts();
+    }, 400);
+    return () => clearTimeout(timer);
   }, [search]);
 
   const handleApprove = async (id: string) => {
