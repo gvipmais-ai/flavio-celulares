@@ -195,6 +195,7 @@ export function handleApiError(error: unknown): NextResponse<ApiError> {
       error: {
         code: ErrorCode.INTERNAL_ERROR,
         message: 'Ocorreu um erro interno. Tente novamente ou contate o suporte.',
+        details: error instanceof Error ? error.message : String(error)
       },
     },
     { status: 500 }
