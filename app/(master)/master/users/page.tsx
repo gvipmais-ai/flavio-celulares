@@ -64,13 +64,18 @@ export default function MasterUsersPage() {
   const handleSelectUser = (user: any) => {
     setSelectedUser(user);
     setTempPassword(null);
-    setEditForm({
-      name: user.name,
-      email: user.email,
-      cargo: user.cargo,
-      isActive: user.isActive,
-    });
-    setEditPermissions(user.permissoes ? { ...user.permissoes } : {});
+    if (user.isNew) {
+      setEditForm({ name: '', email: '', cargo: 'OPERADOR', isActive: true });
+      setEditPermissions({});
+    } else {
+      setEditForm({
+        name: user.name,
+        email: user.email,
+        cargo: user.cargo,
+        isActive: user.isActive,
+      });
+      setEditPermissions(user.permissoes ? { ...user.permissoes } : {});
+    }
   };
 
   const togglePermission = (permId: string) => {
@@ -93,23 +98,30 @@ export default function MasterUsersPage() {
         permissoes: editPermissions,
       };
 
+      const isNew = selectedUser.isNew;
       const res = await fetch('/api/master/users', {
-        method: 'PUT',
+        method: isNew ? 'POST' : 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload),
       });
 
       if (!res.ok) throw new Error();
+      
+      const data = await res.json();
 
-      toast.success('Usuário atualizado com sucesso');
+      toast.success(isNew ? 'Usuário criado com sucesso' : 'Usuário atualizado com sucesso');
       fetchData();
       
-      // Update local state temporarily until fetch completes fully
-      setUsers((prev) => prev.map((u) => u.id === selectedUser.id ? { ...u, ...payload } : u));
-      setSelectedUser({ ...selectedUser, ...payload });
+      if (isNew) {
+        setTempPassword(data.temporaryPassword);
+        setSelectedUser(data.user);
+      } else {
+        setUsers((prev) => prev.map((u) => u.id === selectedUser.id ? { ...u, ...payload } : u));
+        setSelectedUser({ ...selectedUser, ...payload });
+      }
 
     } catch {
-      toast.error('Erro ao atualizar usuário');
+      toast.error('Erro ao salvar usuário');
     } finally {
       setIsSaving(false);
     }
@@ -150,10 +162,19 @@ export default function MasterUsersPage() {
       {/* LEFT COLUMN: Lista de Usuários (25%) */}
       <div className="flex flex-col w-full lg:w-1/4 bg-slate-900 border border-slate-800 rounded-xl overflow-hidden h-full">
         <div className="p-4 border-b border-slate-800 space-y-4">
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-400" />
-            Usuários
-          </h2>
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-bold text-white flex items-center gap-2">
+              <Users className="w-5 h-5 text-indigo-400" />
+              Usuários
+            </h2>
+            <button 
+              onClick={() => handleSelectUser({ isNew: true })}
+              className="bg-indigo-600 hover:bg-indigo-700 text-white p-1.5 rounded-lg transition-colors"
+              title="Novo Usuário"
+            >
+              <UserIcon className="w-4 h-4" />
+            </button>
+          </div>
           
           <div className="relative">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-500" />
@@ -284,24 +305,6 @@ export default function MasterUsersPage() {
               </div>
 
               <div className="pt-6 flex flex-col gap-3">
-                <button
-                  onClick={handleSave}
-                  disabled={isSaving}
-                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-                >
-                  {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
-                  Salvar Alterações
-                </button>
-
-                <button
-                  onClick={handleResetPassword}
-                  disabled={isResetting}
-                  className="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 text-red-400 font-medium py-3 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50"
-                >
-                  {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
-                  Gerar Nova Senha
-                </button>
-
                 {tempPassword && (
                   <div className="mt-2 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                     <p className="text-xs text-emerald-400 font-medium mb-1">Nova senha temporária gerada:</p>
