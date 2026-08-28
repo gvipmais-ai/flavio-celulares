@@ -305,6 +305,26 @@ export default function MasterUsersPage() {
               </div>
 
               <div className="pt-6 flex flex-col gap-3">
+                <button
+                  onClick={handleSave}
+                  disabled={isSaving || !editForm.name || !editForm.email}
+                  className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSaving ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+                  {selectedUser.isNew ? 'Criar Usuário' : 'Salvar Alterações'}
+                </button>
+
+                {!selectedUser.isNew && (
+                  <button
+                    onClick={handleResetPassword}
+                    disabled={isResetting}
+                    className="w-full bg-slate-800 hover:bg-slate-700 text-slate-300 font-medium py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isResetting ? <Loader2 className="w-5 h-5 animate-spin" /> : <KeyRound className="w-5 h-5" />}
+                    Gerar Nova Senha
+                  </button>
+                )}
+
                 {tempPassword && (
                   <div className="mt-2 p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-lg">
                     <p className="text-xs text-emerald-400 font-medium mb-1">Nova senha temporária gerada:</p>
