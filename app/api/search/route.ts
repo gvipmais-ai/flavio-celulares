@@ -24,9 +24,9 @@ export async function GET(req: NextRequest) {
     const products = await prisma.product.findMany({
       where: {
         OR: [
-          { name: { contains: searchTerms, mode: 'insensitive' } },
-          { code: { contains: searchTerms, mode: 'insensitive' } },
-          { barcode: { contains: searchTerms, mode: 'insensitive' } },
+          { name: { contains: searchTerms } },
+          { code: { contains: searchTerms } },
+          { barcode: { contains: searchTerms } },
         ],
         isActive: true,
       },
@@ -47,9 +47,9 @@ export async function GET(req: NextRequest) {
     const customers = await prisma.customer.findMany({
       where: {
         OR: [
-          { name: { contains: searchTerms, mode: 'insensitive' } },
-          { cpf: { contains: searchTerms, mode: 'insensitive' } },
-          { phone: { contains: searchTerms, mode: 'insensitive' } },
+          { name: { contains: searchTerms } },
+          { cpf: { contains: searchTerms } },
+          { phone: { contains: searchTerms } },
         ],
       },
       take: 3,
@@ -69,8 +69,8 @@ export async function GET(req: NextRequest) {
     const sales = await prisma.sale.findMany({
       where: {
         OR: [
-          { clientTransactionId: { contains: searchTerms, mode: 'insensitive' } },
-          { customerNameSnapshot: { contains: searchTerms, mode: 'insensitive' } },
+          { clientTransactionId: { contains: searchTerms } },
+          { customerNameSnapshot: { contains: searchTerms } },
         ],
       },
       take: 3,
@@ -90,8 +90,8 @@ export async function GET(req: NextRequest) {
     const os = await prisma.serviceOrder.findMany({
       where: {
         OR: [
-          { customer: { name: { contains: searchTerms, mode: 'insensitive' } } },
-          { deviceModel: { name: { contains: searchTerms, mode: 'insensitive' } } },
+          { customer: { name: { contains: searchTerms } } },
+          { deviceModel: { name: { contains: searchTerms } } },
         ],
       },
       include: { customer: true, deviceModel: true },
