@@ -5,7 +5,8 @@ import { useRouter } from 'next/navigation';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Lock, Mail, AlertCircle, Loader2 } from 'lucide-react';
+import { Lock, Mail, AlertCircle, Loader2, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
 import { toast } from 'sonner';
 import { Logo } from '@/components/ui/Logo';
 import { ThemeToggle } from '@/components/ui/ThemeToggle';
@@ -74,6 +75,17 @@ export default function LoginPage() {
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[var(--bg-default)]">
+      {/* Return to Storefront Top Left */}
+      <div className="absolute top-4 left-4 z-50">
+        <Link
+          href="/"
+          className="flex items-center gap-2 px-3.5 py-2 text-xs font-semibold text-slate-300 hover:text-white bg-slate-900/70 hover:bg-slate-800 border border-white/10 rounded-xl backdrop-blur-md transition-all shadow-md"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span>Voltar ao Site da Loja</span>
+        </Link>
+      </div>
+
       {/* Theme Toggle Top Right */}
       <div className="absolute top-4 right-4 z-50">
         <ThemeToggle />
