@@ -63,6 +63,7 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const data = ServiceOrderSchema.parse(body);
+    const rawChecklist = Array.isArray(body.checklistItems) ? body.checklistItems : [];
 
     const result = await prisma.$transaction(async (tx) => {
       const settings = await tx.storeSettings.update({
@@ -92,6 +93,14 @@ export async function POST(req: NextRequest) {
             : null,
           status: 'RECEBIDO',
           createdById: session!.sub,
+          checklistItems: rawChecklist.length > 0 ? {
+            create: rawChecklist.map((item: any, idx: number) => ({
+              descriptionSnapshot: item.label || item.description || '',
+              result: item.result || 'OK',
+              notes: item.notes || null,
+              displayOrder: idx,
+            })),
+          } : undefined,
           statusHistory: {
             create: {
               previousStatus: null,

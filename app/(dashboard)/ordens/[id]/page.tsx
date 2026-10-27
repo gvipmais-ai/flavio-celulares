@@ -237,6 +237,40 @@ export default function DetalheOrdemPage() {
               <p className="text-xs text-slate-500">Defeito Relatado</p>
               <p className="text-slate-200 font-medium">{os.reportedIssue}</p>
             </div>
+
+            {os.checklistItems && os.checklistItems.length > 0 && (
+              <div className="pt-3 border-t border-slate-800 space-y-2">
+                <p className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Checklist de Entrada
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  {os.checklistItems.map((item: any) => (
+                    <div
+                      key={item.id}
+                      className={`p-2.5 rounded-lg border text-xs flex items-start justify-between gap-2 ${
+                        item.result === 'DEFEITO'
+                          ? 'bg-red-500/10 border-red-500/30 text-red-200'
+                          : 'bg-emerald-500/10 border-emerald-500/30 text-emerald-200'
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <p className="font-semibold text-white leading-tight">{item.descriptionSnapshot}</p>
+                        {item.notes && item.notes !== item.descriptionSnapshot && (
+                          <p className="text-[11px] opacity-75 mt-0.5">{item.notes}</p>
+                        )}
+                      </div>
+                      <span className={`shrink-0 text-[10px] font-bold px-1.5 py-0.5 rounded border ${
+                        item.result === 'DEFEITO'
+                          ? 'bg-red-500/20 border-red-500/40 text-red-300'
+                          : 'bg-emerald-500/20 border-emerald-500/40 text-emerald-300'
+                      }`}>
+                        {item.result === 'DEFEITO' ? 'AVARIADO' : 'OK'}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         </div>
 
