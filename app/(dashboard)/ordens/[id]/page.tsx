@@ -6,6 +6,7 @@ import { Wrench, CheckCircle, Clock, AlertTriangle, FileText, ArrowLeft, Printer
 import Link from 'next/link';
 import { toast } from 'sonner';
 import { formatDateTime, formatCurrency } from '@/lib/formatters';
+import { printManualChecklist, PrintChecklistData } from '@/lib/checklistPrinter';
 
 export default function DetalheOrdemPage() {
   const params = useParams();
@@ -176,6 +177,22 @@ export default function DetalheOrdemPage() {
     }
   };
 
+  const handlePrintChecklist = (format: 'a4' | 'thermal') => {
+    if (!os) return;
+    const printData: PrintChecklistData = {
+      osNumber: os.sequentialNumber,
+      customerName: os.customer?.name || 'Cliente',
+      customerPhone: os.customer?.phone,
+      customerCpf: os.customer?.cpf,
+      deviceModel: `${os.deviceBrandSnapshot || ''} ${os.deviceModelSnapshot || ''}`.trim(),
+      color: os.color,
+      accessories: os.accessoriesReceived ? os.accessoriesReceived.split(',').map((s: string) => s.trim()) : [],
+      reportedIssue: os.reportedIssue || 'Não informado',
+      createdAt: os.receivedAt,
+    };
+    printManualChecklist(printData, format);
+  };
+
   if (isLoading || !os) {
     return <div className="p-8 text-center text-slate-500">Carregando Ordem de Serviço...</div>;
   }
@@ -197,11 +214,29 @@ export default function DetalheOrdemPage() {
             <p className="text-xs text-slate-400">Entrada: {formatDateTime(os.receivedAt)}</p>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <button onClick={handlePrintEntryReceipt} className="btn-secondary flex items-center gap-2">
-            <Printer className="h-4 w-4" /> Imprimir Entrada
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => handlePrintChecklist('a4')}
+            className="btn-secondary flex items-center gap-1.5 text-xs py-2"
+            title="Imprimir folha A4 com espaço amplo para carimbo e assinaturas"
+          >
+            <FileText className="h-4 w-4" /> Checklist A4
           </button>
-          <span className="badge badge-info text-sm py-1 px-3">{os.status}</span>
+          <button
+            onClick={() => handlePrintChecklist('thermal')}
+            className="btn-secondary flex items-center gap-1.5 text-xs py-2"
+            title="Imprimir em cupom térmico 80mm"
+          >
+            <Printer className="h-4 w-4" /> Checklist Térmico
+          </button>
+          <button
+            onClick={handlePrintEntryReceipt}
+            className="btn-secondary flex items-center gap-1.5 text-xs py-2"
+            title="Comprovante de entrada do cliente"
+          >
+            <Printer className="h-4 w-4" /> Cupom Entrada
+          </button>
+          <span className="badge badge-info text-xs py-1 px-2.5">{os.status}</span>
         </div>
       </div>
 

@@ -8,6 +8,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { toast } from 'sonner';
+import { printManualChecklist, PrintChecklistData } from '@/lib/checklistPrinter';
 
 // ─── Acessórios Rápidos ───────────────────────────────────────────────────────
 const ACCESSORY_OPTIONS = [
@@ -23,405 +24,6 @@ const COMMON_COLORS = [
 // ─── Detecta se é iPhone ──────────────────────────────────────────────────────
 function isIphone(model: string) {
   return /iphone/i.test(model);
-}
-
-// ─── Impressão do Checklist Manual ────────────────────────────────────────────
-interface PrintData {
-  osNumber: number | string;
-  customerName: string;
-  customerPhone?: string;
-  customerCpf?: string;
-  deviceModel: string;
-  color?: string;
-  accessories?: string[];
-  reportedIssue: string;
-  createdAt: Date;
-}
-
-function printManualChecklist(data: PrintData) {
-  const dateStr = data.createdAt.toLocaleDateString('pt-BR');
-  const timeStr = data.createdAt.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
-  const isApple = isIphone(data.deviceModel);
-
-  // Itens para preenchimento manual à caneta
-  const iphoneGroups = [
-    {
-      cat: '1. ESTADO FÍSICO / CARCAÇA & TELA',
-      isPhysical: true,
-      items: [
-        { name: 'Carcaça / Aro / Chassis', note: 'Riscos, amassados, cantos batidos ou empenamento' },
-        { name: 'Tela / Visor Frontal', note: 'Trincas, riscos profundos, manchas ou linhas' },
-        { name: 'Vidro Traseiro', note: 'Íntegro, trincado ou quebrado' },
-        { name: 'Lente das Câmeras', note: 'Íntegra, riscada, trincada ou embaçada' },
-      ],
-    },
-    {
-      cat: '2. TESTES DE FUNCIONAMENTO (Se ligar)',
-      isPhysical: false,
-      items: [
-        { name: 'Botões (Power / Volume / Mute)', note: 'Clique firme e resposta' },
-        { name: 'Câmera Frontal e Traseira', note: 'Foco, zoom, flash e gravação' },
-        { name: 'Microfone & Alto-falante', note: 'Chamadas normais, áudio e viva-voz' },
-        { name: 'Conector Lightning / USB-C', note: 'Carrega firme sem folga' },
-        { name: 'Biometria (Face ID / Touch ID)', note: 'Reconhecimento biométrico' },
-        { name: 'True Tone & Sensor Proximidade', note: 'Apaga tela ao aproximar na chamada' },
-        { name: 'Wi-Fi, Bluetooth e GPS', note: 'Busca redes e pareamento' },
-        { name: 'Chip SIM / eSIM / Sinal Operadora', note: 'Rede móvel e chamadas' },
-        { name: 'Saúde da Bateria: [ ______ % ]', note: 'Ajustes > Bateria > Saúde' },
-        { name: 'Carregamento sem Fio (MagSafe)', note: 'Indução magnética' },
-        { name: 'Versão do iOS: [ ____________ ]', note: 'Ajustes > Geral > Sobre' },
-        { name: 'iCloud / Buscar Ativo?', note: '[  ] Desativado / Livre    [  ] Ativo (Exige senha)' },
-      ],
-    },
-  ];
-
-  const androidGroups = [
-    {
-      cat: '1. ESTADO FÍSICO / CARCAÇA & TELA',
-      isPhysical: true,
-      items: [
-        { name: 'Carcaça / Tampa Traseira / Aro', note: 'Riscos, amassados, marcas de queda' },
-        { name: 'Tela / Visor Frontal', note: 'Trincada, riscada, manchas ou touch falho' },
-        { name: 'Lente das Câmeras', note: 'Íntegra, trincada ou riscada' },
-      ],
-    },
-    {
-      cat: '2. TESTES DE FUNCIONAMENTO (Se ligar)',
-      isPhysical: false,
-      items: [
-        { name: 'Botões Power & Volume', note: 'Clique firme e resposta' },
-        { name: 'Câmeras Frontal e Traseira', note: 'Foto, vídeo, zoom e flash' },
-        { name: 'Microfone & Alto-falante', note: 'Som limpo, ligações e áudios' },
-        { name: 'Conector USB / Carga / Fone P2', note: 'Carrega firme e transfere dados' },
-        { name: 'Biometria (Digital / Facial)', note: 'Desbloqueio por digital/rosto' },
-        { name: 'Wi-Fi, Bluetooth e GPS', note: 'Redes sem fio e pareamento' },
-        { name: 'Sinal de Operadora / Chip', note: 'Leitura de SIM e chamadas' },
-        { name: 'Bateria / Autonomia', note: 'Duração normal, não esquenta/incha' },
-        { name: 'Versão do Android: [ _________ ]', note: 'Configurações > Sobre o telefone' },
-        { name: 'Conta Google (FRP) Liberada?', note: '[  ] Desvinculada    [  ] Vinculada (Exige senha)' },
-      ],
-    },
-  ];
-
-  const selectedList = isApple ? iphoneGroups : androidGroups;
-
-  const checklistRows = selectedList.map(group => `
-    <tr class="group-header">
-      <td colspan="2">${group.cat}</td>
-    </tr>
-    ${group.items.map(item => `
-      <tr>
-        <td class="check-boxes ${group.isPhysical ? 'physical-col' : 'func-col'}">
-          ${group.isPhysical ? `
-            <span class="box"></span> Íntegro &nbsp;
-            <span class="box"></span> Avariado / Risco / Amasso
-          ` : `
-            <span class="box"></span> OK &nbsp;
-            <span class="box"></span> Defeito &nbsp;
-            <span class="box"></span> N/T
-          `}
-        </td>
-        <td class="item-name">
-          <strong>${item.name}</strong>
-          ${item.note ? `<div class="item-note">${item.note}</div>` : ''}
-        </td>
-      </tr>
-    `).join('')}
-  `).join('');
-
-  const html = `<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-<meta charset="UTF-8">
-<title>Checklist Manual OS #${data.osNumber} - Flavio Celulares</title>
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body {
-    font-family: 'Courier New', Courier, monospace;
-    font-size: 9.5pt;
-    color: #000;
-    background: #fff;
-    line-height: 1.35;
-  }
-  @media print and (max-width: 90mm) {
-    @page { size: 80mm auto; margin: 2mm; }
-    body { font-size: 8pt; line-height: 1.25; }
-    .page-wrapper { width: 75mm; padding: 1mm; }
-    h1.os-title { font-size: 13pt; }
-    .termo-box { font-size: 6.5pt; padding: 4px; }
-  }
-  @media print and (min-width: 91mm) {
-    @page { size: A4; margin: 10mm 15mm; }
-    body { font-size: 9.5pt; }
-    .page-wrapper { max-width: 170mm; margin: 0 auto; padding: 8px; }
-    h1.os-title { font-size: 16pt; }
-    .termo-box { font-size: 8pt; padding: 8px; }
-  }
-  .page-wrapper {
-    max-width: 400px;
-    margin: 0 auto;
-    padding: 8px;
-  }
-  .header {
-    text-align: center;
-    border-bottom: 2px solid #000;
-    padding-bottom: 5px;
-    margin-bottom: 6px;
-  }
-  .store-name {
-    font-size: 13pt;
-    font-weight: 900;
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  h1.os-title {
-    font-size: 15pt;
-    font-weight: 900;
-    margin: 2px 0;
-  }
-  .datetime {
-    font-size: 8.5pt;
-    color: #333;
-  }
-  .info-box {
-    border: 1px solid #000;
-    border-radius: 4px;
-    padding: 5px 7px;
-    margin-bottom: 6px;
-    font-size: 8.5pt;
-  }
-  .info-row {
-    display: flex;
-    gap: 4px;
-    margin-bottom: 2px;
-  }
-  .info-row:last-child { margin-bottom: 0; }
-  .field-label {
-    font-weight: bold;
-    min-width: 65px;
-  }
-  .issue-box {
-    border: 2px solid #000;
-    border-radius: 4px;
-    padding: 5px 7px;
-    margin-bottom: 6px;
-    font-size: 8.5pt;
-  }
-  .checklist-title {
-    text-align: center;
-    font-size: 9.5pt;
-    font-weight: 900;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-top: 1.5px solid #000;
-    border-bottom: 1.5px solid #000;
-    padding: 3px 0;
-    margin-bottom: 4px;
-  }
-  table.checklist {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 8pt;
-  }
-  table.checklist tr.group-header td {
-    background: #000;
-    color: #fff;
-    font-weight: bold;
-    padding: 3px 5px;
-    font-size: 7.5pt;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-  }
-  table.checklist tr td {
-    border-bottom: 1px solid #ccc;
-    vertical-align: top;
-    padding: 3px 2px;
-  }
-  .check-boxes {
-    white-space: nowrap;
-    font-size: 7pt;
-    font-weight: bold;
-  }
-  .physical-col { width: 155px; }
-  .func-col { width: 105px; }
-  .box {
-    display: inline-block;
-    width: 11px;
-    height: 11px;
-    border: 1.5px solid #000;
-    margin-right: 1px;
-    vertical-align: middle;
-  }
-  .item-name strong { font-size: 8pt; }
-  .item-note { font-size: 6.5pt; color: #444; }
-  .obs-box {
-    border: 1px dashed #000;
-    border-radius: 4px;
-    padding: 5px;
-    margin-top: 6px;
-    font-size: 7.5pt;
-    min-height: 35px;
-  }
-  /* Termo de Ciência e Isenção */
-  .termo-box {
-    border: 1.5px solid #000;
-    background: #fdfdfd;
-    border-radius: 4px;
-    margin-top: 8px;
-    text-align: justify;
-  }
-  .termo-title {
-    font-weight: 900;
-    text-align: center;
-    border-bottom: 1px solid #000;
-    padding-bottom: 2px;
-    margin-bottom: 4px;
-    letter-spacing: 0.3px;
-  }
-  .termo-box p {
-    margin-bottom: 3px;
-  }
-  .termo-box p:last-child { margin-bottom: 0; }
-  .concordo-row {
-    margin-top: 6px;
-    padding: 4px 6px;
-    border: 1px solid #000;
-    border-radius: 4px;
-    font-size: 7.5pt;
-    font-weight: bold;
-  }
-  .signature {
-    margin-top: 10px;
-    border-top: 1px dashed #000;
-    padding-top: 5px;
-  }
-  .sig-line {
-    display: flex;
-    gap: 8px;
-    margin-top: 8px;
-  }
-  .sig-field {
-    flex: 1;
-    border-top: 1px solid #000;
-    padding-top: 3px;
-    font-size: 7pt;
-    text-align: center;
-    color: #111;
-  }
-  .footer {
-    text-align: center;
-    font-size: 6.5pt;
-    color: #555;
-    margin-top: 6px;
-    border-top: 1px solid #ccc;
-    padding-top: 2px;
-  }
-  .print-btn {
-    display: flex;
-    justify-content: center;
-    gap: 10px;
-    margin: 12px 0;
-  }
-  .print-btn button {
-    padding: 8px 18px;
-    font-size: 10pt;
-    font-weight: bold;
-    cursor: pointer;
-    border-radius: 6px;
-    border: 1px solid #000;
-    background: #000;
-    color: #fff;
-  }
-  @media print { .print-btn { display: none !important; } }
-</style>
-</head>
-<body>
-<div class="print-btn">
-  <button onclick="window.print()">🖨️ Imprimir Checklist Manual</button>
-  <button onclick="window.close()" style="background:#fff;color:#000;">✕ Fechar</button>
-</div>
-
-<div class="page-wrapper">
-  <div class="header">
-    <div class="store-name">Flavio Celulares</div>
-    <h1 class="os-title">OS #${data.osNumber}</h1>
-    <div class="datetime">Entrada: ${dateStr} às ${timeStr}</div>
-  </div>
-
-  <div class="info-box">
-    <div class="info-row">
-      <span class="field-label">Cliente:</span>
-      <span><strong>${data.customerName}</strong></span>
-    </div>
-    ${data.customerPhone ? `
-    <div class="info-row">
-      <span class="field-label">Telefone:</span>
-      <span>${data.customerPhone}</span>
-    </div>` : ''}
-    <div class="info-row">
-      <span class="field-label">Aparelho:</span>
-      <span><strong>${data.deviceModel}</strong>${data.color ? ' (' + data.color + ')' : ''}</span>
-    </div>
-    ${data.accessories && data.accessories.length > 0 ? `
-    <div class="info-row">
-      <span class="field-label">Acessórios:</span>
-      <span>${data.accessories.join(', ')}</span>
-    </div>` : ''}
-  </div>
-
-  <div class="issue-box">
-    <strong>⚠ DEFEITO RELATADO:</strong><br>
-    ${data.reportedIssue}
-  </div>
-
-  <div class="checklist-title">
-    📋 Checklist de Entrada (${isApple ? 'iPhone' : 'Android / Multimarcas'})
-  </div>
-
-  <table class="checklist">
-    <tbody>
-      ${checklistRows}
-    </tbody>
-  </table>
-
-  <div class="obs-box">
-    <strong>Anotações / Diagnóstico do Técnico:</strong>
-  </div>
-
-  <!-- Termo de Ciência e Isenção de Responsabilidade -->
-  <div class="termo-box">
-    <div class="termo-title">TERMO DE CIÊNCIA E DECLARAÇÃO DO CLIENTE</div>
-    <p>
-      Declaro estar ciente de que, caso o aparelho dê entrada <u>desligado</u>, <u>não ligando</u>, <u>descarregado</u>, <u>sem senha de desbloqueio informada</u> ou com a <u>tela quebrada/sem imagem/sem touch</u>, <strong>NÃO FOI POSSÍVEL REALIZAR O TESTE PRÉVIO</strong> de funções internas como: câmeras frontal/traseira, microfones, alto-falantes, Wi-Fi, Bluetooth, Face ID / biometria, sensores, sinal de operadora e placa.
-    </p>
-    <p>
-      A assistência técnica <strong>NÃO SE RESPONSABILIZA POR VÍCIOS OCULTOS OU DEFEITOS PRÉ-EXISTENTES</strong> não passíveis de teste no momento da recepção. Autorizo a abertura e análise técnica do equipamento para diagnóstico e orçamento.
-    </p>
-  </div>
-
-  <div class="concordo-row">
-    [ &nbsp; ] <strong>CONCORDO E AUTORIZO AS CONDIÇÕES ACIMA</strong>
-  </div>
-
-  <div class="signature">
-    <div class="sig-line">
-      <div class="sig-field">Assinatura Atendente / Técnico</div>
-      <div class="sig-field">Assinatura do Cliente</div>
-    </div>
-  </div>
-
-  <div class="footer">
-    Flavio Celulares · OS #${data.osNumber} · ${dateStr}
-  </div>
-</div>
-</body>
-</html>`;
-
-  const win = window.open('', '_blank', 'width=520,height=880');
-  if (!win) { alert('Permita pop-ups no navegador para imprimir o checklist.'); return; }
-  win.document.write(html);
-  win.document.close();
-  setTimeout(() => win.print(), 600);
 }
 
 export default function NovaOrdemPage() {
@@ -448,7 +50,8 @@ export default function NovaOrdemPage() {
 
   // Envio & Impressão
   const [isSubmitting, setIsSubmitting]   = useState(false);
-  const [lastCreated, setLastCreated]     = useState<PrintData | null>(null);
+  const [printFormat, setPrintFormat]     = useState<'a4' | 'thermal'>('a4');
+  const [lastCreated, setLastCreated]     = useState<PrintChecklistData | null>(null);
 
   // Carrega clientes existentes
   useEffect(() => {
@@ -543,7 +146,7 @@ export default function NovaOrdemPage() {
 
       toast.success(`OS #${osNum} aberta com sucesso! Abrindo impressão do checklist...`);
 
-      const printInfo: PrintData = {
+      const printInfo: PrintChecklistData = {
         osNumber: osNum,
         customerName: customerName,
         customerPhone: customerPhone,
@@ -557,8 +160,8 @@ export default function NovaOrdemPage() {
 
       setLastCreated(printInfo);
 
-      // Dispara a impressão do checklist manual
-      printManualChecklist(printInfo);
+      // Dispara a impressão do checklist manual com o formato selecionado (e botão para alternar)
+      printManualChecklist(printInfo, printFormat);
 
       setTimeout(() => router.push(`/ordens/${osId}`), 1600);
     } catch {
@@ -831,14 +434,46 @@ export default function NovaOrdemPage() {
           </div>
         </div>
 
-        {/* ── CARD INFORMATIVO: CHECKLIST MANUAL ────────────────────────── */}
-        <div className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 flex items-start gap-3">
-          <div className="p-2 rounded-lg bg-indigo-600/20 text-indigo-400 shrink-0 mt-0.5">
-            <Printer className="h-5 w-5" />
+        {/* ── CARD INFORMATIVO: CHECKLIST MANUAL & FORMATO ─────────────── */}
+        <div className="rounded-xl border border-slate-700/80 bg-slate-800/40 p-4 space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-indigo-600/20 text-indigo-400 shrink-0 mt-0.5">
+              <Printer className="h-5 w-5" />
+            </div>
+            <div className="text-xs text-slate-300 leading-relaxed">
+              <p className="font-semibold text-white text-sm mb-0.5">Checklist de Entrada Manual</p>
+              Ao clicar no botão abaixo, a Ordem de Serviço será gerada e o sistema abrirá a folha com espaço generoso para carimbo da loja e assinaturas.
+            </div>
           </div>
-          <div className="text-xs text-slate-300 leading-relaxed">
-            <p className="font-semibold text-white text-sm mb-0.5">Checklist de Bancada Manual</p>
-            Ao clicar no botão abaixo, a Ordem de Serviço será gerada e o sistema abrirá automaticamente a folha do checklist para imprimir (térmica ou A4). O técnico preenche à caneta na bancada ao avaliar o celular.
+
+          <div className="pt-2 border-t border-slate-700/60 flex flex-wrap items-center justify-between gap-3">
+            <span className="text-xs font-semibold text-slate-300">Formato de Impressão:</span>
+            <div className="inline-flex rounded-lg border border-slate-700 bg-slate-900/80 p-0.5">
+              <button
+                type="button"
+                onClick={() => setPrintFormat('a4')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  printFormat === 'a4'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <FileText className="h-3.5 w-3.5" />
+                Folha A4 (Recomendado)
+              </button>
+              <button
+                type="button"
+                onClick={() => setPrintFormat('thermal')}
+                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all ${
+                  printFormat === 'thermal'
+                    ? 'bg-indigo-600 text-white shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Printer className="h-3.5 w-3.5" />
+                Cupom Térmico (80mm)
+              </button>
+            </div>
           </div>
         </div>
 
@@ -850,15 +485,26 @@ export default function NovaOrdemPage() {
 
           <div className="flex items-center gap-2">
             {lastCreated && (
-              <button
-                type="button"
-                onClick={() => printManualChecklist(lastCreated)}
-                className="btn-secondary flex items-center gap-1.5"
-                title="Reimprimir folha manual"
-              >
-                <Printer className="h-4 w-4" />
-                Reimprimir Folha
-              </button>
+              <div className="flex items-center gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => printManualChecklist(lastCreated, 'a4')}
+                  className="btn-secondary flex items-center gap-1.5 text-xs py-2"
+                  title="Reimprimir em Folha A4"
+                >
+                  <FileText className="h-3.5 w-3.5" />
+                  Imprimir A4
+                </button>
+                <button
+                  type="button"
+                  onClick={() => printManualChecklist(lastCreated, 'thermal')}
+                  className="btn-secondary flex items-center gap-1.5 text-xs py-2"
+                  title="Reimprimir em Cupom Térmico"
+                >
+                  <Printer className="h-3.5 w-3.5" />
+                  Imprimir Térmica
+                </button>
+              </div>
             )}
 
             <button
@@ -874,7 +520,7 @@ export default function NovaOrdemPage() {
               ) : (
                 <>
                   <FileText className="h-4 w-4" />
-                  Abrir OS e Imprimir Checklist
+                  Abrir OS e Imprimir ({printFormat === 'a4' ? 'Folha A4' : 'Cupom Térmico'})
                 </>
               )}
             </button>
