@@ -586,7 +586,7 @@ export default function ModernStorefrontPage() {
             {/* Quick Actions (WhatsApp + ERP Login) */}
             <div className="hidden sm:flex items-center gap-3">
               <a
-                href="https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20um%20atendimento%20pelo%20site%20da%20Flavio%20Celulares."
+                href="https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20um%20atendimento%20pelo%20site%20da%20Flavio%20Celulares."
                 target="_blank"
                 rel="noopener noreferrer"
                 className="btn-shimmer flex items-center gap-2 px-4 py-2 text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 rounded-xl shadow-lg shadow-emerald-600/25 hover:shadow-emerald-600/40 hover:scale-[1.02] active:scale-[0.98] transition-all"
@@ -650,7 +650,7 @@ export default function ModernStorefrontPage() {
             </a>
             <div className="pt-2 flex flex-col gap-2">
               <a
-                href="https://wa.me/5511999999999"
+                href="https://wa.me/5577999816265"
                 className="btn-shimmer flex items-center justify-center gap-2 py-2.5 text-xs font-bold text-white bg-emerald-600 rounded-lg"
               >
                 <MessageCircle className="h-4 w-4" /> WhatsApp Oficial
@@ -1160,7 +1160,7 @@ export default function ModernStorefrontPage() {
                     {comparatorItems.map(item => (
                       <td key={item.id} className="p-3">
                         <a
-                          href={`https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20comprar%20o%20${encodeURIComponent(item.name)}%20de%20R$%20${item.price}`}
+                          href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20comprar%20o%20${encodeURIComponent(item.name)}%20de%20R$%20${item.price}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-shimmer inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
@@ -1285,7 +1285,7 @@ export default function ModernStorefrontPage() {
                 {/* Buy Button */}
                 <div className="pt-2 flex gap-2">
                   <a
-                    href={`https://wa.me/5511999999999?text=Olá!%20Tenho%20interesse%20no%20${encodeURIComponent(lightboxProduct.name)}%20(${selectedStorage}%20${selectedColor})%20por%20R$%20${lightboxProduct.price}.%20Está%20disponível?`}
+                    href={`https://wa.me/5577999816265?text=Olá!%20Tenho%20interesse%20no%20${encodeURIComponent(lightboxProduct.name)}%20(${selectedStorage}%20${selectedColor})%20por%20R$%20${lightboxProduct.price}.%20Está%20disponível?`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-shimmer flex-1 py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30"
@@ -1448,7 +1448,7 @@ export default function ModernStorefrontPage() {
                   </div>
 
                   <a
-                    href={`https://wa.me/5511999999999?text=Olá!%20Fiz%20uma%20simulação%20no%20site%20para%20${encodeURIComponent(calcBrand)}%20com%20${encodeURIComponent(calcService)}.%20Poderiam%20me%20atender?`}
+                    href={`https://wa.me/5577999816265?text=Olá!%20Fiz%20uma%20simulação%20no%20site%20para%20${encodeURIComponent(calcBrand)}%20com%20${encodeURIComponent(calcService)}.%20Poderiam%20me%20atender?`}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="btn-shimmer w-full py-3 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20"
@@ -1549,7 +1549,7 @@ export default function ModernStorefrontPage() {
               <div className="p-3 rounded-xl bg-white/5 text-xs text-slate-300 flex items-center justify-between">
                 <span>Dúvidas sobre o prazo? Fale com seu atendente:</span>
                 <a
-                  href={`https://wa.me/5511999999999?text=Olá!%20Gostaria%20de%20saber%20o%20status%20da%20minha%20OS%20${osLookupData.number}`}
+                  href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20saber%20o%20status%20da%20minha%20OS%20${osLookupData.number}`}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="font-bold text-emerald-400 hover:underline"
@@ -1620,8 +1620,8 @@ export default function ModernStorefrontPage() {
                 <span>Loja Física</span>
               </div>
               <p className="text-xs text-slate-400 leading-relaxed">
-                Av. Principal, 1234 — Centro Comercial Flavio Celulares.<br />
-                Ponto de fácil acesso com estacionamento para clientes.
+                Rua Da Maçonaria, 464 — Centro — Carinhanha/BA.<br />
+                Ponto de fácil acesso com bancada técnica aberta ao público.
               </p>
               <div className="text-xs text-slate-300 font-semibold">
                 Segunda a Sexta: 08h30 às 18h30<br />
@@ -1638,7 +1638,7 @@ export default function ModernStorefrontPage() {
                 Tire dúvidas com nossa equipe de técnicos por telefone ou envie mensagem direta com fotos do defeito:
               </p>
               <div className="space-y-1 text-xs">
-                <div className="text-white font-mono font-bold">WhatsApp: (11) 99999-9999</div>
+                <div className="text-white font-mono font-bold">WhatsApp: (77) 99981-6265</div>
                 <div className="text-slate-400">E-mail: contato@flaviocelulares.com.br</div>
               </div>
             </div>
@@ -1668,7 +1668,7 @@ export default function ModernStorefrontPage() {
           <div className="flex items-center gap-2">
             <Smartphone className="h-4 w-4 text-indigo-400" />
             <span className="text-slate-400 font-semibold">Flavio Celulares</span>
-            <span>· CNPJ 00.000.000/0001-00 · Todos os direitos reservados © 2026</span>
+            <span>· CNPJ 17.056.311/0001-75 · Todos os direitos reservados © 2026</span>
           </div>
 
           <div className="flex items-center gap-4">
@@ -1688,7 +1688,7 @@ export default function ModernStorefrontPage() {
 
       {/* ── FLOATING WHATSAPP BUTTON ────────────────────────────────────────── */}
       <a
-        href="https://wa.me/5511999999999?text=Olá!%20Estou%20no%20site%20da%20Flavio%20Celulares%20e%20gostaria%20de%20atendimento."
+        href="https://wa.me/5577999816265?text=Olá!%20Estou%20no%20site%20da%20Flavio%20Celulares%20e%20gostaria%20de%20atendimento."
         target="_blank"
         rel="noopener noreferrer"
         className="fixed bottom-6 right-6 z-50 p-4 rounded-full bg-emerald-500 hover:bg-emerald-400 text-white shadow-2xl shadow-emerald-500/50 hover:scale-110 active:scale-95 transition-all group"

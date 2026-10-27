@@ -189,6 +189,12 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
     color: #333;
     margin-top: 1px;
   }
+  .mode-a4 .store-legal-info {
+    font-size: 7.2pt;
+    color: #222;
+    margin-top: 3px;
+    line-height: 1.25;
+  }
   .mode-a4 .os-badge {
     text-align: right;
   }
@@ -445,6 +451,13 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
     letter-spacing: 0.5px;
     text-transform: uppercase;
   }
+  .mode-thermal .store-legal-thermal {
+    font-size: 6.2pt;
+    color: #333;
+    margin: 2px 0 3px 0;
+    line-height: 1.2;
+    text-align: center;
+  }
   .mode-thermal .os-title {
     font-size: 15pt;
     font-weight: 900;
@@ -641,6 +654,10 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
       <div>
         <div class="store-title">Flavio Celulares</div>
         <div class="store-subtitle">Assistência Técnica Especializada · Reparo de Smartphones & Tablets</div>
+        <div class="store-legal-info">
+          <strong>CNPJ:</strong> 17.056.311/0001-75 &nbsp;·&nbsp; <strong>Tel/WhatsApp:</strong> (77) 99981-6265<br>
+          <strong>Endereço:</strong> Rua Da Maçonaria, 464 — Centro — Carinhanha/BA
+        </div>
       </div>
       <div class="os-badge">
         <div class="os-number">OS #${data.osNumber}</div>
@@ -744,6 +761,9 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
       <div class="stamp-card">
         <div class="card-label">CARIMBO DA ASSISTÊNCIA / TÉCNICO</div>
         <div class="stamp-free-space">[ ESPAÇO PARA CARIMBO ]</div>
+        <div style="font-size: 6pt; color: #444; border-top: 1px dashed #ccc; padding-top: 2px;">
+          FLAVIO CELULARES · CNPJ: 17.056.311/0001-75
+        </div>
       </div>
 
       <!-- 2. Assinatura do Técnico -->
@@ -764,7 +784,7 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
     </div>
 
     <div class="footer-note">
-      Flavio Celulares · OS #${data.osNumber} · Documento gerado em ${dateStr} às ${timeStr}
+      Flavio Celulares · CNPJ: 17.056.311/0001-75 · Rua Da Maçonaria, 464 - Centro, Carinhanha/BA · Tel: (77) 99981-6265 · OS #${data.osNumber}
     </div>
   </div>
 
@@ -772,6 +792,11 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
   <div id="layout-thermal" style="display: ${initialFormat === 'thermal' ? 'block' : 'none'};">
     <div class="header-thermal">
       <div class="store-title">Flavio Celulares</div>
+      <div class="store-legal-thermal">
+        <strong>CNPJ:</strong> 17.056.311/0001-75<br>
+        Rua Da Maçonaria, 464 - Carinhanha/BA<br>
+        Tel: (77) 99981-6265
+      </div>
       <h1 class="os-title">OS #${data.osNumber}</h1>
       <div class="datetime">Entrada: ${dateStr} às ${timeStr}</div>
     </div>
@@ -876,7 +901,8 @@ export function printManualChecklist(data: PrintChecklistData, initialFormat: 'a
     </div>
 
     <div class="footer-thermal">
-      Flavio Celulares · OS #${data.osNumber} · ${dateStr}
+      Flavio Celulares · CNPJ: 17.056.311/0001-75<br>
+      Rua Da Maçonaria, 464 - Carinhanha/BA · OS #${data.osNumber} · ${dateStr}
     </div>
   </div>
 
