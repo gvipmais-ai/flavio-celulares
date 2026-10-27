@@ -428,15 +428,17 @@ export async function generateOsEntryReceiptPDF(os: any, settings: StoreSettings
   drawText('TERMO DE RESPONSABILIDADE', 8, true, 'center');
   y -= 5;
   const terms = [
-    '1. Autorizo a abertura e avaliação.',
-    '2. Aparelhos não retirados em 90 dias',
+    '1. Autorizo a abertura e avaliação técnica.',
+    '2. Aparelho desligado, sem senha ou tela',
+    'quebrada: não nos responsabilizamos por',
+    'funções não testadas na entrada (câmera,',
+    'som, Wi-Fi, biometria, operadora/placa).',
+    '3. Aparelhos não retirados em 90 dias',
     'serão vendidos p/ custear o serviço.',
-    '3. A loja não se responsabiliza por',
-    'dados (fotos, contatos). Faça backup!',
-    '4. Garantia válida apenas para a peça',
-    'trocada, não cobre quedas ou água.',
-    '5. Sem este cupom, a retirada só será',
-    'feita pelo titular com documento.'
+    '4. A loja não se responsabiliza por dados',
+    '(fotos, contatos). Faça backup!',
+    '5. Garantia válida apenas para peça trocada.',
+    'Não cobre danos por quedas ou líquidos.'
   ];
   terms.forEach(t => {
     drawText(t, 7, false, 'center');
