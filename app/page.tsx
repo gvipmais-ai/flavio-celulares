@@ -794,18 +794,20 @@ export default function ModernStorefrontPage() {
 
                     <div className="flex items-center justify-between pt-2">
                       <div>
-                        <div className="text-xs text-slate-400 font-medium">Condição Especial:</div>
-                        <div className="text-lg font-black text-emerald-400">
-                          {activeSlideData.price}
+                        <div className="text-xs text-slate-400 font-medium">Disponibilidade:</div>
+                        <div className="text-sm font-black text-emerald-400">
+                          Pronta Entrega na Loja
                         </div>
                       </div>
 
                       <a
-                        href="#aparelhos"
-                        className="btn-shimmer px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 flex items-center gap-1.5 transition-all"
+                        href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20consultar%20o%20preço%20e%20disponibilidade%20do%20${encodeURIComponent(activeSlideData.title)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-shimmer px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5 transition-all"
                       >
-                        <span>{activeSlideData.cta}</span>
-                        <ChevronRight className="h-3.5 w-3.5" />
+                        <MessageCircle className="h-3.5 w-3.5" />
+                        <span>Consultar no WhatsApp</span>
                       </a>
                     </div>
                   </div>
@@ -997,44 +999,51 @@ export default function ModernStorefrontPage() {
                         </span>
                       </div>
 
-                      {/* Price */}
-                      <div className="pt-2 border-t border-white/5">
-                        <div className="text-[11px] text-slate-500 line-through">
-                          R$ {product.originalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                        </div>
-                        <div className="flex items-baseline gap-1">
-                          <span className="text-xl font-black text-white">
-                            R$ {product.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </span>
-                          <span className="text-[10px] text-emerald-400 font-semibold">à vista</span>
+                      {/* Status / WhatsApp Action */}
+                      <div className="pt-2 border-t border-white/5 space-y-1">
+                        <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+                          <Check className="h-3.5 w-3.5" />
+                          <span>Pronta entrega na loja</span>
                         </div>
                         <div className="text-[11px] text-slate-400">
-                          ou 12x de R$ {(product.price * 1.1 / 12).toFixed(2).replace('.', ',')} no cartão
+                          Garantia de bancada · Até 12x no cartão
                         </div>
                       </div>
                     </div>
 
                     {/* Actions */}
-                    <div className="pt-4 mt-3 border-t border-white/5 flex items-center gap-2">
-                      <button
-                        onClick={() => openProductDetails(product)}
-                        className="flex-1 py-2 rounded-xl text-xs font-bold text-white bg-indigo-600 hover:bg-indigo-500 flex items-center justify-center gap-1 transition-colors"
+                    <div className="pt-3 mt-2 border-t border-white/5 flex flex-col gap-2">
+                      <a
+                        href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20consultar%20o%20preço%20e%20a%20disponibilidade%20do%20${encodeURIComponent(product.name)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="btn-shimmer w-full py-2.5 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 flex items-center justify-center gap-1.5 shadow-md shadow-emerald-600/20"
                       >
-                        <Eye className="h-3.5 w-3.5" />
-                        <span>Ficha Técnica</span>
-                      </button>
+                        <MessageCircle className="h-4 w-4" />
+                        <span>Consultar no WhatsApp</span>
+                      </a>
 
-                      <button
-                        onClick={() => toggleCompare(product)}
-                        className={`p-2 rounded-xl border text-xs transition-all ${
-                          isCompared
-                            ? 'bg-purple-600 border-purple-500 text-white'
-                            : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
-                        }`}
-                        title={isCompared ? 'Remover da comparação' : 'Comparar especificações'}
-                      >
-                        <Scale className="h-4 w-4" />
-                      </button>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => openProductDetails(product)}
+                          className="flex-1 py-1.5 rounded-lg text-[11px] font-semibold text-slate-300 bg-white/5 hover:bg-white/10 flex items-center justify-center gap-1 transition-colors"
+                        >
+                          <Eye className="h-3.5 w-3.5" />
+                          <span>Ficha Técnica</span>
+                        </button>
+
+                        <button
+                          onClick={() => toggleCompare(product)}
+                          className={`p-1.5 px-2.5 rounded-lg border text-[11px] font-semibold transition-all ${
+                            isCompared
+                              ? 'bg-purple-600 border-purple-500 text-white'
+                              : 'bg-white/5 border-white/10 text-slate-400 hover:text-white hover:bg-white/10'
+                          }`}
+                          title={isCompared ? 'Remover da comparação' : 'Comparar especificações'}
+                        >
+                          <Scale className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );
@@ -1105,8 +1114,8 @@ export default function ModernStorefrontPage() {
                       <th key={item.id} className="p-3 text-white font-bold text-sm min-w-[200px]">
                         <div className="text-indigo-400 text-xs">{item.brand}</div>
                         <div>{item.name}</div>
-                        <div className="text-emerald-400 font-black text-base mt-1">
-                          R$ {item.price.toLocaleString('pt-BR')}
+                        <div className="text-emerald-400 font-bold text-xs mt-1">
+                          Sob consulta no WhatsApp
                         </div>
                       </th>
                     ))}
@@ -1160,12 +1169,12 @@ export default function ModernStorefrontPage() {
                     {comparatorItems.map(item => (
                       <td key={item.id} className="p-3">
                         <a
-                          href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20comprar%20o%20${encodeURIComponent(item.name)}%20de%20R$%20${item.price}`}
+                          href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20consultar%20o%20preço%20e%20a%20disponibilidade%20do%20${encodeURIComponent(item.name)}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="btn-shimmer inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs"
                         >
-                          <MessageCircle className="h-3.5 w-3.5" /> Comprar no WhatsApp
+                          <MessageCircle className="h-3.5 w-3.5" /> Consultar no WhatsApp
                         </a>
                       </td>
                     ))}
@@ -1222,17 +1231,19 @@ export default function ModernStorefrontPage() {
                   </div>
                 </div>
 
-                {/* Price block */}
-                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-1">
-                  <div className="text-xs text-slate-400 line-through">
-                    De R$ {lightboxProduct.originalPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                {/* Condition & WhatsApp Consult info block */}
+                <div className="p-3.5 rounded-xl bg-white/5 border border-white/10 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs text-slate-400">Valores e Condições:</span>
+                    <span className="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded">
+                      Sob Consulta Direta
+                    </span>
                   </div>
-                  <div className="text-2xl font-black text-white">
-                    R$ {lightboxProduct.price.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}{' '}
-                    <span className="text-xs font-semibold text-emerald-400">à vista no PIX</span>
+                  <div className="text-sm font-bold text-white">
+                    Parcelamos em até 12x no cartão ou com desconto no PIX
                   </div>
-                  <div className="text-xs text-slate-300">
-                    Ou parcelado em até 12x de R$ {(lightboxProduct.price * 1.1 / 12).toFixed(2).replace('.', ',')}
+                  <div className="text-[11px] text-slate-400">
+                    Aparelho 100% testado em bancada, com garantia e nota fiscal.
                   </div>
                 </div>
 
@@ -1285,13 +1296,13 @@ export default function ModernStorefrontPage() {
                 {/* Buy Button */}
                 <div className="pt-2 flex gap-2">
                   <a
-                    href={`https://wa.me/5577999816265?text=Olá!%20Tenho%20interesse%20no%20${encodeURIComponent(lightboxProduct.name)}%20(${selectedStorage}%20${selectedColor})%20por%20R$%20${lightboxProduct.price}.%20Está%20disponível?`}
+                    href={`https://wa.me/5577999816265?text=Olá!%20Gostaria%20de%20consultar%20o%20preço%20e%20a%20disponibilidade%20do%20${encodeURIComponent(lightboxProduct.name)}%20(${selectedStorage}%20${selectedColor}).%20Como%20faço%20para%20adquirir?`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="btn-shimmer flex-1 py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-90 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30"
+                    className="btn-shimmer flex-1 py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-emerald-600 to-teal-600 hover:opacity-95 flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/30"
                   >
                     <MessageCircle className="h-4 w-4" />
-                    <span>Garantir pelo WhatsApp</span>
+                    <span>Consultar Preço no WhatsApp</span>
                   </a>
                 </div>
               </div>
